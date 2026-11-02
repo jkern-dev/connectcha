@@ -50,6 +50,16 @@ final class SignUpFlowUITests: XCTestCase {
         if choosePhoto.waitForExistence(timeout: 10) {
             app.buttons["Skip for now"].tap()
         }
+        // Steps 4 to 7 on a device that has not finished them: decline each.
+        var hops = 0
+        while !tabBar.exists && hops < 8 {
+            if app.buttons["Not now"].waitForExistence(timeout: 4) { app.buttons["Not now"].tap() }
+            else if app.buttons["Skip for now"].exists { app.buttons["Skip for now"].tap() }
+            else if app.buttons["Done"].exists { app.buttons["Done"].tap() }
+            else if app.buttons["Continue"].exists { app.buttons["Continue"].tap() }
+            hops += 1
+            _ = tabBar.waitForExistence(timeout: 3)
+        }
         XCTAssertTrue(tabBar.waitForExistence(timeout: 20), "signed-in users land on the tab bar")
         XCTAssertTrue(app.tabBars.buttons["Home"].exists)
         XCTAssertTrue(app.tabBars.buttons["People"].exists)

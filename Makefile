@@ -70,11 +70,21 @@ ios-build: ios-project ## Build the app for the simulator
 	  -destination 'generic/platform=iOS Simulator' -derivedDataPath $(DERIVED) \
 	  build 2>&1 | xcbeautify --quiet
 
-ios-ui-test: ios-project sims reset ## Reset demo data, then run the iOS UI tests (scenario walkthroughs) on simulator A
+UI_TEST_CLASSES := SignUpFlowUITests OnboardingUITests PeopleUITests FollowingUITests FeedUITests StoriesUITests MessagingUITests NotificationsUITests
+
+ios-ui-test: ios-project sims ## Run the iOS UI scenario tests on simulator A, resetting demo data before each class
 	cd $(IOS_DIR) && xcodebuild -project Connectcha.xcodeproj -scheme Connectcha \
 	  -destination "platform=iOS Simulator,id=$$(./../scripts/sim-id.sh '$(SIM_A_NAME)')" \
-	  -derivedDataPath $(DERIVED) -only-testing:ConnectchaUITests \
-	  test 2>&1 | xcbeautify --quiet
+	  -derivedDataPath $(DERIVED) build-for-testing 2>&1 | xcbeautify --quiet
+	@for c in $(UI_TEST_CLASSES); do \
+	  echo "▶ $$c (fresh demo data)"; \
+	  $(MAKE) --no-print-directory reset >/dev/null; \
+	  psql $(DB_URL) -At -q -c "select tests.create_user('demo_nia','15550000008','Nia','Newcomer');" >/dev/null; \
+	  ( cd $(IOS_DIR) && xcodebuild -project Connectcha.xcodeproj -scheme Connectcha \
+	    -destination "platform=iOS Simulator,id=$$(./../scripts/sim-id.sh '$(SIM_A_NAME)')" \
+	    -derivedDataPath $(DERIVED) -only-testing:ConnectchaUITests/$$c \
+	    test-without-building 2>&1 | xcbeautify --quiet | grep -E "✖|Executed [0-9]+ tests" | head -4 ); \
+	done
 
 ios-test: ios-project sims ## Run the iOS unit tests on simulator A
 	cd $(IOS_DIR) && xcodebuild -project Connectcha.xcodeproj -scheme Connectcha \
