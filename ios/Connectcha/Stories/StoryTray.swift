@@ -84,6 +84,7 @@ nonisolated struct StoryViewerStart: Identifiable, Hashable, Sendable {
 }
 
 private struct TrayItem: View {
+    @Environment(\.dynamicTypeSize) private var typeSize
     let profile: Profile
     let label: String
     let unseen: Bool
@@ -107,8 +108,9 @@ private struct TrayItem: View {
             }
             Text(label)
                 .font(.caption)
-                .lineLimit(1)
-                .frame(width: 76)
+                .lineLimit(2)
+                .multilineTextAlignment(.center)
+                .frame(width: typeSize.isAccessibilitySize ? 120 : 84)
                 .foregroundStyle(unseen || isMine ? .primary : .secondary)
         }
     }

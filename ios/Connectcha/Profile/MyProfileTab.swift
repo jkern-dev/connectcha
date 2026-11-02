@@ -20,7 +20,7 @@ struct MyProfileTab: View {
                                 Text(me.bio).multilineTextAlignment(.center).padding(.horizontal, Spacing.l)
                             }
                         }
-                        HStack(spacing: Spacing.m) {
+                        AdaptiveStack(alignment: .center, spacing: Spacing.m) {
                             NavigationLink(value: ConnectionsRoute.followers) {
                                 CountTile(count: me.followerCount, label: "Followers")
                             }
@@ -32,7 +32,7 @@ struct MyProfileTab: View {
                         .padding(.horizontal, Spacing.m)
                         .accessibilityElement(children: .contain)
 
-                        HStack(spacing: Spacing.s) {
+                        AdaptiveStack(alignment: .center, spacing: Spacing.s) {
                             Button("Edit profile", systemImage: "pencil") { showEdit = true }.buttonStyle(.quietPill)
                             NavigationLink(value: ArchiveRoute()) {
                                 Label("Story archive", systemImage: "clock.arrow.circlepath")
@@ -83,7 +83,7 @@ private struct CountTile: View {
     var body: some View {
         VStack(spacing: 2) {
             Text("\(count)").font(.title2.bold())
-            Text(label).font(.subheadline).foregroundStyle(.secondary)
+            Text(label).font(.subheadline).foregroundStyle(.secondary).lineLimit(1).minimumScaleFactor(0.7)
         }
         .frame(maxWidth: .infinity, minHeight: 64)
         .background(Color.cardBackground, in: RoundedRectangle(cornerRadius: 14, style: .continuous))

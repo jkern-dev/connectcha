@@ -11,3 +11,17 @@ Observed while building, fixed before refinement started:
 - Media URL cache survived sign-out. Now cleared (D-19).
 - Response RPCs return a receipt, not a message; the viewer showed "Something went wrong" after a reaction. Fixed (D-25).
 - Reaction emoji render as a missing-glyph box in the iOS 26.3 simulator used here; bytes are correct (checked in the database) and real phones render them. Left as a known simulator quirk.
+
+## Pass 1 (2026-11-02): largest text, first-run feel
+
+Used both simulators at the default size and at the largest accessibility size (AX5), light and dark.
+
+Changed:
+- At AX5, Approve/Decline, Request/Invite, profile count tiles and action pills now stack vertically instead of hyphenating side by side (`AdaptiveStack`). Post headers put the time and place on their own line. Inbox rows put the time under the name. Story tray labels get two lines and a wider slot.
+- Tapping "Requested" in People used to cancel the request immediately; it now asks first ("Cancel request" / "Keep waiting").
+- Home showed a blank area while the first feed load ran; it now says "Loading your feed…".
+- The app had no icon; a placeholder (terracotta with a white C, dark and tinted variants) replaces the blank tile. The owner should replace it with real artwork (OPEN_QUESTIONS Q1 covers the name).
+
+Observed and left alone:
+- Emoji render as a missing-glyph box in this simulator runtime (bytes are correct; phones render them).
+- Test artifacts ("Pipeline Tester", "Sasha Spare") appear in the data after the test suites run; `make reset` clears them. The demo script always resets first.

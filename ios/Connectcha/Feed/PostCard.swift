@@ -53,15 +53,11 @@ struct PostCard: View {
                     AvatarView(profile: post.author, size: 40)
                     VStack(alignment: .leading, spacing: 1) {
                         Text(post.author.displayName).font(.headline)
-                        HStack(spacing: 4) {
-                            if let when = post.publishedAt { Text(RelativeTime.string(from: when)) }
-                            if let place = post.locationName, !place.isEmpty {
-                                Text("·").accessibilityHidden(true)
-                                Text(place).lineLimit(1)
-                            }
-                        }
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        Text(metaLine)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                 }
             }
@@ -78,6 +74,13 @@ struct PostCard: View {
             }
         }
         .padding(.horizontal, Spacing.m)
+    }
+
+    private var metaLine: String {
+        var parts: [String] = []
+        if let when = post.publishedAt { parts.append(RelativeTime.string(from: when)) }
+        if let place = post.locationName, !place.isEmpty { parts.append(place) }
+        return parts.joined(separator: " · ")
     }
 
     private var mediaAspect: CGFloat {

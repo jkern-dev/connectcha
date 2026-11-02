@@ -137,3 +137,19 @@ struct ScreenHeader: View {
         .accessibilityElement(children: .combine)
     }
 }
+
+/// Side by side when the text fits, stacked when Dynamic Type is large.
+struct AdaptiveStack<Content: View>: View {
+    var alignment: HorizontalAlignment = .leading
+    var spacing: CGFloat = Spacing.s
+    @ViewBuilder var content: () -> Content
+    @Environment(\.dynamicTypeSize) private var typeSize
+
+    var body: some View {
+        if typeSize.isAccessibilitySize {
+            VStack(alignment: alignment, spacing: spacing) { content() }
+        } else {
+            HStack(spacing: spacing) { content() }
+        }
+    }
+}

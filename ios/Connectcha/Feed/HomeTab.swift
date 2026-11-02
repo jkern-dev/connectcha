@@ -17,7 +17,10 @@ struct HomeTab: View {
                     if !tray.groups.isEmpty || appModel.me != nil {
                         StoryTrayView(model: tray)
                     }
-                    if feed.loadedOnce, feed.posts.isEmpty {
+                    if !feed.loadedOnce {
+                        ProgressView("Loading your feed…")
+                            .padding(.top, 60)
+                    } else if feed.posts.isEmpty {
                         EmptyFeedView(people: people)
                     } else {
                         feedList

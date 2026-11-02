@@ -41,6 +41,7 @@ struct InboxTab: View {
 
 struct InboxRow: View {
     let item: InboxItem
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     private var preview: String {
         guard let m = item.lastMessage else { return "" }
@@ -56,15 +57,15 @@ struct InboxRow: View {
         HStack(spacing: Spacing.m) {
             AvatarView(profile: item.other, size: 52)
             VStack(alignment: .leading, spacing: 2) {
-                HStack {
+                AdaptiveStack(spacing: Spacing.s) {
                     Text(item.other.displayName).font(item.unread ? .headline : .body.weight(.medium))
-                    Spacer()
+                    if !typeSize.isAccessibilitySize { Spacer() }
                     Text(RelativeTime.string(from: item.lastMessageAt)).font(.caption).foregroundStyle(.secondary)
                 }
                 Text(preview)
                     .font(.subheadline)
                     .foregroundStyle(item.unread ? .primary : .secondary)
-                    .lineLimit(2)
+                    .lineLimit(typeSize.isAccessibilitySize ? 3 : 2)
                 if !item.canSend {
                     Text("Read only").font(.caption).foregroundStyle(.secondary)
                 }

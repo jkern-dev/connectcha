@@ -169,9 +169,10 @@ struct PersonRow: View {
     let state: PeopleModel.PersonState
     var onRequest: () -> Void
     var onCancel: () -> Void
+    @State private var confirmCancel = false
 
     var body: some View {
-        HStack(spacing: Spacing.m) {
+        AdaptiveStack(alignment: .leading, spacing: Spacing.m) {
             NavigationLink(value: ProfileRoute(userId: person.id, phoneHash: person.hash)) {
                 HStack(spacing: Spacing.m) {
                     AvatarView(profile: person.profile, size: 52)
@@ -181,15 +182,19 @@ struct PersonRow: View {
                             Text("Follows you").font(.subheadline).foregroundStyle(.secondary)
                         }
                     }
+                    Spacer(minLength: 0)
                 }
             }
             .buttonStyle(.plain)
-            Spacer(minLength: 0)
             switch state {
             case .requested:
-                Button("Requested", action: onCancel)
+                Button("Requested") { confirmCancel = true }
                     .buttonStyle(.quietPill)
-                    .accessibilityHint("Tap to cancel your request")
+                    .accessibilityHint("Waiting for approval. Tap to cancel your request.")
+                    .confirmationDialog("Cancel your request to \(person.savedName)?", isPresented: $confirmCancel, titleVisibility: .visible) {
+                        Button("Cancel request", role: .destructive, action: onCancel)
+                        Button("Keep waiting", role: .cancel) {}
+                    }
             case .following:
                 Text("Following").foregroundStyle(.secondary)
             case .none, .followsYou:
@@ -207,13 +212,15 @@ struct InviteRow: View {
     var onInvite: () -> Void
 
     var body: some View {
-        HStack(spacing: Spacing.m) {
-            Circle().fill(Color.subtleBackground)
-                .frame(width: 44, height: 44)
-                .overlay(Image(systemName: "person").foregroundStyle(.secondary))
-                .accessibilityHidden(true)
-            Text(candidate.name).font(.body)
-            Spacer(minLength: 0)
+        AdaptiveStack(alignment: .leading, spacing: Spacing.m) {
+            HStack(spacing: Spacing.m) {
+                Circle().fill(Color.subtleBackground)
+                    .frame(width: 44, height: 44)
+                    .overlay(Image(systemName: "person").foregroundStyle(.secondary))
+                    .accessibilityHidden(true)
+                Text(candidate.name).font(.body)
+                Spacer(minLength: 0)
+            }
             Button("Invite", action: onInvite)
                 .buttonStyle(.quietPill)
                 .accessibilityLabel("Invite \(candidate.name)")
@@ -247,7 +254,7 @@ struct RequestRow: View {
                 }
             }
             .buttonStyle(.plain)
-            HStack(spacing: Spacing.s) {
+            AdaptiveStack(spacing: Spacing.s) {
                 Button("Approve") { Task { busy = true; await people.approve(request); busy = false } }
                     .buttonStyle(.pill)
                 Button("Decline") { Task { busy = true; await people.decline(request); busy = false } }

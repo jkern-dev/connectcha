@@ -144,3 +144,9 @@ Format: context, options with their main tradeoff, what was chosen and why, how 
 - Context: Spec 11 forbids message content in logs; Edge Function logs and APNs payloads are server-visible.
 - Chosen: `send-push` whitelists payload keys (type, ids, actor profile name, a `{name}` body template). Bodies read "Mom sent you a message" / "responded to your post" rather than quoting the message. Likes and story views never queue a push (`060_privacy_surface.sql`, `030_posts.sql`).
 - Reversibility: Easy, but it would need a privacy-policy change.
+
+- **D-30: Layouts stack at accessibility text sizes rather than shrinking text** (2026-11-02, M9)
+- Context: Spec 8.6 and the brief require readability at the largest Dynamic Type sizes for older relatives.
+- Options considered: (a) Cap the text size or use `minimumScaleFactor` widely: keeps layouts tidy but defeats the purpose. (b) Keep full-size text and switch rows from side-by-side to stacked when `dynamicTypeSize.isAccessibilitySize`.
+- Chosen: (b) via a small `AdaptiveStack` helper; `minimumScaleFactor` is used only on the two count-tile labels. Checked by screenshots at AX5 (Home, People, Profile, Inbox).
+- Reversibility: Trivial.

@@ -127,14 +127,14 @@ struct ProfileView: View {
                 VStack(spacing: Spacing.s) {
                     Text("\(page.profile.displayName) wants to follow you.")
                         .font(.body.weight(.medium))
-                    HStack(spacing: Spacing.s) {
+                    AdaptiveStack(alignment: .center, spacing: Spacing.s) {
                         Button("Approve") { Task { await model.approveIncoming(); await appModel.refreshUnread() } }.buttonStyle(.pill)
                         Button("Decline") { Task { await model.declineIncoming(); await appModel.refreshUnread() } }.buttonStyle(.quietPill)
                     }
                 }
             }
             if r.iFollow {
-                HStack(spacing: Spacing.s) {
+                AdaptiveStack(alignment: .center, spacing: Spacing.s) {
                     Button {
                         Task { await model.setBell(!r.bellOn) }
                     } label: {
