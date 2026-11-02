@@ -424,3 +424,23 @@ M2 is the heart of the plan. Build it early and keep its test suite green; every
 | 11 Data and privacy | M2, M9 (support email, links), M10 (privacy log check) |
 | 14 Confirmed defaults | A1 M4; A2 M7; A3 M6; A4 M5; A5 M3; A6 M5, M7, M9; A7 M10 |
 | 15 Scenarios | See acceptance criteria per milestone and section 5 |
+
+---
+
+## Appendix B: Corrections found while building (2026-11-02)
+
+The build followed this plan. Where the plan turned out wrong or incomplete, the change is recorded in `DECISIONS.md` and summarised here so the plan stays truthful.
+
+| Plan section | What the plan said | What was built and why | Decision |
+|---|---|---|---|
+| 3.3 `profiles_minimal` | Readable by any signed-in user; safe because ids are unguessable | A plain `select` would list every user. The view now returns only people the caller holds a relationship with; matched contacts come back from `match_contacts` and the profile RPC accepts a hash as proof. | D-05 |
+| 3.2 `profiles.avatar_key` | A bare object key | `avatar_media_id` pointing at a `media` row with `usage = 'avatar'`, so one upload and one URL path serve everything. | D-06 |
+| 2 Key libraries | PhoneNumberKit | A small US-only normaliser; the product accepts only US numbers and the server refuses the rest. | D-02 |
+| 3.6 Non-US numbers | Enforced by Twilio Geo Permissions | Also enforced by a `before_user_created` Auth hook in Postgres, so it holds locally and regardless of provider, and no user row is created for a refused number. | D-03 |
+| 3.4 `follow_requests` read | Clients read the table with a status filter | No client grant on the table. Two views: `outgoing_requests` (no status column, so declined looks pending, A1) and `incoming_requests` (pending only). | M2 |
+| 3.3 `story_views` | Author only | Viewers also read their own rows, so the tray can mark what they have seen. | M2 |
+| 3.2 Triggers write activity/push | Triggers | The RPCs write `activity` and `push_outbox` directly; one place per rule. The only trigger is the webhook on `push_outbox`. | M2 |
+| 3.5 `send-push` / G1 | The extension runs on the simulator via `simctl push` | iOS simulators do not launch Notification Service Extensions. The bridge script applies the same rewrite from the simulator's App Group file; the extension runs on real phones only. | D-27, D-28 |
+| 5 Privacy log check | Supabase Logs Explorer | Local analytics container disabled for memory; `scripts/privacy-log-check.sh` greps container logs and scans every table instead. | D-08, D-14 |
+| 5 UI tests | Nightly | Run with `make ios-ui-test`, which resets the demo data before each test class because the scenarios change follows and requests. | M9 |
+| 6.1 CI | Xcode Cloud for iOS | GitHub Actions `macos-26` runner until an Apple Developer account exists. | OPEN_QUESTIONS Q4, Q6 |

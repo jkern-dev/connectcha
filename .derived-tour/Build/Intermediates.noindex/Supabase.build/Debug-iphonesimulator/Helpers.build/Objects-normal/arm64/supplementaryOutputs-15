@@ -1,0 +1,23 @@
+{
+  "/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/supabase-swift/Sources/Helpers/APIKeyFormat.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Helpers.build/Objects-normal/arm64/APIKeyFormat.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Helpers.build/Objects-normal/arm64/APIKeyFormat.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Helpers.build/Objects-normal/arm64/APIKeyFormat.dia",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Helpers.build/Objects-normal/arm64/APIKeyFormat.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Helpers.build/Objects-normal/arm64/APIKeyFormat.swiftdeps"
+  },
+  "/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/supabase-swift/Sources/Helpers/AnyJSON/AnyJSON+Codable.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Helpers.build/Objects-normal/arm64/AnyJSON+Codable.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Helpers.build/Objects-normal/arm64/AnyJSON+Codable.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Helpers.build/Objects-normal/arm64/AnyJSON+Codable.dia",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Helpers.build/Objects-normal/arm64/AnyJSON+Codable.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Helpers.build/Objects-normal/arm64/AnyJSON+Codable.swiftdeps"
+  },
+  "/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/supabase-swift/Sources/Helpers/AnyJSON/AnyJSON.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Helpers.build/Objects-normal/arm64/AnyJSON.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Helpers.build/Objects-normal/arm64/AnyJSON.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Helpers.build/Objects-normal/arm64/AnyJSON.dia",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Helpers.build/Objects-normal/arm64/AnyJSON.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Helpers.build/Objects-normal/arm64/AnyJSON.swiftdeps"
+  }
+}

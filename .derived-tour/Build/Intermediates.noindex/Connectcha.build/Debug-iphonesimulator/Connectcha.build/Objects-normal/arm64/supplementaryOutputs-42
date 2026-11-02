@@ -1,0 +1,51 @@
+{
+  "/Users/josh/Projects/connectcha/ios/Connectcha/Media/MediaUploader.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/MediaUploader.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/MediaUploader.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/MediaUploader.dia",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/MediaUploader.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/MediaUploader.swiftdeps"
+  },
+  "/Users/josh/Projects/connectcha/ios/Connectcha/Models/Models.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/Models.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/Models.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/Models.dia",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/Models.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/Models.swiftdeps"
+  },
+  "/Users/josh/Projects/connectcha/ios/Connectcha/Notifications/NotificationManager.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/NotificationManager.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/NotificationManager.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/NotificationManager.dia",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/NotificationManager.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/NotificationManager.swiftdeps"
+  },
+  "/Users/josh/Projects/connectcha/ios/Connectcha/Onboarding/NotificationsStepView.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/NotificationsStepView.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/NotificationsStepView.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/NotificationsStepView.dia",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/NotificationsStepView.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/NotificationsStepView.swiftdeps"
+  },
+  "/Users/josh/Projects/connectcha/ios/Connectcha/Onboarding/OnboardingFlow.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/OnboardingFlow.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/OnboardingFlow.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/OnboardingFlow.dia",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/OnboardingFlow.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/OnboardingFlow.swiftdeps"
+  },
+  "/Users/josh/Projects/connectcha/ios/Connectcha/People/PeopleModel.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/PeopleModel.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/PeopleModel.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/PeopleModel.dia",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/PeopleModel.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/PeopleModel.swiftdeps"
+  },
+  "/Users/josh/Projects/connectcha/ios/Connectcha/Profile/MyProfileTab.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/MyProfileTab.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/MyProfileTab.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/MyProfileTab.dia",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/MyProfileTab.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/Connectcha.build/Objects-normal/arm64/MyProfileTab.swiftdeps"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/supabase-swift/Sources/RealtimeV2/RealtimeChannel+Status.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/RealtimeV2.build/Objects-normal/arm64/RealtimeChannel+Status.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/RealtimeV2.build/Objects-normal/arm64/RealtimeChannel+Status.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/RealtimeV2.build/Objects-normal/arm64/RealtimeChannel+Status.dia",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/RealtimeV2.build/Objects-normal/arm64/RealtimeChannel+Status.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/RealtimeV2.build/Objects-normal/arm64/RealtimeChannel+Status.swiftdeps"
+  },
+  "/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/supabase-swift/Sources/RealtimeV2/RealtimeChannelV2.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/RealtimeV2.build/Objects-normal/arm64/RealtimeChannelV2.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/RealtimeV2.build/Objects-normal/arm64/RealtimeChannelV2.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/RealtimeV2.build/Objects-normal/arm64/RealtimeChannelV2.dia",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/RealtimeV2.build/Objects-normal/arm64/RealtimeChannelV2.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/RealtimeV2.build/Objects-normal/arm64/RealtimeChannelV2.swiftdeps"
+  },
+  "/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/supabase-swift/Sources/RealtimeV2/RealtimeClient+HeartbeatStatus.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/RealtimeV2.build/Objects-normal/arm64/RealtimeClient+HeartbeatStatus.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/RealtimeV2.build/Objects-normal/arm64/RealtimeClient+HeartbeatStatus.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/RealtimeV2.build/Objects-normal/arm64/RealtimeClient+HeartbeatStatus.dia",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/RealtimeV2.build/Objects-normal/arm64/RealtimeClient+HeartbeatStatus.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/RealtimeV2.build/Objects-normal/arm64/RealtimeClient+HeartbeatStatus.swiftdeps"
+  }
+}

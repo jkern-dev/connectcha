@@ -1,0 +1,23 @@
+{
+  "/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/supabase-swift/Sources/Helpers/SharedModels/HTTPError.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Helpers.build/Objects-normal/arm64/HTTPError.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Helpers.build/Objects-normal/arm64/HTTPError.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Helpers.build/Objects-normal/arm64/HTTPError.dia",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Helpers.build/Objects-normal/arm64/HTTPError.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Helpers.build/Objects-normal/arm64/HTTPError.swiftdeps"
+  },
+  "/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/supabase-swift/Sources/Helpers/SharedModels/PostgrestError.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Helpers.build/Objects-normal/arm64/PostgrestError.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Helpers.build/Objects-normal/arm64/PostgrestError.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Helpers.build/Objects-normal/arm64/PostgrestError.dia",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Helpers.build/Objects-normal/arm64/PostgrestError.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Helpers.build/Objects-normal/arm64/PostgrestError.swiftdeps"
+  },
+  "/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/supabase-swift/Sources/Helpers/Task+withTimeout.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Helpers.build/Objects-normal/arm64/Task+withTimeout.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Helpers.build/Objects-normal/arm64/Task+withTimeout.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Helpers.build/Objects-normal/arm64/Task+withTimeout.dia",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Helpers.build/Objects-normal/arm64/Task+withTimeout.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Helpers.build/Objects-normal/arm64/Task+withTimeout.swiftdeps"
+  }
+}

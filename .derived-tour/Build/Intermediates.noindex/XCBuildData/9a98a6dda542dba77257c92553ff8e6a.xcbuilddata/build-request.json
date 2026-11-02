@@ -1,0 +1,77 @@
+{
+  "buildCommand" : {
+    "command" : "build",
+    "skipDependencies" : false,
+    "style" : "buildAndRun"
+  },
+  "configuredTargets" : [
+    {
+      "guid" : "f89bfae6cc8b34b12312afb8eddea3144cd76e471b6ce9642dfcd2f421c112e9"
+    },
+    {
+      "guid" : "f89bfae6cc8b34b12312afb8eddea314c7dd9a6c4bf88047ce5bc4327bb10dcc"
+    },
+    {
+      "guid" : "f89bfae6cc8b34b12312afb8eddea314ae16a1564f486073e609e977087592c5"
+    },
+    {
+      "guid" : "f89bfae6cc8b34b12312afb8eddea314f41a1a8b7fdb47b18115ffd244fecdc2"
+    }
+  ],
+  "containerPath" : "/Users/josh/Projects/connectcha/ios/Connectcha.xcodeproj",
+  "continueBuildingAfterErrors" : false,
+  "dependencyScope" : "workspace",
+  "enableIndexBuildArena" : false,
+  "hideShellScriptEnvironment" : false,
+  "parameters" : {
+    "action" : "build",
+    "activeArchitecture" : "arm64",
+    "activeRunDestination" : {
+      "disableOnlyActiveArch" : false,
+      "platform" : "iphonesimulator",
+      "sdk" : "iphonesimulator26.2",
+      "sdkVariant" : "iphonesimulator",
+      "supportedArchitectures" : [
+        "arm64"
+      ],
+      "targetArchitecture" : "arm64"
+    },
+    "arenaInfo" : {
+      "buildIntermediatesPath" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex",
+      "buildProductsPath" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Products",
+      "derivedDataPath" : "/Users/josh/Projects/connectcha/.derived-tour",
+      "indexDataStoreFolderPath" : "/Users/josh/Projects/connectcha/.derived-tour/Index.noindex/DataStore",
+      "indexEnableDataStore" : true,
+      "indexPCHPath" : "/Users/josh/Projects/connectcha/.derived-tour/Index.noindex/PrecompiledHeaders",
+      "pchPath" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/PrecompiledHeaders"
+    },
+    "configurationName" : "Debug",
+    "overrides" : {
+      "commandLine" : {
+        "table" : {
+
+        }
+      },
+      "synthesized" : {
+        "table" : {
+          "ASSETCATALOG_FILTER_FOR_DEVICE_MODEL" : "iPhone18,3",
+          "ASSETCATALOG_FILTER_FOR_DEVICE_OS_VERSION" : "26.3.1",
+          "ASSETCATALOG_FILTER_FOR_THINNING_DEVICE_CONFIGURATION" : "iPhone18,3",
+          "BUILD_ACTIVE_RESOURCES_ONLY" : "YES",
+          "ENABLE_PREVIEWS" : "NO",
+          "ENABLE_XOJIT_PREVIEWS" : "YES",
+          "TARGET_DEVICE_IDENTIFIER" : "5FD4133E-F464-4CB3-88F8-CCD3FAC587E6",
+          "TARGET_DEVICE_MODEL" : "iPhone18,3",
+          "TARGET_DEVICE_OS_VERSION" : "26.3.1",
+          "TARGET_DEVICE_PLATFORM_NAME" : "iphonesimulator"
+        }
+      }
+    }
+  },
+  "schemeCommand" : "test",
+  "showNonLoggedProgress" : true,
+  "useDryRun" : false,
+  "useImplicitDependencies" : true,
+  "useLegacyBuildLocations" : false,
+  "useParallelTargets" : true
+}

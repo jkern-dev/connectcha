@@ -9,7 +9,7 @@ Milestones M0 to M9 of `IMPLEMENTATION_PLAN.md`, running entirely on this Mac:
 - **Backend (Supabase, local Docker).** The full schema, row-level security on every table, 50 server functions (writes as `SECURITY DEFINER` RPCs, reads as JSON read models), the US-only sign-up hook, the push outbox with a `pg_net` webhook, and four Edge Functions: `create-upload-urls`, `get-media-urls` (presigned S3 URLs, filtered by RLS), `send-push` (settings, tokens, APNs client with a stub mode) and `cleanup-orphans`.
 - **iOS app (Swift 6, SwiftUI, iOS 18+).** Sign-in by fixed-code text numbers; seven-step onboarding in the spec's order; contacts matching with on-device hashing and a match map in the App Group; People tab with per-person requests, invites and the non-US message; follow requests, approvals, follow-back prompt, unfollow, remove follower, private follower and following lists; feed with posts of 1 to 10 photos and videos, likes, poster-only likers, edit and delete, "You're all caught up", empty state; stories with tray, viewer, reactions and replies, text overlay, archive, save to Photos; private responses and conversations with realtime and the read-only state; activity list with grouped likes; notifications with deep links; settings; Dynamic Type up to the largest accessibility size; light and dark mode.
 - **Demo.** `make demo` starts everything and launches two simulators signed in as Josh and Ana, with seven seeded people, photos, videos, stories, conversations and pending requests. A bridge delivers notification banners to the simulators.
-- **Tests.** 193 pgTAP assertions covering every row of plan 3.6; 11 Deno tests; iOS unit and integration tests (phone normalising, matching with a recorded-wire proof that no contact name leaves the device, media and post pipelines, feed marker, story compositing, push rewriting); UI tests for all 17 scenarios plus onboarding and notifications.
+- **Tests.** 193 pgTAP assertions covering every row of plan 3.6; 11 Deno tests; 25 iOS unit and integration tests (phone normalising, matching with a recorded-wire proof that no contact name leaves the device, media and post pipelines, feed marker, story compositing, push rewriting); 18 UI tests in eight classes covering all 17 scenarios plus the full onboarding order and a push banner, run with a data reset before each class (`make ios-ui-test`, about 17 minutes). Both GitHub Actions workflows pass.
 - **Web.** The invite page with iPhone and Android branches, and draft privacy and terms pages.
 
 ## What was not built, and why
@@ -36,7 +36,7 @@ Full list in `DECISIONS.md`. The ones that change what you will see or pay:
 ## Known issues
 
 - Emoji render as a missing-glyph box in the iOS 26.3 simulator runtime on this Mac. The bytes are correct; phones render them.
-- The GitHub macOS runner workflow was failing on the runner's Xcode/simulator pairing; a fix was pushed at the end of the session and should be checked on the next push.
+- The GitHub macOS job takes about 18 minutes and costs 10x minutes on a private repository (OPEN_QUESTIONS Q6).
 - Running the UI suites changes data (follows, requests, conversations); `make reset` or `make demo` restores the demo state. `make ios-ui-test` resets first.
 - The share sheet stands in for Messages on simulators (no Messages app there).
 - Camera is unavailable on simulators; the story creator says so and offers the camera roll.

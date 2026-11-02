@@ -25,3 +25,16 @@ Changed:
 Observed and left alone:
 - Emoji render as a missing-glyph box in this simulator runtime (bytes are correct; phones render them).
 - Test artifacts ("Pipeline Tester", "Sasha Spare") appear in the data after the test suites run; `make reset` clears them. The demo script always resets first.
+
+## Pass 2 (2026-11-02): screen tour
+
+Walked all sixteen main screens as Josh with the screenshot tour (`ScreenshotTourUITests`, `TEST_RUNNER_CONNECTCHA_TOUR=1`): Home, story viewer, likers, Activity, People, another person's profile, Create, New post, New story, Inbox, a conversation, Profile, Followers, Story archive, Edit profile, Settings.
+
+Changed:
+- Message previews said "Responding to Josh Kern's post" inside Josh's own conversation; they now say "your post" / "your story" when the post belongs to the reader.
+
+Observed and left alone:
+- Activity groups likes newest-liker-first ("Priya Nair and 3 others liked your post"); the spec's example order ("Mom and 3 others") is not a rule.
+- Everything else read clearly at the default size; no truncated labels, no overlapping controls, consistent warm palette in light mode (dark mode checked in pass 1).
+
+The pass produced one copy change and nothing structural, which is the stopping point the brief describes.

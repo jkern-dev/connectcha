@@ -83,7 +83,7 @@ ios-ui-test: ios-project sims ## Run the iOS UI scenario tests on simulator A, r
 	  ( cd $(IOS_DIR) && xcodebuild -project Connectcha.xcodeproj -scheme Connectcha \
 	    -destination "platform=iOS Simulator,id=$$(./../scripts/sim-id.sh '$(SIM_A_NAME)')" \
 	    -derivedDataPath $(DERIVED) -only-testing:ConnectchaUITests/$$c \
-	    test-without-building 2>&1 | xcbeautify --quiet | grep -E "✖|Executed [0-9]+ tests" | head -4 ); \
+	    test-without-building 2>&1 | xcbeautify --quiet | grep -E "✖|❌|error:|Executed [0-9]+ tests, with" | awk '!seen[$$0]++' | head -6 ); \
 	done
 
 ios-test: ios-project sims ## Run the iOS unit tests on simulator A

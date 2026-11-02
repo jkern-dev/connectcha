@@ -1,0 +1,59 @@
+{
+  "" : {
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/ConnectchaNSE-primary.dia",
+    "emit-module-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/ConnectchaNSE-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/ConnectchaNSE-primary-emit-module.dia",
+    "pch" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/ConnectchaNSE-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/ConnectchaNSE-primary.swiftdeps"
+  },
+  "/Users/josh/Projects/connectcha/ios/ConnectchaNSE/NotificationService.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/NotificationService.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/NotificationService.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/NotificationService.dia",
+    "index-unit-output-path" : "/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/NotificationService.o",
+    "llvm-bc" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/NotificationService.bc",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/NotificationService.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/NotificationService.swiftdeps",
+    "swiftmodule" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/NotificationService~partial.swiftmodule"
+  },
+  "/Users/josh/Projects/connectcha/ios/Shared/MatchMap.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/MatchMap.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/MatchMap.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/MatchMap.dia",
+    "index-unit-output-path" : "/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/MatchMap.o",
+    "llvm-bc" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/MatchMap.bc",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/MatchMap.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/MatchMap.swiftdeps",
+    "swiftmodule" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/MatchMap~partial.swiftmodule"
+  },
+  "/Users/josh/Projects/connectcha/ios/Shared/PhoneHasher.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/PhoneHasher.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/PhoneHasher.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/PhoneHasher.dia",
+    "index-unit-output-path" : "/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/PhoneHasher.o",
+    "llvm-bc" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/PhoneHasher.bc",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/PhoneHasher.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/PhoneHasher.swiftdeps",
+    "swiftmodule" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/PhoneHasher~partial.swiftmodule"
+  },
+  "/Users/josh/Projects/connectcha/ios/Shared/PhoneNormalizer.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/PhoneNormalizer.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/PhoneNormalizer.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/PhoneNormalizer.dia",
+    "index-unit-output-path" : "/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/PhoneNormalizer.o",
+    "llvm-bc" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/PhoneNormalizer.bc",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/PhoneNormalizer.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/PhoneNormalizer.swiftdeps",
+    "swiftmodule" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/PhoneNormalizer~partial.swiftmodule"
+  },
+  "/Users/josh/Projects/connectcha/ios/Shared/PushPayload.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/PushPayload.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/PushPayload.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/PushPayload.dia",
+    "index-unit-output-path" : "/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/PushPayload.o",
+    "llvm-bc" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/PushPayload.bc",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/PushPayload.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/PushPayload.swiftdeps",
+    "swiftmodule" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Connectcha.build/Debug-iphonesimulator/ConnectchaNSE.build/Objects-normal/arm64/PushPayload~partial.swiftmodule"
+  }
+}

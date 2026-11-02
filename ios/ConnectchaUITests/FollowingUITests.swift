@@ -70,10 +70,10 @@ final class FollowingUITests: XCTestCase {
         app.tabBars.buttons["People"].tap()
     }
 
-    /// S1, S2, S16 as a new user (Nia, +1 555 000 0009) who has Josh in her contacts.
+    /// S1, S2, S16 as a new user (Nia, +1 555 000 0008) who has Josh in her contacts.
     @MainActor
     func testMinimalProfileHiddenCountsAndNoStrangers() throws {
-        let app = launch(as: "15550000009")
+        let app = launch(as: "15550000008")
 
         // S1: Ben is not in Nia's contacts and must not appear anywhere.
         XCTAssertTrue(app.navigationBars["People"].waitForExistence(timeout: 30))

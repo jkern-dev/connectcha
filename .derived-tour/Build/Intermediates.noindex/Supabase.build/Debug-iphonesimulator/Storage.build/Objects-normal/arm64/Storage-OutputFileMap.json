@@ -1,0 +1,159 @@
+{
+  "" : {
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Storage-primary.dia",
+    "emit-module-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Storage-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Storage-primary-emit-module.dia",
+    "pch" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Storage-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Storage-primary.swiftdeps"
+  },
+  "/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/supabase-swift/Sources/Storage/Codable.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Codable.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Codable.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Codable.dia",
+    "index-unit-output-path" : "/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Codable.o",
+    "llvm-bc" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Codable.bc",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Codable.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Codable.swiftdeps",
+    "swiftmodule" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Codable~partial.swiftmodule"
+  },
+  "/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/supabase-swift/Sources/Storage/Deprecated.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Deprecated.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Deprecated.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Deprecated.dia",
+    "index-unit-output-path" : "/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Deprecated.o",
+    "llvm-bc" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Deprecated.bc",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Deprecated.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Deprecated.swiftdeps",
+    "swiftmodule" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Deprecated~partial.swiftmodule"
+  },
+  "/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/supabase-swift/Sources/Storage/Exports.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Exports.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Exports.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Exports.dia",
+    "index-unit-output-path" : "/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Exports.o",
+    "llvm-bc" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Exports.bc",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Exports.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Exports.swiftdeps",
+    "swiftmodule" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Exports~partial.swiftmodule"
+  },
+  "/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/supabase-swift/Sources/Storage/Helpers.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Helpers.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Helpers.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Helpers.dia",
+    "index-unit-output-path" : "/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Helpers.o",
+    "llvm-bc" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Helpers.bc",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Helpers.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Helpers.swiftdeps",
+    "swiftmodule" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Helpers~partial.swiftmodule"
+  },
+  "/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/supabase-swift/Sources/Storage/MultipartFormData.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/MultipartFormData.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/MultipartFormData.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/MultipartFormData.dia",
+    "index-unit-output-path" : "/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/MultipartFormData.o",
+    "llvm-bc" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/MultipartFormData.bc",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/MultipartFormData.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/MultipartFormData.swiftdeps",
+    "swiftmodule" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/MultipartFormData~partial.swiftmodule"
+  },
+  "/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/supabase-swift/Sources/Storage/StorageApi.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageApi.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageApi.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageApi.dia",
+    "index-unit-output-path" : "/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageApi.o",
+    "llvm-bc" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageApi.bc",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageApi.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageApi.swiftdeps",
+    "swiftmodule" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageApi~partial.swiftmodule"
+  },
+  "/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/supabase-swift/Sources/Storage/StorageBucketApi.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageBucketApi.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageBucketApi.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageBucketApi.dia",
+    "index-unit-output-path" : "/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageBucketApi.o",
+    "llvm-bc" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageBucketApi.bc",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageBucketApi.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageBucketApi.swiftdeps",
+    "swiftmodule" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageBucketApi~partial.swiftmodule"
+  },
+  "/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/supabase-swift/Sources/Storage/StorageError.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageError.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageError.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageError.dia",
+    "index-unit-output-path" : "/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageError.o",
+    "llvm-bc" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageError.bc",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageError.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageError.swiftdeps",
+    "swiftmodule" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageError~partial.swiftmodule"
+  },
+  "/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/supabase-swift/Sources/Storage/StorageFileApi.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageFileApi.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageFileApi.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageFileApi.dia",
+    "index-unit-output-path" : "/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageFileApi.o",
+    "llvm-bc" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageFileApi.bc",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageFileApi.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageFileApi.swiftdeps",
+    "swiftmodule" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageFileApi~partial.swiftmodule"
+  },
+  "/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/supabase-swift/Sources/Storage/StorageHTTPClient.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageHTTPClient.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageHTTPClient.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageHTTPClient.dia",
+    "index-unit-output-path" : "/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageHTTPClient.o",
+    "llvm-bc" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageHTTPClient.bc",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageHTTPClient.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageHTTPClient.swiftdeps",
+    "swiftmodule" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageHTTPClient~partial.swiftmodule"
+  },
+  "/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/supabase-swift/Sources/Storage/StorageVectorsClient.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageVectorsClient.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageVectorsClient.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageVectorsClient.dia",
+    "index-unit-output-path" : "/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageVectorsClient.o",
+    "llvm-bc" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageVectorsClient.bc",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageVectorsClient.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageVectorsClient.swiftdeps",
+    "swiftmodule" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/StorageVectorsClient~partial.swiftmodule"
+  },
+  "/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/supabase-swift/Sources/Storage/SupabaseStorage.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/SupabaseStorage.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/SupabaseStorage.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/SupabaseStorage.dia",
+    "index-unit-output-path" : "/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/SupabaseStorage.o",
+    "llvm-bc" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/SupabaseStorage.bc",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/SupabaseStorage.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/SupabaseStorage.swiftdeps",
+    "swiftmodule" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/SupabaseStorage~partial.swiftmodule"
+  },
+  "/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/supabase-swift/Sources/Storage/Types.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Types.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Types.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Types.dia",
+    "index-unit-output-path" : "/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Types.o",
+    "llvm-bc" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Types.bc",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Types.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Types.swiftdeps",
+    "swiftmodule" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/Types~partial.swiftmodule"
+  },
+  "/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/supabase-swift/Sources/Storage/VectorBucketClient.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/VectorBucketClient.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/VectorBucketClient.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/VectorBucketClient.dia",
+    "index-unit-output-path" : "/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/VectorBucketClient.o",
+    "llvm-bc" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/VectorBucketClient.bc",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/VectorBucketClient.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/VectorBucketClient.swiftdeps",
+    "swiftmodule" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/VectorBucketClient~partial.swiftmodule"
+  },
+  "/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/supabase-swift/Sources/Storage/VectorIndexClient.swift" : {
+    "const-values" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/VectorIndexClient.swiftconstvalues",
+    "dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/VectorIndexClient.d",
+    "diagnostics" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/VectorIndexClient.dia",
+    "index-unit-output-path" : "/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/VectorIndexClient.o",
+    "llvm-bc" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/VectorIndexClient.bc",
+    "object" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/VectorIndexClient.o",
+    "swift-dependencies" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/VectorIndexClient.swiftdeps",
+    "swiftmodule" : "/Users/josh/Projects/connectcha/.derived-tour/Build/Intermediates.noindex/Supabase.build/Debug-iphonesimulator/Storage.build/Objects-normal/arm64/VectorIndexClient~partial.swiftmodule"
+  }
+}

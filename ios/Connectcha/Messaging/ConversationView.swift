@@ -53,7 +53,7 @@ struct ConversationView: View {
                 ScrollView {
                     LazyVStack(spacing: Spacing.s) {
                         ForEach(model.messages) { message in
-                            MessageBubble(message: message, isMine: message.senderId == appModel.userId, other: model.page?.other)
+                            MessageBubble(message: message, isMine: message.senderId == appModel.userId, other: model.page?.other, currentUserId: appModel.userId)
                                 .id(message.id)
                         }
                     }
@@ -116,6 +116,12 @@ struct MessageBubble: View {
     let message: Message
     let isMine: Bool
     let other: Profile?
+    var currentUserId: UUID? = nil
+
+    /// "your post" when the post or story is the reader's own.
+    private func owner(_ author: Profile) -> String {
+        author.id == currentUserId ? "your" : "\(author.displayName)'s"
+    }
 
     var body: some View {
         VStack(alignment: isMine ? .trailing : .leading, spacing: 4) {
@@ -140,7 +146,7 @@ struct MessageBubble: View {
         case .postResponse:
             if let post = message.post {
                 NavigationLink(value: PostRoute(postId: post.id)) {
-                    PreviewCard(title: "Responding to \(post.author.displayName)'s post", mediaId: post.cover?.id)
+                    PreviewCard(title: "Responding to \(owner(post.author)) post", mediaId: post.cover?.id)
                 }
                 .buttonStyle(.plain)
             } else {
@@ -148,7 +154,7 @@ struct MessageBubble: View {
             }
         case .storyResponse, .storyReaction:
             if let story = message.story {
-                PreviewCard(title: "\(message.kind == .storyReaction ? "Reacted to" : "Replying to") \(story.author.displayName)'s story", mediaId: story.media.id)
+                PreviewCard(title: "\(message.kind == .storyReaction ? "Reacted to" : "Replying to") \(owner(story.author)) story", mediaId: story.media.id)
             } else {
                 PreviewCard(title: "Story no longer available", mediaId: nil)
             }

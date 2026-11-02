@@ -1,0 +1,22 @@
+/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/xctest-dynamic-overlay/Sources/IssueReporting/ErrorReporting.swift
+/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/xctest-dynamic-overlay/Sources/IssueReporting/Internal/AppHostWarning.swift
+/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/xctest-dynamic-overlay/Sources/IssueReporting/Internal/Deprecations.swift
+/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/xctest-dynamic-overlay/Sources/IssueReporting/Internal/FailureObserver.swift
+/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/xctest-dynamic-overlay/Sources/IssueReporting/Internal/LockIsolated.swift
+/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/xctest-dynamic-overlay/Sources/IssueReporting/Internal/Rethrows.swift
+/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/xctest-dynamic-overlay/Sources/IssueReporting/Internal/SwiftTesting.swift
+/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/xctest-dynamic-overlay/Sources/IssueReporting/Internal/UncheckedSendable.swift
+/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/xctest-dynamic-overlay/Sources/IssueReporting/Internal/Warn.swift
+/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/xctest-dynamic-overlay/Sources/IssueReporting/Internal/XCTest.swift
+/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/xctest-dynamic-overlay/Sources/IssueReporting/IsTesting.swift
+/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/xctest-dynamic-overlay/Sources/IssueReporting/IssueReporter.swift
+/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/xctest-dynamic-overlay/Sources/IssueReporting/IssueReporters/BreakpointReporter.swift
+/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/xctest-dynamic-overlay/Sources/IssueReporting/IssueReporters/DefaultReporter.swift
+/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/xctest-dynamic-overlay/Sources/IssueReporting/IssueReporters/FatalErrorReporter.swift
+/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/xctest-dynamic-overlay/Sources/IssueReporting/IssueSeverity.swift
+/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/xctest-dynamic-overlay/Sources/IssueReporting/ReportIssue.swift
+/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/xctest-dynamic-overlay/Sources/IssueReporting/Symbolic\ Links/IssueReportingPackageSupport/_Test.swift
+/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/xctest-dynamic-overlay/Sources/IssueReporting/TestContext.swift
+/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/xctest-dynamic-overlay/Sources/IssueReporting/Unimplemented.swift
+/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/xctest-dynamic-overlay/Sources/IssueReporting/WithExpectedIssue.swift
+/Users/josh/Projects/connectcha/.derived-tour/SourcePackages/checkouts/xctest-dynamic-overlay/Sources/IssueReporting/WithIssueContext.swift
