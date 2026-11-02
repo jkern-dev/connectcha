@@ -61,7 +61,9 @@ Numbers match spec section 15. A = Josh's simulator, B = Ana's unless stated.
 
 ### Notifications (spec 10)
 
-With the bridge running, each simulator gets real banners. Try: on B as Mom, respond to Josh's post → A shows **"Mom responded to your post"** (the server only knew "Linda Kern"; the extension swapped the saved name on the phone). Tap the banner: it opens the conversation. Likes never notify. The bell on a profile (Profile › person › **Notify me**) turns on "shared a new post" banners for that person only.
+With the bridge running, each simulator gets real banners. Try: on B as Mom, respond to Josh's post → A shows **"Mom responded to your post"** (the server only knew "Linda Kern"; the saved name is swapped in on the phone, from the match map in the App Group container). Tap the banner: it opens the conversation. Likes never notify. The bell on a profile (Profile › person › **Notify me**) turns on "shared a new post" banners for that person only.
+
+Simulator note: iOS simulators don't run Notification Service Extensions, so `scripts/push-bridge.sh` performs the same name swap the extension does on a real phone (DECISIONS D-27). If a simulator never got the permission prompt answered, `scripts/demo.sh allow A` (or `B`) answers it.
 
 ### Making things
 

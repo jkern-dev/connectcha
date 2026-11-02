@@ -11,6 +11,7 @@
 # `scripts/demo.sh stop` shuts the simulators, the web server and the bridge down.
 # `scripts/demo.sh as <sim A|B> <persona>` relaunches a simulator as another person,
 #   e.g. `scripts/demo.sh as B ben`.
+# `scripts/demo.sh allow <A|B>` answers the notification permission prompt for you.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 ROOT=$(pwd)
@@ -62,8 +63,17 @@ case "${1:-start}" in
     sim="${1:-}"; persona="${2:-}"
     [[ -z "$sim" || -z "$persona" ]] && { echo "usage: scripts/demo.sh as <A|B> <persona>"; exit 1; }
     launch_as "Connectcha $sim" "$persona"; exit 0 ;;
+  allow)
+    # Answer the notification permission prompt on a simulator with a tiny UI test.
+    shift
+    sim="${1:-A}"
+    udid=$(sim_id "Connectcha $sim")
+    ( cd ios && TEST_RUNNER_CONNECTCHA_HELPER=allow xcodebuild -project Connectcha.xcodeproj -scheme Connectcha \
+        -destination "platform=iOS Simulator,id=$udid" -derivedDataPath "$ROOT/.derived" \
+        -only-testing:ConnectchaUITests/DemoHelperUITests test 2>&1 | xcbeautify --quiet | grep -E "Executed|error" | head -2 )
+    exit 0 ;;
   start) ;;
-  *) echo "usage: scripts/demo.sh [start|stop|as <A|B> <persona>]"; exit 1 ;;
+  *) echo "usage: scripts/demo.sh [start|stop|as <A|B> <persona>|allow <A|B>]"; exit 1 ;;
 esac
 
 echo "▶ 1/7 Starting the local Supabase stack"

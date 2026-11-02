@@ -4,8 +4,10 @@ A photo and video sharing app for friends and family where people can only find 
 
 - `PRODUCT_SPEC.md` says what it does.
 - `IMPLEMENTATION_PLAN.md` says how it is built.
-- `DEMO.md` walks through the prototype on two simulators.
-- `DECISIONS.md`, `OPEN_QUESTIONS.md`, `TEST_SCENARIOS.md`, `REFINEMENT_LOG.md`, `OPERATIONS.md` record the build.
+- `DEMO.md` walks through the prototype on two simulators (`make demo`).
+- `TEST_SCENARIOS.md` says how each of the 17 scenarios was checked.
+- `DECISIONS.md` records every choice the spec and plan left open; `OPEN_QUESTIONS.md` lists the ones only the owner can settle.
+- `OPERATIONS.md` is the runbook (what exists, hosted setup, what M10 adds); `REFINEMENT_LOG.md` records the polish passes.
 
 ## Layout
 
@@ -50,8 +52,10 @@ Everything runs locally. No hosted accounts are needed.
 | `make reset` | Rebuild the database from migrations and seeds, re-upload demo media |
 | `make test-db` | Run the pgTAP access-rule suite in `supabase/tests` |
 | `make test-functions` | Run the Edge Function tests |
-| `make ios-test` | Run the iOS unit tests on the "Connectcha A" simulator |
-| `make test` | All of the above |
+| `make ios-test` | Run the iOS unit and integration tests on the "Connectcha A" simulator (stack must be up) |
+| `make ios-ui-test` | Reset demo data, then run the scenario UI tests (about 15 minutes) |
+| `make test` | DB, function and iOS unit tests |
+| `make privacy-check` | Prove a submitted contact hash reaches no log or table |
 | `make ios-project` | Regenerate `ios/Connectcha.xcodeproj` from `ios/project.yml` |
 | `make demo` | Start everything and launch two signed-in simulators |
 | `supabase status` | Show local URLs and keys; Studio is at <http://127.0.0.1:54323> |

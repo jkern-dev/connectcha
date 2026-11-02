@@ -130,8 +130,9 @@ Format: context, options with their main tradeoff, what was chosen and why, how 
 
 - **D-27: Push notifications verified on simulators through a stub and `simctl push`** (2026-11-02, M8)
 - Context: Real APNs needs the Apple Developer account (OPEN_QUESTIONS Q4). The brief asks for the full server and client path, verified with stubs and local notifications.
-- Options considered: (a) Stop at the outbox table and trust the rest. (b) Build everything: outbox → `pg_net` webhook → `send-push` Edge Function → APNs client (`apns.ts`, ES256 provider token), with `APNS_MODE=stub` recording each would-be delivery in `push_deliveries`. A bridge script hands stub deliveries to `xcrun simctl push`, which runs the real Notification Service Extension on the simulator; the app registers `sim:<UDID>` as its token in debug builds.
+- Options considered: (a) Stop at the outbox table and trust the rest. (b) Build everything: outbox → `pg_net` webhook → `send-push` Edge Function → APNs client (`apns.ts`, ES256 provider token), with `APNS_MODE=stub` recording each would-be delivery in `push_deliveries`. A bridge script hands stub deliveries to `xcrun simctl push`; the app registers `sim:<UDID>` as its token in debug builds.
 - Chosen: (b). Switching to real delivery is `APNS_MODE=apns` plus the key, team and bundle ids in the function's secrets; no code changes.
+- Caveat found while verifying: the iOS Simulator does not launch Notification Service Extensions for `simctl push` (the plugin is installed and the payload carries `mutable-content: 1`, but no extension process ever starts). So the bridge applies the extension's rewrite itself, reading the same `match-map.json` from the simulator's App Group container. The extension's logic is covered by `PushPayloadTests`; running it for real needs a physical iPhone and the Apple Developer account.
 - Reversibility: n/a; the stub is an environment setting.
 
 - **D-28: UI tests observe pushes through an in-app poller** (2026-11-02, M8)
