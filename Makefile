@@ -21,7 +21,7 @@ SIM_RUNTIME := com.apple.CoreSimulator.SimRuntime.iOS-26-3
 DB_URL := postgresql://postgres:postgres@127.0.0.1:54322/postgres
 
 .PHONY: help up down reset status test-db test-functions test ios-project ios-config ios-build ios-test ios-ui-test \
-        sims sim-a sim-b demo demo-stop seed-media logs
+        sims sim-a sim-b demo demo-stop seed-media logs push-bridge privacy-check
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -89,8 +89,14 @@ sims: ## Create the two demo simulators if they don't exist
 	@./scripts/ensure-sim.sh '$(SIM_A_NAME)' 'iPhone 17 Pro' '$(SIM_RUNTIME)'
 	@./scripts/ensure-sim.sh '$(SIM_B_NAME)' 'iPhone 17' '$(SIM_RUNTIME)'
 
-demo: ## Start everything: stack, reset+seed, build, two simulators signed-in ready
+demo: ## Start everything: stack, reset+seed, build, two simulators signed in (A=Josh, B=Ana), web page, push bridge
 	./scripts/demo.sh
 
-demo-stop: ## Shut down simulators and the push bridge (leaves the stack running)
+demo-stop: ## Shut down simulators, web page and push bridge (leaves the stack running)
 	./scripts/demo.sh stop
+
+push-bridge: ## Deliver stubbed pushes to the simulators (runs until Ctrl-C)
+	./scripts/push-bridge.sh
+
+privacy-check: ## Prove a submitted contact hash appears in no server log or table
+	./scripts/privacy-log-check.sh

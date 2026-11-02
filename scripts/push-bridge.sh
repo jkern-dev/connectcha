@@ -27,11 +27,9 @@ deliver_once() {
       echo "simulator ${udid:0:8}… not booted; push $id marked delivered anyway" >&2
     fi
     ids+=("$id")
-  done < <(printf '%s' "$rows" | python3 -c '
-import sys,json
+  done < <(printf '%s' "$rows" | python3 -c 'import sys, json
 for d in json.load(sys.stdin):
-    print(f"{d[\"id\"]}\t{d[\"token\"]}\t{json.dumps(d[\"payload\"])}")
-')
+    print("%s\t%s\t%s" % (d["id"], d["token"], json.dumps(d["payload"])))')
   if ((${#ids[@]})); then
     local list; list=$(IFS=,; echo "${ids[*]}")
     psql "$DB_URL" -q -c "select public.push_mark_delivered(array[$list]::bigint[])" >/dev/null
