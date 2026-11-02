@@ -41,6 +41,8 @@ Full list in `DECISIONS.md`. The ones that change what you will see or pay:
 - The share sheet stands in for Messages on simulators (no Messages app there).
 - Camera is unavailable on simulators; the story creator says so and offers the camera roll.
 
+- Commit `df36598` accidentally included a build folder (`.derived-tour`, about 170 MB) and was pushed before I caught it; the next commit untracks it, but it remains in history. Rewriting history (a force-push) needs your say-so; `git filter-repo --path .derived-tour --invert-paths` would remove it.
+
 ## Recommended first steps next session
 
 1. Run `make demo` and walk `DEMO.md` end to end; note anything confusing in `REFINEMENT_LOG.md`.
