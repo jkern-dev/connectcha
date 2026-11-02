@@ -39,6 +39,10 @@ final class API {
                     let c = URLSessionConfiguration.default
                     c.timeoutIntervalForRequest = 30
                     c.waitsForConnectivity = true
+                    #if DEBUG
+                    // Inert unless a test activates it (RecordingURLProtocol).
+                    c.protocolClasses = [RecordingURLProtocol.self] + (c.protocolClasses ?? [])
+                    #endif
                     return c
                 }()))
             )

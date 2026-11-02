@@ -38,7 +38,8 @@ select is(jsonb_array_length(public.get_conversation((public.get_inbox() -> 0 ->
 
 -- Non-participants cannot send or read.
 select tests.clear_auth();
-create temporary table t_conv as select id from public.conversations limit 1;
+create temporary table t_conv as select id from public.conversations
+  where user_a = least(tests.user_id('ana'), tests.user_id('ben')) and user_b = greatest(tests.user_id('ana'), tests.user_id('ben'));
 grant select on t_conv to authenticated;
 select tests.authenticate_as('dave');
 select throws_ok(

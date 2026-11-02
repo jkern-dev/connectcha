@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Connectcha privacy policy (draft)</title>
+  <style>
+    body { margin: 0; font: 18px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #fdf8f3; color: #1d1a17; }
+    @media (prefers-color-scheme: dark) { body { background: #171513; color: #f4efe9; } }
+    main { max-width: 640px; margin: 0 auto; padding: 32px 20px 64px; }
+    h1 { font-size: 2rem; } h2 { margin-top: 1.6em; }
+    .note { background: rgba(209,107,46,.12); border-radius: 12px; padding: 12px 16px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Privacy policy</h1>
+  <p class="note"><strong>Draft.</strong> Written in plain language from the product spec and implementation plan. It has not been reviewed by a lawyer (see OPEN_QUESTIONS Q3).</p>
+
+  <h2>What Connectcha is</h2>
+  <p>Connectcha is a private photo and video sharing app for friends and family. There is no public content, no search, no advertising and no selling of data.</p>
+
+  <h2>Your phone number is your account</h2>
+  <p>You sign in with a text-message code. Your phone number identifies your account and is stored by our sign-in provider. Other people never see your number in the app.</p>
+
+  <h2>How contacts are used</h2>
+  <ul>
+    <li>With your permission, the app reads the phone numbers in your contacts to find people who are already on Connectcha.</li>
+    <li>Each number is scrambled on your phone (a one-way hash) before it is sent. The server compares the scrambled numbers to those of existing users and answers with matches.</li>
+    <li>The names you have saved for your contacts stay on your phone. They are never sent to us.</li>
+    <li>Numbers of people who are not on Connectcha are not kept. We do not store your address book.</li>
+    <li>Nobody can find you unless your number is already saved in their phone, and nobody sees your posts unless you approve them.</li>
+  </ul>
+
+  <h2>Messages</h2>
+  <p>Messages, including responses to posts and stories, are encrypted in transit and on the server, but they are not end-to-end encrypted. That means the people who operate the service could technically access them. They do not read them in normal operation.</p>
+
+  <h2>What we keep and for how long</h2>
+  <p>Posts, stories and messages are kept until you delete them. Expired stories remain in your private archive. To delete your account, email the support address below and it will be handled by hand.</p>
+
+  <h2>Crash and error reports</h2>
+  <p>Apple collects crash reports when you have allowed it in your iPhone settings. Our server keeps error logs needed to keep the service running. Logs never include your posts, messages, contact names or phone numbers.</p>
+
+  <h2>No tracking</h2>
+  <p>There are no analytics or advertising trackers in the app.</p>
+
+  <h2>Contact</h2>
+  <p>Questions and deletion requests: <a href="mailto:support@connectcha.example">support@connectcha.example</a></p>
+</main>
+</body>
+</html>

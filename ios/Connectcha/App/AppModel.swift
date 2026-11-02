@@ -33,6 +33,16 @@ final class AppModel {
             #if DEBUG
             if CommandLine.arguments.contains("-reset-session") {
                 try? await API.shared.client.auth.signOut()
+                ContactSync.shared.signedOut()
+                UserDefaults.standard.removeObject(forKey: "demo.seededForPhone")
+            }
+            // Demo convenience: CONNECTCHA_AUTO_SIGNIN=15550000001 signs in with
+            // the fixed-code test number when nobody is signed in (DEBUG only).
+            if let phone = ProcessInfo.processInfo.environment["CONNECTCHA_AUTO_SIGNIN"], !phone.isEmpty,
+               API.shared.client.auth.currentSession == nil {
+                let e164 = phone.hasPrefix("+") ? phone : "+" + phone
+                try? await API.shared.client.auth.signInWithOTP(phone: e164)
+                try? await API.shared.client.auth.verifyOTP(phone: e164, token: "123456", type: .sms)
             }
             #endif
             for await (event, session) in API.shared.client.auth.authStateChanges {
@@ -59,6 +69,13 @@ final class AppModel {
         do {
             let me: Me = try await API.shared.rpc("get_me")
             self.me = me
+            ContactSync.shared.prepare(for: me.id)
+            #if DEBUG
+            // Demo personas arrive fully set up; skip the per-device steps.
+            if me.onboarded, ProcessInfo.processInfo.environment["CONNECTCHA_AUTO_SIGNIN"] != nil {
+                OnboardingProgress.markComplete(for: me.id)
+            }
+            #endif
             if !me.onboarded || !OnboardingProgress.isComplete(for: me.id) {
                 phase = .onboarding
             } else {
@@ -98,6 +115,7 @@ final class AppModel {
 
     func signOut() async {
         try? await API.shared.client.auth.signOut()
+        ContactSync.shared.signedOut()
         me = nil
         phase = .signedOut
     }

@@ -10,9 +10,9 @@ How each scenario was checked. "Automated" names the test; "Simulator" means it 
 | S4 | Follow-back limit after unfollow | ☐ | `020_following.sql`: after unfollow the follow-back request is refused; with the number it works | |
 | S5 | Removed follower loses access immediately, isn't notified | ☐ | `020_following.sql`, `030_posts.sql`: removed follower sees nothing, gets no activity and no push | |
 | S6 | Deleted contact: follow continues, name changes to profile name | ☐ | (client behaviour; no server rule) | |
-| S7 | Names: saved name everywhere, never sent to the server | ☐ | (client test in M3) | |
-| S8 | Non-users: numbers not kept; Invite opens Messages | ☐ | `060_privacy_surface.sql`: an unknown hash is found in no table of public, auth or storage after matching | |
-| S9 | Non-US invite shows country-code message, no text | ☐ | (client behaviour; M3) | |
+| S7 | Names: saved name everywhere, never sent to the server | ☑ | `ContactMatcherTests.noNamesOnTheWire` records every request during a matching run over a fixture address book: no saved name or raw number appears in any URL, header or body; bodies are 64-char hex hashes only. `DisplayNamesTests` cover saved-name-first resolution. | `PeopleUITests.testSavedNamesAndNonUSInvite`: Dad's request shows "Dad" and "In your contacts", never "Robert Kern". Simulator screenshot 2026-11-02. |
+| S8 | Non-users: numbers not kept; Invite opens Messages | ☑ | `060_privacy_surface.sql`: an unknown hash is found in no table after matching; `scripts/privacy-log-check.sh`: marker hash absent from every container log and table (PASS 2026-11-02). | Invite opens Messages on a phone; on the simulator a share sheet with the same text (D-12). Checked on simulator 2026-11-02. |
+| S9 | Non-US invite shows country-code message, no text | ☑ | `ContactMatcherTests.invites`: non-US contacts carry no number to text. | `PeopleUITests.testSavedNamesAndNonUSInvite`: tapping Invite on Lucía (+34) shows "Not available yet" with the country-code message and no composer. |
 | S10 | Non-US number can't sign up | ☐ | `001_auth_us_only.sql` (hook refuses UK, Spanish and 10-digit numbers) | |
 | S11 | Likes: viewers see a count, poster sees who | ☐ | `030_posts.sql`: viewers see count and only their own like row; poster lists likers; likes never push | |
 | S12 | Responses are private to the pair, with a post preview | ☐ | `050_messaging.sql`: response opens the pair's conversation with a post preview; third follower sees nothing | |
@@ -20,7 +20,7 @@ How each scenario was checked. "Automated" names the test; "Simulator" means it 
 | S14 | Stories expire for followers after 24 h, stay in archive | ☐ | `040_stories.sql`: active story visible to followers, hidden after expiry, kept in the author's archive | |
 | S15 | Empty state shows requests and prompts, no filler | ☐ | (client behaviour; M5) | |
 | S16 | Hidden lists and counts | ☐ | `020_following.sql`, `010_profiles.sql`: follows readable only for own edges; another profile carries no counts | |
-| S17 | Denied contacts access: can still post, approve, follow back | ☐ | (client behaviour; M3) | |
+| S17 | Denied contacts access: can still post, approve, follow back | ☑ | — | `PeopleUITests.testDeniedContactsStillAllowsApproving`: after denying, the People tab explains access is off, shows no "People you know", and Dad's request still has Approve/Decline; the Create tab stays enabled. |
 
 ## Notification table (spec 10)
 
@@ -42,7 +42,7 @@ How each scenario was checked. "Automated" names the test; "Simulator" means it 
 | Nobody sees posts or stories without approval | ☑ | `030_posts.sql`, `040_stories.sql` |
 | Contacts are the only discovery route | ☑ | `020_following.sql` (hash proof or follow-back), `010_profiles.sql` (profiles not enumerable, D-05) |
 | Phone numbers are never shown | ☑ | `000_schema.sql`, `010_profiles.sql`, `060_privacy_surface.sql` (only three functions touch phone_hash, all comparing a caller-supplied value) |
-| Saved contact names never leave the device | ☐ | iOS payload test (M3) |
+| Saved contact names never leave the device | ☑ | `ContactMatcherTests.noNamesOnTheWire` (URLProtocol recording of every request); the networking layer accepts hashes only (`ContactMatcher.Lookup`), never a `CNContact` or `LocalContact` |
 | Non-users' numbers are never kept | ☑ | `060_privacy_surface.sql` (match_contacts is read-only; submitted hash found nowhere) |
 | No follower lists or counts for others | ☑ | `020_following.sql`, `010_profiles.sql` |
 | Only the poster sees who liked | ☑ | `030_posts.sql` |

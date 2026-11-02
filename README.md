@@ -73,6 +73,25 @@ Phone sign-in uses Supabase's fixed-code test numbers, so no text message is sen
 
 Non-US numbers are refused by the server (`supabase/migrations/20261031000200_auth_us_only.sql`).
 
+## Demo launch switches (debug builds only)
+
+Environment variables the demo script passes to the simulator (see `DECISIONS.md` D-11):
+
+| Variable | Effect |
+|---|---|
+| `CONNECTCHA_DEMO=1` | Seeds the signed-in persona's contacts into the simulator's Contacts |
+| `CONNECTCHA_AUTO_SIGNIN=15550000001` | Signs in with that test number and the fixed code |
+| `CONNECTCHA_START_TAB=people` | Opens on a tab: `home`, `people`, `create`, `inbox`, `profile` |
+| launch argument `-reset-session` | Signs out first |
+
+Example: `SIMCTL_CHILD_CONNECTCHA_DEMO=1 SIMCTL_CHILD_CONNECTCHA_AUTO_SIGNIN=15550000004 xcrun simctl launch <udid> com.connectcha.app`
+
+## Privacy checks
+
+- `make test-db` proves the access rules (plan 3.6) in Postgres.
+- `scripts/privacy-log-check.sh` submits a marker hash through the real API and confirms it appears in no container log and no table.
+- The iOS test `ContactMatcherTests.noNamesOnTheWire` records every request made during a contact-matching run and asserts no saved name or raw number is in any of them.
+
 ## Opening the project in Xcode
 
 ```sh

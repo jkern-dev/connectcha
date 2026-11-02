@@ -17,8 +17,14 @@ struct OnboardingFlow: View {
                     NameStepView { advance() }
                 case .photo:
                     PhotoStepView { advance() }
-                case .contacts, .people, .invite, .notifications:
-                    // Filled in by later milestones.
+                case .contacts:
+                    ContactsStepView { advance() }
+                case .people:
+                    PeopleStepView { advance() }
+                case .invite:
+                    InviteStepView { advance() }
+                case .notifications:
+                    // Arrives with M8 (asked last, spec 9.1 step 7).
                     Color.clear.onAppear { model.finishOnboarding() }
                 }
             }

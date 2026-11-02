@@ -34,26 +34,34 @@ private struct LoadingScreen: View {
 }
 
 /// The five tabs from spec 8.5. Screens are filled in milestone by milestone.
+enum AppTab: String, Hashable { case home, people, create, inbox, profile }
+
 struct MainTabView: View {
     @Environment(AppModel.self) private var model
+    @State private var selection: AppTab = {
+        #if DEBUG
+        if let raw = ProcessInfo.processInfo.environment["CONNECTCHA_START_TAB"], let tab = AppTab(rawValue: raw) { return tab }
+        #endif
+        return .home
+    }()
 
     var body: some View {
-        TabView {
-            Tab("Home", systemImage: "house.fill") {
+        TabView(selection: $selection) {
+            Tab("Home", systemImage: "house.fill", value: AppTab.home) {
                 PlaceholderScreen(title: "Home", detail: "Stories and your feed will appear here.")
             }
-            Tab("People", systemImage: "person.2.fill") {
-                PlaceholderScreen(title: "People", detail: "People you know, follow requests and invites.")
+            Tab("People", systemImage: "person.2.fill", value: AppTab.people) {
+                PeopleTab()
             }
             .badge(model.unread.pendingRequests)
-            Tab("Create", systemImage: "plus.circle.fill") {
+            Tab("Create", systemImage: "plus.circle.fill", value: AppTab.create) {
                 PlaceholderScreen(title: "Create", detail: "New post or story.")
             }
-            Tab("Inbox", systemImage: "bubble.left.and.bubble.right.fill") {
+            Tab("Inbox", systemImage: "bubble.left.and.bubble.right.fill", value: AppTab.inbox) {
                 PlaceholderScreen(title: "Inbox", detail: "Messages.")
             }
             .badge(model.unread.unreadConversations)
-            Tab("Profile", systemImage: "person.crop.circle.fill") {
+            Tab("Profile", systemImage: "person.crop.circle.fill", value: AppTab.profile) {
                 ProfileTabPlaceholder()
             }
         }

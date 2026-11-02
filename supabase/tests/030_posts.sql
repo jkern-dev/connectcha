@@ -17,18 +17,18 @@ select is((select count(*) from public.posts), 2::bigint, 'the author sees the d
 
 select tests.authenticate_as('pending');
 select is((select count(*) from public.posts), 0::bigint, 'pending requester: no posts (S2)');
-select is((select count(*) from public.media), 0::bigint, 'pending requester: no media');
+select is((select count(*) from public.media where usage in ('post', 'story')), 0::bigint, 'pending requester: no post or story media (avatars are readable by anyone holding the id, D-06)');
 select is(jsonb_array_length(public.get_feed() -> 'posts'), 0, 'pending requester: empty feed');
 select throws_ok($$ select public.get_post(tests.fixture_post()) $$, 'P0001', 'post_not_found', 'pending requester: get_post refused');
 select throws_ok($$ select public.like_post(tests.fixture_post()) $$, 'P0001', 'post_not_found', 'pending requester: cannot like');
 
 select tests.authenticate_as('declined');
 select is((select count(*) from public.posts), 0::bigint, 'declined requester: no posts (S2)');
-select is((select count(*) from public.media), 0::bigint, 'declined requester: no media');
+select is((select count(*) from public.media where usage in ('post', 'story')), 0::bigint, 'declined requester: no post or story media (avatars are readable by anyone holding the id, D-06)');
 
 select tests.authenticate_as('removed');
 select is((select count(*) from public.posts), 0::bigint, 'removed follower: no posts (S5)');
-select is((select count(*) from public.media), 0::bigint, 'removed follower: no media');
+select is((select count(*) from public.media where usage in ('post', 'story')), 0::bigint, 'removed follower: no post or story media (avatars are readable by anyone holding the id, D-06)');
 
 select tests.authenticate_as('stranger');
 select is((select count(*) from public.posts), 0::bigint, 'stranger: no posts');
