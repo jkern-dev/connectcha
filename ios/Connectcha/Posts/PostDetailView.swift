@@ -13,6 +13,7 @@ struct PostDetailView: View {
     @State private var showLikers = false
     @State private var confirmDelete = false
     @State private var showMenu = false
+    @State private var composing = false
 
     var body: some View {
         ScrollView {
@@ -21,7 +22,7 @@ struct PostDetailView: View {
                     post: post,
                     onLike: { Task { await toggleLike() } },
                     onOpenLikers: { showLikers = true },
-                    onMessage: nil,
+                    onMessage: post.isMine ? nil : { composing = true },
                     onMenu: post.isMine ? { showMenu = true } : nil
                 )
                 if post.isMine {
@@ -52,6 +53,10 @@ struct PostDetailView: View {
         }
         .sheet(isPresented: $showLikers) {
             if let post { LikersView(post: post) }
+        }
+        .sheet(isPresented: $composing) {
+            NavigationStack { ComposeResponseView(postId: postId, onSent: {}) }
+                .presentationDetents([.medium, .large])
         }
         .appDestinations()
     }

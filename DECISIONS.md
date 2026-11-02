@@ -96,3 +96,34 @@ Format: context, options with their main tradeoff, what was chosen and why, how 
 - Context: MapKit search on a simulator or offline may return nothing; a relative may also want "Grandma's house".
 - Chosen: The search sheet always offers "Use \"<typed text>\"" as the first row, storing the name without coordinates. Coordinates are stored only when a MapKit result is chosen.
 - Reversibility: Trivial.
+
+- **D-21: Story playback timing and controls** (2026-11-02, M6)
+- Context: Spec 6 says several stories play in order but doesn't give durations or gestures.
+- Chosen: Photos show for 5 seconds; videos play to their end. Tap the right half for next, left half for previous (or restart if more than 15% through), press and hold to pause, swipe down to close. Progress segments at the top, one per story in the group. Screenshots are not detected or blocked (spec 6).
+- Reversibility: Trivial constants in `StoryViewerView`.
+
+- **D-22: Quick reactions are four fixed emoji** (2026-11-02, M6)
+- Context: Spec 6 mentions "a quick emoji reaction" sent as a message.
+- Chosen: ❤️ 😂 👏 😮 as large buttons above the reply field, each sent as a `story_reaction` message. A typed reply is a `story_response`. Both land in the same one-to-one conversation with a story preview.
+- Reversibility: Trivial.
+
+- **D-23: Text overlays are a single centred caption with a dark pill** (2026-11-02, M6)
+- Context: Plan G5 burns text into the media. Draggable, multi-colour text tools are out of scope (spec 12).
+- Chosen: One text field, up to 120 characters, rendered centred over the photo (or composited over the video) in bold white on a translucent dark pill so it reads on any background. Rendering is pure and unit-tested (`StoryComposerTests`).
+- Reversibility: Easy; the renderer is one function.
+
+- **D-24: Realtime only for the open conversation** (2026-11-02, M7)
+- Context: Plan 3.7 suggests realtime for the open conversation and the inbox summary.
+- Options considered: (a) Subscribe to all of a person's conversations: more sockets and more battery for a family app. (b) Subscribe only while a conversation is open; refresh the inbox and badges on foreground, pull and after sending.
+- Chosen: (b). New messages while the app is in the background arrive as pushes (M8), which is what people expect.
+- Reversibility: Easy; `ConversationModel.startListening` is the only subscription.
+
+- **D-25: Response and message RPCs return a receipt, not the message** (2026-11-02, M7)
+- Context: `respond_to_post`, `respond_to_story` and `send_message` return `{id, conversation_id, created_at}`. The first client build tried to decode a full message and failed silently in the story viewer.
+- Chosen: A `SentMessage` receipt type; the conversation screen fetches the full row with `get_message` (which also serves realtime inserts). Keeps the write functions small.
+- Reversibility: Trivial.
+
+- **D-26: Opening a conversation from a profile** (2026-11-02, M7)
+- Context: Spec 7 says a conversation can only start from a response. The profile's Message button must not become a way to start one.
+- Chosen: The button appears only when a conversation already exists (`has_conversation`), and resolves it through the inbox. Otherwise the profile shows no Message button; the person responds to a post or story instead.
+- Reversibility: Trivial.

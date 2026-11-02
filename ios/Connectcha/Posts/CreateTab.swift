@@ -26,17 +26,13 @@ struct CreateTab: View {
                 CreatePostView(onPublished: onPublished)
             }
             .navigationDestination(for: CreateStoryRoute.self) { _ in
-                CreateStoryPlaceholder()
+                CreateStoryView(onPosted: onPublished)
             }
         }
     }
 }
 
 nonisolated struct CreateStoryRoute: Hashable, Sendable {}
-
-struct CreateStoryPlaceholder: View {
-    var body: some View { Text("Stories arrive in the next milestone.").foregroundStyle(.secondary).navigationTitle("New story") }
-}
 
 struct CreateChoice: View {
     let icon: String

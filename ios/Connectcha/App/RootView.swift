@@ -59,7 +59,7 @@ struct MainTabView: View {
                 CreateTab(onPublished: { selection = .home })
             }
             Tab("Inbox", systemImage: "bubble.left.and.bubble.right.fill", value: AppTab.inbox) {
-                PlaceholderScreen(title: "Inbox", detail: "Messages.")
+                InboxTab()
             }
             .badge(model.unread.unreadConversations)
             Tab("Profile", systemImage: "person.crop.circle.fill", value: AppTab.profile) {
@@ -81,21 +81,4 @@ struct MainTabView: View {
     }
 }
 
-private struct PlaceholderScreen: View {
-    let title: String
-    let detail: String
-
-    var body: some View {
-        NavigationStack {
-            VStack(spacing: 12) {
-                Text(detail)
-                    .font(.title3)
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(.secondary)
-            }
-            .padding()
-            .navigationTitle(title)
-        }
-    }
-}
 

@@ -6,6 +6,7 @@ struct HomeTab: View {
     @Environment(\.scenePhase) private var scenePhase
     @State private var feed = FeedModel()
     @State private var people = PeopleModel()
+    @State private var tray = StoryTrayModel()
     @State private var likersFor: Post?
     @State private var path = NavigationPath()
 
@@ -13,7 +14,9 @@ struct HomeTab: View {
         NavigationStack(path: $path) {
             ScrollView {
                 LazyVStack(spacing: Spacing.s) {
-                    StoryTrayView()
+                    if !tray.groups.isEmpty || appModel.me != nil {
+                        StoryTrayView(model: tray)
+                    }
                     if feed.loadedOnce, feed.posts.isEmpty {
                         EmptyFeedView(people: people)
                     } else {
@@ -35,14 +38,16 @@ struct HomeTab: View {
             }
             .refreshable {
                 await feed.refresh()
+                await tray.load()
                 await people.load()
             }
             .task {
                 await feed.refresh()
+                await tray.load()
                 await people.load()
             }
             .onChange(of: scenePhase) { _, phase in
-                if phase == .active { Task { await feed.refresh() } }
+                if phase == .active { Task { await feed.refresh(); await tray.load() } }
                 if phase == .background { Task { await feed.markSeen() } }
             }
             .onDisappear { Task { await feed.markSeen() } }
@@ -164,11 +169,6 @@ nonisolated struct PeopleTabRoute: Hashable, Sendable {}
 nonisolated struct CreatePostRoute: Hashable, Sendable {}
 nonisolated struct ComposeResponseRoute: Hashable, Sendable { let postId: UUID }
 
-/// Placeholder until M6.
-struct StoryTrayView: View {
-    var body: some View { EmptyView() }
-}
-
 /// Feed-related destinations that need the shared feed model.
 struct FeedDestinations: ViewModifier {
     let feed: FeedModel
@@ -177,7 +177,9 @@ struct FeedDestinations: ViewModifier {
             .navigationDestination(for: ActivityRoute.self) { _ in ActivityPlaceholder() }
             .navigationDestination(for: PeopleTabRoute.self) { _ in PeopleTab() }
             .navigationDestination(for: CreatePostRoute.self) { _ in CreatePostView(onPublished: { Task { await feed.refresh() } }) }
-            .navigationDestination(for: ComposeResponseRoute.self) { ComposeResponsePlaceholder(route: $0) }
+            .navigationDestination(for: ComposeResponseRoute.self) { route in
+                ComposeResponseView(postId: route.postId, onSent: {})
+            }
     }
 }
 
@@ -187,8 +189,4 @@ extension View {
 
 struct ActivityPlaceholder: View {
     var body: some View { Text("Activity arrives in a later milestone.").foregroundStyle(.secondary).navigationTitle("Activity") }
-}
-struct ComposeResponsePlaceholder: View {
-    let route: ComposeResponseRoute
-    var body: some View { Text("Responses arrive in a later milestone.").foregroundStyle(.secondary) }
 }

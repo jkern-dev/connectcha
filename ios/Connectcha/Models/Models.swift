@@ -289,3 +289,10 @@ nonisolated struct ContactMatch: Codable, Hashable, Sendable {
 
     var profile: Profile { Profile(id: userId, firstName: firstName, lastName: lastName, avatarMediaId: avatarMediaId) }
 }
+
+/// What the response and message RPCs return: enough to fetch or append.
+nonisolated struct SentMessage: Codable, Sendable {
+    let id: UUID
+    let conversationId: UUID
+    let createdAt: Date
+}

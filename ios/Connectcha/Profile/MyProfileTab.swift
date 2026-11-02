@@ -200,9 +200,9 @@ struct AppDestinations: ViewModifier {
             .navigationDestination(for: ConnectionsRoute.self) { ConnectionsView(route: $0) }
             .navigationDestination(for: RequestsRoute.self) { _ in RequestsView() }
             .navigationDestination(for: SettingsRoute.self) { _ in SettingsView() }
-            .navigationDestination(for: ArchiveRoute.self) { _ in StoryArchivePlaceholder() }
+            .navigationDestination(for: ArchiveRoute.self) { _ in StoryArchiveView() }
             .navigationDestination(for: PostRoute.self) { PostDetailView(postId: $0.postId) }
-            .navigationDestination(for: ConversationRoute.self) { ConversationPlaceholder(route: $0) }
+            .navigationDestination(for: ConversationRoute.self) { ConversationView(route: $0, onChange: {}) }
     }
 }
 
@@ -211,10 +211,3 @@ extension View {
 }
 
 // Placeholders replaced in M5 to M7.
-struct StoryArchivePlaceholder: View {
-    var body: some View { Text("Your expired stories will appear here.").foregroundStyle(.secondary).navigationTitle("Story archive") }
-}
-struct ConversationPlaceholder: View {
-    let route: ConversationRoute
-    var body: some View { Text("Messages arrive in a later milestone.").foregroundStyle(.secondary) }
-}
