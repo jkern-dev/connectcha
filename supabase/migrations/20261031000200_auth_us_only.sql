@@ -35,3 +35,4 @@ $$;
 grant usage on schema public to supabase_auth_admin;
 grant execute on function public.before_user_created_hook(jsonb) to supabase_auth_admin;
 revoke execute on function public.before_user_created_hook(jsonb) from public, anon, authenticated;
+revoke execute on all functions in schema public from public, anon;

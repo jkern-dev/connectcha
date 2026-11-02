@@ -4,23 +4,23 @@ How each scenario was checked. "Automated" names the test; "Simulator" means it 
 
 | # | Scenario | Status | Automated check | Simulator / manual check |
 |---|---|---|---|---|
-| S1 | Contact rule: can't find or request anyone not in contacts, except follow-back | ☐ | | |
-| S2 | No access without approval: pending or declined requester sees only the minimal profile | ☐ | | |
-| S3 | Follow-back flow; numbers never shown | ☐ | | |
-| S4 | Follow-back limit after unfollow | ☐ | | |
-| S5 | Removed follower loses access immediately, isn't notified | ☐ | | |
-| S6 | Deleted contact: follow continues, name changes to profile name | ☐ | | |
-| S7 | Names: saved name everywhere, never sent to the server | ☐ | | |
-| S8 | Non-users: numbers not kept; Invite opens Messages | ☐ | | |
-| S9 | Non-US invite shows country-code message, no text | ☐ | | |
-| S10 | Non-US number can't sign up | ☐ | `supabase/tests/001_auth_us_only.sql` (hook refuses UK, Spanish and 10-digit numbers) | |
-| S11 | Likes: viewers see a count, poster sees who | ☐ | | |
-| S12 | Responses are private to the pair, with a post preview | ☐ | | |
-| S13 | Message limits when neither follows the other | ☐ | | |
-| S14 | Stories expire for followers after 24 h, stay in archive | ☐ | | |
-| S15 | Empty state shows requests and prompts, no filler | ☐ | | |
-| S16 | Hidden lists and counts | ☐ | | |
-| S17 | Denied contacts access: can still post, approve, follow back | ☐ | | |
+| S1 | Contact rule: can't find or request anyone not in contacts, except follow-back | ☐ | `020_following.sql`: no hash and wrong hash refused; correct hash accepted; follow-back only while the target follows | |
+| S2 | No access without approval: pending or declined requester sees only the minimal profile | ☐ | `010_profiles.sql`, `030_posts.sql`, `040_stories.sql`: pending and declined see 0 posts, 0 media, 0 stories, bio hidden, minimal profile only | |
+| S3 | Follow-back flow; numbers never shown | ☐ | `020_following.sql`: follow-back without a number, approval required before content, no phone data in any output (`010`, `060`) | |
+| S4 | Follow-back limit after unfollow | ☐ | `020_following.sql`: after unfollow the follow-back request is refused; with the number it works | |
+| S5 | Removed follower loses access immediately, isn't notified | ☐ | `020_following.sql`, `030_posts.sql`: removed follower sees nothing, gets no activity and no push | |
+| S6 | Deleted contact: follow continues, name changes to profile name | ☐ | (client behaviour; no server rule) | |
+| S7 | Names: saved name everywhere, never sent to the server | ☐ | (client test in M3) | |
+| S8 | Non-users: numbers not kept; Invite opens Messages | ☐ | `060_privacy_surface.sql`: an unknown hash is found in no table of public, auth or storage after matching | |
+| S9 | Non-US invite shows country-code message, no text | ☐ | (client behaviour; M3) | |
+| S10 | Non-US number can't sign up | ☐ | `001_auth_us_only.sql` (hook refuses UK, Spanish and 10-digit numbers) | |
+| S11 | Likes: viewers see a count, poster sees who | ☐ | `030_posts.sql`: viewers see count and only their own like row; poster lists likers; likes never push | |
+| S12 | Responses are private to the pair, with a post preview | ☐ | `050_messaging.sql`: response opens the pair's conversation with a post preview; third follower sees nothing | |
+| S13 | Message limits when neither follows the other | ☐ | `050_messaging.sql`: with no follow either way, conversation readable, sending refused for both; a follow restores it | |
+| S14 | Stories expire for followers after 24 h, stay in archive | ☐ | `040_stories.sql`: active story visible to followers, hidden after expiry, kept in the author's archive | |
+| S15 | Empty state shows requests and prompts, no filler | ☐ | (client behaviour; M5) | |
+| S16 | Hidden lists and counts | ☐ | `020_following.sql`, `010_profiles.sql`: follows readable only for own edges; another profile carries no counts | |
+| S17 | Denied contacts access: can still post, approve, follow back | ☐ | (client behaviour; M3) | |
 
 ## Notification table (spec 10)
 
@@ -39,12 +39,12 @@ How each scenario was checked. "Automated" names the test; "Simulator" means it 
 
 | Rule | Status | Automated check |
 |---|---|---|
-| Nobody sees posts or stories without approval | ☐ | |
-| Contacts are the only discovery route | ☐ | |
-| Phone numbers are never shown | ☐ (partial) | `000_schema.sql`: base table unreadable, no client relation has a phone column, `auth.users` unreadable |
-| Saved contact names never leave the device | ☐ | |
-| Non-users' numbers are never kept | ☐ | |
-| No follower lists or counts for others | ☐ | |
-| Only the poster sees who liked | ☐ | |
-| Responses private; messaging stops without a follow | ☐ | |
+| Nobody sees posts or stories without approval | ☑ | `030_posts.sql`, `040_stories.sql` |
+| Contacts are the only discovery route | ☑ | `020_following.sql` (hash proof or follow-back), `010_profiles.sql` (profiles not enumerable, D-05) |
+| Phone numbers are never shown | ☑ | `000_schema.sql`, `010_profiles.sql`, `060_privacy_surface.sql` (only three functions touch phone_hash, all comparing a caller-supplied value) |
+| Saved contact names never leave the device | ☐ | iOS payload test (M3) |
+| Non-users' numbers are never kept | ☑ | `060_privacy_surface.sql` (match_contacts is read-only; submitted hash found nowhere) |
+| No follower lists or counts for others | ☑ | `020_following.sql`, `010_profiles.sql` |
+| Only the poster sees who liked | ☑ | `030_posts.sql` |
+| Responses private; messaging stops without a follow | ☑ | `050_messaging.sql` |
 | Non-US numbers can't sign up | ☑ | `001_auth_us_only.sql` |
