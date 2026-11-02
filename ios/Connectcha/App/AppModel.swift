@@ -1,0 +1,113 @@
+import Foundation
+import Observation
+import Supabase
+
+/// Top-level state: who is signed in, whether onboarding is finished, and the
+/// shared counts used for tab badges. One instance lives for the app's life.
+@Observable
+@MainActor
+final class AppModel {
+    enum Phase: Equatable {
+        case loading
+        case signedOut
+        case onboarding
+        case ready
+    }
+
+    private(set) var phase: Phase = .loading
+    private(set) var me: Me?
+    var unread = UnreadCounts(unreadConversations: 0, pendingRequests: 0)
+
+    /// Set when the server rejects the session (for example after a sign-out
+    /// elsewhere) so the UI can explain instead of silently bouncing.
+    var banner: String?
+
+    private var authTask: Task<Void, Never>?
+
+    var userId: UUID? { me?.id }
+
+    func start() {
+        guard authTask == nil else { return }
+        authTask = Task { [weak self] in
+            guard let self else { return }
+            #if DEBUG
+            if CommandLine.arguments.contains("-reset-session") {
+                try? await API.shared.client.auth.signOut()
+            }
+            #endif
+            for await (event, session) in API.shared.client.auth.authStateChanges {
+                switch event {
+                case .initialSession, .signedIn, .tokenRefreshed, .userUpdated:
+                    if session != nil {
+                        await self.loadMe()
+                    } else {
+                        self.phase = .signedOut
+                        self.me = nil
+                    }
+                case .signedOut:
+                    self.me = nil
+                    self.phase = .signedOut
+                default:
+                    break
+                }
+            }
+        }
+    }
+
+    /// Fetches the own profile and routes to onboarding or the app.
+    func loadMe() async {
+        do {
+            let me: Me = try await API.shared.rpc("get_me")
+            self.me = me
+            if !me.onboarded || !OnboardingProgress.isComplete(for: me.id) {
+                phase = .onboarding
+            } else {
+                phase = .ready
+            }
+        } catch {
+            let apiError = APIError(error)
+            if apiError.code == "offline", me != nil {
+                // Keep showing what we have.
+                return
+            }
+            if apiError.code == "not_signed_in" || apiError.underlying.contains("401") {
+                await signOut()
+            } else {
+                banner = apiError.message
+                phase = me == nil ? .signedOut : phase
+            }
+        }
+    }
+
+    func refreshMe() async {
+        if let me: Me = try? await API.shared.rpc("get_me") {
+            self.me = me
+        }
+    }
+
+    func refreshUnread() async {
+        if let counts: UnreadCounts = try? await API.shared.rpc("get_unread_counts") {
+            unread = counts
+        }
+    }
+
+    func finishOnboarding() {
+        if let id = me?.id { OnboardingProgress.markComplete(for: id) }
+        phase = .ready
+    }
+
+    func signOut() async {
+        try? await API.shared.client.auth.signOut()
+        me = nil
+        phase = .signedOut
+    }
+}
+
+/// Which onboarding steps this device has finished for a user. Server-side
+/// "onboarded" only covers the name step; the rest is per device.
+enum OnboardingProgress {
+    static func key(_ id: UUID) -> String { "onboarding.complete.\(id.uuidString)" }
+    static func isComplete(for id: UUID) -> Bool { UserDefaults.standard.bool(forKey: key(id)) }
+    static func markComplete(for id: UUID) { UserDefaults.standard.set(true, forKey: key(id)) }
+    static func reset(for id: UUID) { UserDefaults.standard.removeObject(forKey: key(id)) }
+}

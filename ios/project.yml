@@ -51,6 +51,7 @@ targets:
       - path: Connectcha
         excludes:
           - "**/.DS_Store"
+      - path: Shared
     configFiles:
       Debug: Config/Local.xcconfig
       Release: Config/Local.xcconfig
@@ -155,6 +156,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.connectcha.app.uitests
         GENERATE_INFOPLIST_FILE: YES
         TEST_TARGET_NAME: Connectcha
+        SWIFT_DEFAULT_ACTOR_ISOLATION: nonisolated
 
 schemes:
   Connectcha:
