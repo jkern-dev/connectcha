@@ -1,6 +1,7 @@
 import Foundation
 import Observation
 import Supabase
+import UserNotifications
 
 /// Top-level state: who is signed in, whether onboarding is finished, and the
 /// shared counts used for tab badges. One instance lives for the app's life.
@@ -81,6 +82,14 @@ final class AppModel {
                 phase = .onboarding
             } else {
                 phase = .ready
+                await NotificationManager.shared.registerIfAuthorized()
+                #if DEBUG
+                // Demo personas skip onboarding, so ask for notifications here once.
+                if ProcessInfo.processInfo.environment["CONNECTCHA_AUTO_SIGNIN"] != nil,
+                   NotificationManager.shared.authorization == .notDetermined {
+                    await NotificationManager.shared.requestAuthorization()
+                }
+                #endif
             }
         } catch {
             let apiError = APIError(error)
@@ -112,9 +121,11 @@ final class AppModel {
     func finishOnboarding() {
         if let id = me?.id { OnboardingProgress.markComplete(for: id) }
         phase = .ready
+        Task { await NotificationManager.shared.registerIfAuthorized() }
     }
 
     func signOut() async {
+        await NotificationManager.shared.unregister()
         try? await API.shared.client.auth.signOut()
         ContactSync.shared.signedOut()
         MediaCache.shared.clearAll()

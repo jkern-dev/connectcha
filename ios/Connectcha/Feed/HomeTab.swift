@@ -54,6 +54,16 @@ struct HomeTab: View {
             .sheet(item: $likersFor) { post in
                 LikersView(post: post)
             }
+            .onChange(of: NotificationManager.shared.pendingDeepLink) { _, link in
+                guard let link else { return }
+                switch link {
+                case .post(let id): path.append(PostRoute(postId: id)); NotificationManager.shared.pendingDeepLink = nil
+                case .profile(let id): path.append(ProfileRoute(userId: id, phoneHash: nil)); NotificationManager.shared.pendingDeepLink = nil
+                case .conversation(let id): path.append(ConversationRoute(conversationId: id, otherUserId: nil)); NotificationManager.shared.pendingDeepLink = nil
+                case .home: NotificationManager.shared.pendingDeepLink = nil
+                case .people: break   // handled by the tab container
+                }
+            }
             .appDestinations()
             .feedDestinations(feed: feed)
         }
@@ -174,7 +184,7 @@ struct FeedDestinations: ViewModifier {
     let feed: FeedModel
     func body(content: Content) -> some View {
         content
-            .navigationDestination(for: ActivityRoute.self) { _ in ActivityPlaceholder() }
+            .navigationDestination(for: ActivityRoute.self) { _ in ActivityView() }
             .navigationDestination(for: PeopleTabRoute.self) { _ in PeopleTab() }
             .navigationDestination(for: CreatePostRoute.self) { _ in CreatePostView(onPublished: { Task { await feed.refresh() } }) }
             .navigationDestination(for: ComposeResponseRoute.self) { route in
@@ -187,6 +197,3 @@ extension View {
     func feedDestinations(feed: FeedModel) -> some View { modifier(FeedDestinations(feed: feed)) }
 }
 
-struct ActivityPlaceholder: View {
-    var body: some View { Text("Activity arrives in a later milestone.").foregroundStyle(.secondary).navigationTitle("Activity") }
-}

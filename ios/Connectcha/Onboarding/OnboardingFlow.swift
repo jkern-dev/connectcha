@@ -24,8 +24,7 @@ struct OnboardingFlow: View {
                 case .invite:
                     InviteStepView { advance() }
                 case .notifications:
-                    // Arrives with M8 (asked last, spec 9.1 step 7).
-                    Color.clear.onAppear { model.finishOnboarding() }
+                    NotificationsStepView { model.finishOnboarding() }
                 }
             }
             .navigationBarBackButtonHidden(true)

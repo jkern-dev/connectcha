@@ -52,7 +52,7 @@ select set_eq(
     'create_story', 'delete_story', 'mark_story_viewed',
     'respond_to_post', 'respond_to_story', 'send_message', 'mark_conversation_read',
     'mark_feed_seen', 'set_bell', 'update_notification_settings',
-    'register_device_token', 'unregister_device_token',
+    'register_device_token', 'unregister_device_token', 'my_pending_pushes', 'ack_pushes',
     -- reads
     'get_me', 'get_feed', 'get_post', 'get_post_likers', 'get_profile', 'get_my_connections',
     'get_people', 'get_story_tray', 'get_story_viewers', 'get_my_story_archive',

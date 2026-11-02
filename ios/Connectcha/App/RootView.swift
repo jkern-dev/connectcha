@@ -70,6 +70,15 @@ struct MainTabView: View {
             await model.refreshUnread()
             if let id = model.userId { await ContactSync.shared.run(for: id) }
         }
+        .onChange(of: NotificationManager.shared.pendingDeepLink) { _, link in
+            // Tab-level routing; Home handles its own routes once visible.
+            switch link {
+            case .people: selection = .people; NotificationManager.shared.pendingDeepLink = nil
+            case .post, .profile, .conversation, .home: selection = .home
+            case nil: break
+            }
+        }
+        .task { await DebugPushPoller.shared.startIfEnabled() }
         .onChange(of: scenePhase) { _, phase in
             // Spec 4.2: matching re-runs whenever the app is opened.
             guard phase == .active, let id = model.userId else { return }

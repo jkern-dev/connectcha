@@ -225,3 +225,10 @@ end;
 $$;
 
 grant execute on all functions in schema tests to authenticated, anon;
+
+-- Local push webhook target: the Edge Runtime as seen from inside the
+-- database container. The secret matches supabase/functions/.env.
+insert into private.settings (key, value) values
+  ('push_webhook_url', 'http://host.docker.internal:54321/functions/v1/send-push'),
+  ('push_webhook_secret', 'local-dev-push-secret')
+on conflict (key) do update set value = excluded.value;

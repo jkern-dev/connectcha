@@ -26,14 +26,14 @@ How each scenario was checked. "Automated" names the test; "Simulator" means it 
 
 | Event | Push | In-app | Status | How checked |
 |---|---|---|---|---|
-| Someone requests to follow you | Yes | Activity, People badge | ☐ | |
-| Someone approves your request | Yes | Activity | ☐ | |
-| New message or response | Yes | Inbox | ☐ | |
-| Someone likes your post | No | Activity, grouped | ☐ | |
-| Someone views your story | No | Seen list only | ☐ | |
-| Someone you follow posts | Only with bell | Feed | ☐ | |
-| Someone you follow adds a story | Only with bell | Story tray | ☐ | |
-| A contact joins | No | In-app prompt | ☐ | |
+| Someone requests to follow you | Yes | Activity, People badge | ☑ | `020_following.sql` queues one push + activity; People badge from `get_unread_counts`; banner wording in `payload_test.ts`. |
+| Someone approves your request | Yes | Activity | ☑ | `020_following.sql` (activity + push row); `payload_test.ts` wording. |
+| New message or response | Yes | Inbox | ☑ | `NotificationsUITests.testResponsePushShowsSavedName`: Mom's response arrives as a banner "Mom responded to your post" (saved name, no message text) and opens the conversation. Inbox badge from `get_unread_counts`. |
+| Someone likes your post | No | Activity, grouped | ☑ | `030_posts.sql`: likes never queue a push; `ActivityGrouping` shows "Mom and 3 others liked your post" (seeded on Josh's hike post). |
+| Someone views your story | No | Seen list only | ☑ | `040_stories.sql`: view rows visible to the author only; no push, no activity row. |
+| Someone you follow posts | Only with bell | Feed | ☑ | `publish_post` queues `bell_post` only for followers with a bell; `send-push` honours the bells category; bell off by default (`get_profile.relationship.bell_on`). |
+| Someone you follow adds a story | Only with bell | Story tray | ☑ | `create_story` queues `bell_story` for bell holders only. |
+| A contact joins | No | In-app prompt | ☑ | `ContactMatcherTests.newlyJoined`; People tab banner "X is now on here"; no push path exists for it. |
 
 ## Core rules (plan 3.6)
 

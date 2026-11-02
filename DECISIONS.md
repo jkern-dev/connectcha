@@ -127,3 +127,19 @@ Format: context, options with their main tradeoff, what was chosen and why, how 
 - Context: Spec 7 says a conversation can only start from a response. The profile's Message button must not become a way to start one.
 - Chosen: The button appears only when a conversation already exists (`has_conversation`), and resolves it through the inbox. Otherwise the profile shows no Message button; the person responds to a post or story instead.
 - Reversibility: Trivial.
+
+- **D-27: Push notifications verified on simulators through a stub and `simctl push`** (2026-11-02, M8)
+- Context: Real APNs needs the Apple Developer account (OPEN_QUESTIONS Q4). The brief asks for the full server and client path, verified with stubs and local notifications.
+- Options considered: (a) Stop at the outbox table and trust the rest. (b) Build everything: outbox → `pg_net` webhook → `send-push` Edge Function → APNs client (`apns.ts`, ES256 provider token), with `APNS_MODE=stub` recording each would-be delivery in `push_deliveries`. A bridge script hands stub deliveries to `xcrun simctl push`, which runs the real Notification Service Extension on the simulator; the app registers `sim:<UDID>` as its token in debug builds.
+- Chosen: (b). Switching to real delivery is `APNS_MODE=apns` plus the key, team and bundle ids in the function's secrets; no code changes.
+- Reversibility: n/a; the stub is an environment setting.
+
+- **D-28: UI tests observe pushes through an in-app poller** (2026-11-02, M8)
+- Context: An XCUITest cannot run `simctl push` or a shell script, so it cannot drive the bridge in D-27.
+- Chosen: With `CONNECTCHA_INAPP_PUSH=1` (debug, simulator only) the app polls `my_pending_pushes` (deliveries for its own tokens) and presents them as local notifications after applying the same saved-name rewrite the extension uses. `NotificationsUITests` proves the banner reads "Mom responded to your post" while the server payload said "Linda Kern", and that tapping it opens the conversation.
+- Reversibility: Trivial; the poller is one file behind an environment flag.
+
+- **D-29: Pushes never carry message text; names only as a template** (2026-11-02, M8)
+- Context: Spec 11 forbids message content in logs; Edge Function logs and APNs payloads are server-visible.
+- Chosen: `send-push` whitelists payload keys (type, ids, actor profile name, a `{name}` body template). Bodies read "Mom sent you a message" / "responded to your post" rather than quoting the message. Likes and story views never queue a push (`060_privacy_surface.sql`, `030_posts.sql`).
+- Reversibility: Easy, but it would need a privacy-policy change.
