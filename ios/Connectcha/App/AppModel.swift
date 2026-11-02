@@ -32,6 +32,11 @@ final class AppModel {
         authTask = Task { [weak self] in
             guard let self else { return }
             #if DEBUG
+            if CommandLine.arguments.contains("-reset-onboarding") {
+                for key in UserDefaults.standard.dictionaryRepresentation().keys where key.hasPrefix("onboarding.complete.") {
+                    UserDefaults.standard.removeObject(forKey: key)
+                }
+            }
             if CommandLine.arguments.contains("-reset-session") {
                 try? await API.shared.client.auth.signOut()
                 ContactSync.shared.signedOut()
