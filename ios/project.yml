@@ -1,0 +1,179 @@
+# XcodeGen spec. Regenerate the .xcodeproj with `make ios-project` (or `xcodegen generate` in ios/).
+# The generated project is not committed; this file is the source of truth.
+name: Connectcha
+options:
+  bundleIdPrefix: com.connectcha
+  deploymentTarget:
+    iOS: "18.0"
+  xcodeVersion: "26.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+  defaultConfig: Debug
+
+configs:
+  Debug: debug
+  Release: release
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
+    SWIFT_APPROACHABLE_CONCURRENCY: YES
+    SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY: YES
+    IPHONEOS_DEPLOYMENT_TARGET: "18.0"
+    TARGETED_DEVICE_FAMILY: "1"
+    SUPPORTED_PLATFORMS: "iphoneos iphonesimulator"
+    SUPPORTS_MACCATALYST: NO
+    CODE_SIGN_STYLE: Automatic
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: YES
+    LOCALIZATION_PREFERS_STRING_CATALOGS: YES
+    STRING_CATALOG_GENERATE_SYMBOLS: NO
+    DEAD_CODE_STRIPPING: YES
+  configs:
+    Debug:
+      SWIFT_ACTIVE_COMPILATION_CONDITIONS: "DEBUG"
+      ONLY_ACTIVE_ARCH: YES
+    Release:
+      SWIFT_COMPILATION_MODE: wholemodule
+
+packages:
+  Supabase:
+    url: https://github.com/supabase/supabase-swift
+    from: "2.0.0"
+
+targets:
+  Connectcha:
+    type: application
+    platform: iOS
+    sources:
+      - path: Connectcha
+        excludes:
+          - "**/.DS_Store"
+    configFiles:
+      Debug: Config/Local.xcconfig
+      Release: Config/Local.xcconfig
+    dependencies:
+      - package: Supabase
+        product: Supabase
+      - target: ConnectchaNSE
+        embed: true
+        codeSign: true
+    entitlements:
+      path: Connectcha/Connectcha.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.connectcha.shared
+        aps-environment: development
+    info:
+      path: Connectcha/Info.plist
+      properties:
+        CFBundleDisplayName: Connectcha
+        CFBundleShortVersionString: "0.1.0"
+        CFBundleVersion: "1"
+        UILaunchScreen:
+          UIColorName: LaunchBackground
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        UIBackgroundModes:
+          - remote-notification
+        ITSAppUsesNonExemptEncryption: false
+        NSContactsUsageDescription: "Connectcha uses your contacts only to find people you know who are already on the app. The names you have saved stay on this phone, and numbers of people who are not on the app are not kept."
+        NSPhotoLibraryUsageDescription: "Choose photos and videos to share with the people who follow you."
+        NSPhotoLibraryAddUsageDescription: "Save your own stories to your photo library."
+        NSCameraUsageDescription: "Take a photo or video for a story."
+        NSMicrophoneUsageDescription: "Record sound with your story videos."
+        SupabaseURL: "$(SUPABASE_URL)"
+        SupabaseAnonKey: "$(SUPABASE_ANON_KEY)"
+        InviteURL: "$(INVITE_URL)"
+        SupportEmail: "$(SUPPORT_EMAIL)"
+        AppGroupIdentifier: group.com.connectcha.shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.connectcha.app
+        PRODUCT_NAME: Connectcha
+        GENERATE_INFOPLIST_FILE: NO
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        ENABLE_PREVIEWS: YES
+        INFOPLIST_KEY_UIUserInterfaceStyle: Automatic
+
+  ConnectchaNSE:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: ConnectchaNSE
+      - path: Shared
+    entitlements:
+      path: ConnectchaNSE/ConnectchaNSE.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.connectcha.shared
+    info:
+      path: ConnectchaNSE/Info.plist
+      properties:
+        CFBundleDisplayName: Connectcha Names
+        CFBundleShortVersionString: "0.1.0"
+        CFBundleVersion: "1"
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.usernotifications.service
+          NSExtensionPrincipalClass: "$(PRODUCT_MODULE_NAME).NotificationService"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.connectcha.app.nse
+        GENERATE_INFOPLIST_FILE: NO
+        SKIP_INSTALL: YES
+        # The extension's entry points are called off the main actor by the system.
+        SWIFT_DEFAULT_ACTOR_ISOLATION: nonisolated
+
+  ConnectchaTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: ConnectchaTests
+    dependencies:
+      - target: Connectcha
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.connectcha.app.tests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Connectcha.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Connectcha"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+
+  ConnectchaUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: ConnectchaUITests
+    dependencies:
+      - target: Connectcha
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.connectcha.app.uitests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: Connectcha
+
+schemes:
+  Connectcha:
+    build:
+      targets:
+        Connectcha: all
+        ConnectchaNSE: all
+        ConnectchaTests: [test]
+        ConnectchaUITests: [test]
+    run:
+      config: Debug
+      environmentVariables:
+        CONNECTCHA_DEMO: "1"
+    test:
+      config: Debug
+      gatherCoverageData: false
+      targets:
+        - ConnectchaTests
+        - name: ConnectchaUITests
+          parallelizable: false
+    archive:
+      config: Release

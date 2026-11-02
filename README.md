@@ -1,0 +1,87 @@
+# Connectcha
+
+A photo and video sharing app for friends and family where people can only find each other through their phone contacts. iOS first.
+
+- `PRODUCT_SPEC.md` says what it does.
+- `IMPLEMENTATION_PLAN.md` says how it is built.
+- `DEMO.md` walks through the prototype on two simulators.
+- `DECISIONS.md`, `OPEN_QUESTIONS.md`, `TEST_SCENARIOS.md`, `REFINEMENT_LOG.md`, `OPERATIONS.md` record the build.
+
+## Layout
+
+```
+ios/         SwiftUI app, Notification Service Extension, tests (XcodeGen project.yml)
+supabase/    config, migrations, seeds, pgTAP tests, Edge Functions
+web/         static invite page
+scripts/     demo, seeding and helper scripts
+Makefile     one place for every command (`make help`)
+```
+
+## Set up a Mac from scratch
+
+Everything runs locally. No hosted accounts are needed.
+
+1. Install Xcode 26 from the App Store and open it once to accept the licence and install the iOS 26 simulator runtime.
+2. Install Homebrew from <https://brew.sh> if you don't have it.
+3. Install the tools:
+
+   ```sh
+   brew install --cask docker          # Docker Desktop; open it once and let it start
+   brew install supabase/tap/supabase xcodegen xcbeautify deno ffmpeg
+   ```
+
+4. Clone the repository and start the stack:
+
+   ```sh
+   git clone https://github.com/jkern-dev/connectcha.git
+   cd connectcha
+   make up            # starts Postgres, Auth, Storage and Edge Functions in Docker
+   make reset         # applies migrations, seeds the demo people, uploads demo media
+   make ios-build     # generates the Xcode project and builds the app
+   ```
+
+5. For the full two-simulator demo, follow `DEMO.md` (`make demo`).
+
+## Everyday commands
+
+| Command | What it does |
+|---|---|
+| `make up` / `make down` | Start or stop the local Supabase stack |
+| `make reset` | Rebuild the database from migrations and seeds, re-upload demo media |
+| `make test-db` | Run the pgTAP access-rule suite in `supabase/tests` |
+| `make test-functions` | Run the Edge Function tests |
+| `make ios-test` | Run the iOS unit tests on the "Connectcha A" simulator |
+| `make test` | All of the above |
+| `make ios-project` | Regenerate `ios/Connectcha.xcodeproj` from `ios/project.yml` |
+| `make demo` | Start everything and launch two signed-in simulators |
+| `supabase status` | Show local URLs and keys; Studio is at <http://127.0.0.1:54323> |
+
+## Signing in locally
+
+Phone sign-in uses Supabase's fixed-code test numbers, so no text message is sent. Every demo number uses the code `123456`:
+
+| Person | Number |
+|---|---|
+| Josh Kern | +1 555 000 0001 |
+| Linda Kern (Mom) | +1 555 000 0002 |
+| Robert Kern (Dad) | +1 555 000 0003 |
+| Ana Silva | +1 555 000 0004 |
+| Ben Carter | +1 555 000 0005 |
+| Priya Nair | +1 555 000 0006 |
+| Sam Lee | +1 555 000 0007 |
+| Fresh sign-up (no profile yet) | +1 555 000 0008 and 0009 |
+
+Non-US numbers are refused by the server (`supabase/migrations/20261031000200_auth_us_only.sql`).
+
+## Opening the project in Xcode
+
+```sh
+make ios-project
+open ios/Connectcha.xcodeproj
+```
+
+Choose the `Connectcha` scheme and a simulator. The scheme sets `CONNECTCHA_DEMO=1`, which turns on the demo contact seeding described in `DECISIONS.md` D-10. The app reads the local Supabase URL and anon key from `ios/Config/Local.xcconfig`; run `make ios-config` to regenerate it if your local keys differ.
+
+## Where the rules live
+
+The access rules in plan section 3.6 are enforced in Postgres (row-level security and `SECURITY DEFINER` functions under `supabase/migrations`) and proven by the pgTAP suite under `supabase/tests`. Keep that suite green; every milestone adds to it.

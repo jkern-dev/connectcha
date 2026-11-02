@@ -1,0 +1,31 @@
+name: Database access-rule tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  pgtap:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_AUTH_SMS_TWILIO_AUTH_TOKEN: placeholder-ci-only
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Start database (migrations + seeds)
+        run: supabase db start
+      - name: Run pgTAP suite
+        run: supabase test db
+  edge-functions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Run Edge Function unit tests
+        working-directory: supabase/functions
+        run: deno test --allow-env --allow-net --allow-read

@@ -1,0 +1,32 @@
+name: iOS build and unit tests
+
+# Runs on GitHub's macOS runners. Private repositories pay a 10x minute multiplier
+# for macOS, so this is also runnable on demand. The plan's long-term home for
+# iOS CI is Xcode Cloud once the Apple Developer account exists (OPEN_QUESTIONS.md).
+on:
+  push:
+    branches: [main]
+    paths: ["ios/**", ".github/workflows/ios.yml"]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_26.1.app || sudo xcode-select -s "$(ls -d /Applications/Xcode_26*.app | tail -1)"
+      - name: Install XcodeGen
+        run: brew install xcodegen xcbeautify
+      - name: Generate project
+        working-directory: ios
+        run: xcodegen generate
+      - name: Build and run unit tests
+        working-directory: ios
+        run: |
+          set -o pipefail
+          xcodebuild -project Connectcha.xcodeproj -scheme Connectcha \
+            -destination 'platform=iOS Simulator,name=iPhone 17' \
+            -only-testing:ConnectchaTests \
+            CODE_SIGNING_ALLOWED=NO test | xcbeautify --quiet
