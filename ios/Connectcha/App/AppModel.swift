@@ -34,6 +34,7 @@ final class AppModel {
             if CommandLine.arguments.contains("-reset-session") {
                 try? await API.shared.client.auth.signOut()
                 ContactSync.shared.signedOut()
+                MediaCache.shared.clearAll()
                 UserDefaults.standard.removeObject(forKey: "demo.seededForPhone")
             }
             // Demo convenience: CONNECTCHA_AUTO_SIGNIN=15550000001 signs in with
@@ -116,6 +117,7 @@ final class AppModel {
     func signOut() async {
         try? await API.shared.client.auth.signOut()
         ContactSync.shared.signedOut()
+        MediaCache.shared.clearAll()
         me = nil
         phase = .signedOut
     }

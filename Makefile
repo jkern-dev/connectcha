@@ -20,7 +20,7 @@ SIM_B_NAME := Connectcha B
 SIM_RUNTIME := com.apple.CoreSimulator.SimRuntime.iOS-26-3
 DB_URL := postgresql://postgres:postgres@127.0.0.1:54322/postgres
 
-.PHONY: help up down reset status test-db test-functions test ios-project ios-config ios-build ios-test \
+.PHONY: help up down reset status test-db test-functions test ios-project ios-config ios-build ios-test ios-ui-test \
         sims sim-a sim-b demo demo-stop seed-media logs
 
 help: ## Show this help
@@ -69,6 +69,12 @@ ios-build: ios-project ## Build the app for the simulator
 	cd $(IOS_DIR) && xcodebuild -project Connectcha.xcodeproj -scheme Connectcha \
 	  -destination 'generic/platform=iOS Simulator' -derivedDataPath $(DERIVED) \
 	  build 2>&1 | xcbeautify --quiet
+
+ios-ui-test: ios-project sims reset ## Reset demo data, then run the iOS UI tests (scenario walkthroughs) on simulator A
+	cd $(IOS_DIR) && xcodebuild -project Connectcha.xcodeproj -scheme Connectcha \
+	  -destination "platform=iOS Simulator,id=$$(./../scripts/sim-id.sh '$(SIM_A_NAME)')" \
+	  -derivedDataPath $(DERIVED) -only-testing:ConnectchaUITests \
+	  test 2>&1 | xcbeautify --quiet
 
 ios-test: ios-project sims ## Run the iOS unit tests on simulator A
 	cd $(IOS_DIR) && xcodebuild -project Connectcha.xcodeproj -scheme Connectcha \

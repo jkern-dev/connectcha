@@ -60,6 +60,15 @@ final class MediaCache {
         if !pending.isEmpty { scheduleFlush() }
     }
 
+    /// Drops every cached URL and image. Called on sign-out so nothing from one
+    /// account is reused by the next person to sign in on this phone.
+    func clearAll() {
+        urls.removeAll()
+        images.removeAllObjects()
+        URLCache.shared.removeAllCachedResponses()
+        session.configuration.urlCache?.removeAllCachedResponses()
+    }
+
     func forget(_ id: UUID) {
         urls[id] = nil
         images.removeObject(forKey: "\(id)-thumb" as NSString)

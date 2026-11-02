@@ -75,3 +75,24 @@ Format: context, options with their main tradeoff, what was chosen and why, how 
 - Context: The demo and the UI tests need sign-out, and the profile tab needed an edit screen to be usable. Both were scheduled for M9.
 - Chosen: Built now with the M9 scope (notification categories, support email, privacy and terms links, sign out, bio 150). M9 will revisit copy and polish only.
 - Reversibility: n/a.
+
+- **D-17: Videos play on demand behind a poster frame** (2026-11-02, M5)
+- Context: Spec 2 wants fast loading on a normal phone connection. Autoplaying every video in the feed would download several megabytes while scrolling.
+- Options considered: (a) Autoplay muted like Instagram: smooth, but costly on data and memory for older phones. (b) Show the 400 px thumbnail with a play button and duration; create the player when tapped. The MP4 has its moov atom first, so playback starts before the download finishes.
+- Chosen: (b). It also keeps scrolling cheap and makes "what is a video" obvious to older relatives.
+- Reversibility: Easy; `InlineVideoView` is the only place that decides.
+
+- **D-18: "You're all caught up" position** (2026-11-02, M5)
+- Context: Plan G7 stores the newest post seen when the person last left the feed. The spec doesn't say where the marker goes when nothing is new.
+- Chosen: After the posts that are newer than that timestamp; at the very top when nothing is new; no marker on the first ever visit. The timestamp is sent when the feed disappears or the app goes to the background.
+- Reversibility: Trivial; `FeedModel.caughtUpIndex` is unit-tested.
+
+- **D-19: Media cache cleared on sign-out** (2026-11-02, M5)
+- Context: An integration test showed the in-memory map of media id → signed URL surviving sign-out, so a second account on the same phone could reuse a URL the first account had fetched (until it expired).
+- Chosen: `MediaCache.clearAll()` on every sign-out path, including the debug reset flag; disk URLCache is purged too.
+- Reversibility: n/a (hygiene).
+
+- **D-20: Location picker falls back to free text** (2026-11-02, M5)
+- Context: MapKit search on a simulator or offline may return nothing; a relative may also want "Grandma's house".
+- Chosen: The search sheet always offers "Use \"<typed text>\"" as the first row, storing the name without coordinates. Coordinates are stored only when a MapKit result is chosen.
+- Reversibility: Trivial.

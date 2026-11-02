@@ -21,10 +21,8 @@ struct MediaPipelineIntegrationTests {
     @Test("avatar upload round-trips through the presigned URL pipeline")
     func avatarRoundTrip() async throws {
         guard await Self.stackIsUp() else { return }
-        let auth = API.shared.client.auth
-        try await auth.signInWithOTP(phone: "+15550000009")
-        try await auth.verifyOTP(phone: "+15550000009", token: "123456", type: .sms)
-        defer { Task { try? await auth.signOut() } }
+        try await TestSignIn.signIn("+15550000009")
+        defer { Task { await TestSignIn.signOut() } }
 
         try await API.shared.call("update_profile", UpdateProfileParams(pFirstName: "Pipeline", pLastName: "Tester"))
 
@@ -47,10 +45,8 @@ struct MediaPipelineIntegrationTests {
     @Test("a media id the caller may not see resolves to nothing")
     func invisibleMediaIsAbsent() async throws {
         guard await Self.stackIsUp() else { return }
-        let auth = API.shared.client.auth
-        try await auth.signInWithOTP(phone: "+15550000008")
-        try await auth.verifyOTP(phone: "+15550000008", token: "123456", type: .sms)
-        defer { Task { try? await auth.signOut() } }
+        try await TestSignIn.signIn("+15550000008")
+        defer { Task { await TestSignIn.signOut() } }
         let urls = await MediaCache.shared.urls(for: UUID())
         #expect(urls == nil)
     }

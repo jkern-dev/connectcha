@@ -49,14 +49,14 @@ struct MainTabView: View {
     var body: some View {
         TabView(selection: $selection) {
             Tab("Home", systemImage: "house.fill", value: AppTab.home) {
-                PlaceholderScreen(title: "Home", detail: "Stories and your feed will appear here.")
+                HomeTab()
             }
             Tab("People", systemImage: "person.2.fill", value: AppTab.people) {
                 PeopleTab()
             }
             .badge(model.unread.pendingRequests)
             Tab("Create", systemImage: "plus.circle.fill", value: AppTab.create) {
-                PlaceholderScreen(title: "Create", detail: "New post or story.")
+                CreateTab(onPublished: { selection = .home })
             }
             Tab("Inbox", systemImage: "bubble.left.and.bubble.right.fill", value: AppTab.inbox) {
                 PlaceholderScreen(title: "Inbox", detail: "Messages.")
