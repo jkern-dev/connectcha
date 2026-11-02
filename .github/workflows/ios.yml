@@ -3,6 +3,9 @@ name: iOS build and unit tests
 # Runs on GitHub's macOS runners. Private repositories pay a 10x minute multiplier
 # for macOS, so this is also runnable on demand. The plan's long-term home for
 # iOS CI is Xcode Cloud once the Apple Developer account exists (OPEN_QUESTIONS.md).
+#
+# The integration tests that need the local Supabase stack skip themselves when
+# the stack is not reachable, so only pure unit tests run here.
 on:
   push:
     branches: [main]
@@ -15,8 +18,14 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
-      - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode_26.1.app || sudo xcode-select -s "$(ls -d /Applications/Xcode_26*.app | tail -1)"
+      - name: Show Xcode and pick a simulator
+        id: sim
+        run: |
+          xcodebuild -version
+          xcrun simctl list runtimes
+          DEVICE=$(xcrun simctl list devices available | grep -m1 -oE 'iPhone [0-9A-Za-z ]+' | sed 's/ *$//')
+          echo "device=$DEVICE" >> "$GITHUB_OUTPUT"
+          echo "Using simulator: $DEVICE"
       - name: Install XcodeGen
         run: brew install xcodegen xcbeautify
       - name: Generate project
@@ -27,6 +36,6 @@ jobs:
         run: |
           set -o pipefail
           xcodebuild -project Connectcha.xcodeproj -scheme Connectcha \
-            -destination 'platform=iOS Simulator,name=iPhone 17' \
+            -destination "platform=iOS Simulator,name=${{ steps.sim.outputs.device }}" \
             -only-testing:ConnectchaTests \
             CODE_SIGNING_ALLOWED=NO test | xcbeautify --quiet
