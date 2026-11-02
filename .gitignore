@@ -1,5 +1,6 @@
 .DS_Store
 .derived/
+.derived-tour/
 ios/Connectcha.xcodeproj/
 ios/*.xcworkspace/
 ios/**/xcuserdata/
