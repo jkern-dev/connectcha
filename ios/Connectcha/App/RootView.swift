@@ -38,6 +38,7 @@ enum AppTab: String, Hashable { case home, people, create, inbox, profile }
 
 struct MainTabView: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.scenePhase) private var scenePhase
     @State private var selection: AppTab = {
         #if DEBUG
         if let raw = ProcessInfo.processInfo.environment["CONNECTCHA_START_TAB"], let tab = AppTab(rawValue: raw) { return tab }
@@ -62,10 +63,21 @@ struct MainTabView: View {
             }
             .badge(model.unread.unreadConversations)
             Tab("Profile", systemImage: "person.crop.circle.fill", value: AppTab.profile) {
-                ProfileTabPlaceholder()
+                MyProfileTab()
             }
         }
-        .task { await model.refreshUnread() }
+        .task {
+            await model.refreshUnread()
+            if let id = model.userId { await ContactSync.shared.run(for: id) }
+        }
+        .onChange(of: scenePhase) { _, phase in
+            // Spec 4.2: matching re-runs whenever the app is opened.
+            guard phase == .active, let id = model.userId else { return }
+            Task {
+                await ContactSync.shared.run(for: id)
+                await model.refreshUnread()
+            }
+        }
     }
 }
 
@@ -87,33 +99,3 @@ private struct PlaceholderScreen: View {
     }
 }
 
-private struct ProfileTabPlaceholder: View {
-    @Environment(AppModel.self) private var model
-
-    var body: some View {
-        NavigationStack {
-            List {
-                if let me = model.me {
-                    HStack(spacing: 16) {
-                        AvatarView(profile: me.profile, size: 72)
-                        VStack(alignment: .leading) {
-                            Text(me.profileName).font(.title2.bold())
-                            Text("Signed in").foregroundStyle(.secondary)
-                        }
-                    }
-                    .padding(.vertical, 8)
-                }
-                Section {
-                    Button("Sign out", role: .destructive) {
-                        Task { await model.signOut() }
-                    }
-                }
-            }
-            .navigationTitle("Profile")
-        }
-    }
-}
-
-private extension Me {
-    var profileName: String { profile.profileName }
-}

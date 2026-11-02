@@ -64,3 +64,14 @@ Format: context, options with their main tradeoff, what was chosen and why, how 
 - Options considered: (a) Drive the Contacts app by UI automation: slow and brittle. (b) Edit the simulator's AddressBook SQLite file: undocumented schema. (c) In demo builds only, the app itself writes the signed-in persona's contact list into the simulator's Contacts through the public `CNContactStore` API, and removes the previous persona's seeded entries on sign-out.
 - Chosen: (c). Any simulator can be any persona; switching is sign out and sign in with another test number. The seeding code is compiled only in `DEBUG` and runs only when `CONNECTCHA_DEMO=1` is in the environment.
 - Reversibility: Easy; it is isolated in `DemoSeeder.swift`.
+
+- **D-15: One hint line on the minimal profile** (2026-11-02, M4)
+- Context: Spec 8.3 says the minimal profile shows only name and photo plus a Request button when eligible. Older relatives may not understand why a profile is empty.
+- Options considered: (a) Strictly name, photo and button. (b) Add one short sentence ("Request to follow to see their posts and stories." or "Posts and stories are shared with people they approve.") that reveals nothing about the person.
+- Chosen: (b). The sentence carries no content, counts or relationships.
+- Reversibility: Trivial.
+
+- **D-16: Settings and Edit profile built in M4 rather than M9** (2026-11-02, M4)
+- Context: The demo and the UI tests need sign-out, and the profile tab needed an edit screen to be usable. Both were scheduled for M9.
+- Chosen: Built now with the M9 scope (notification categories, support email, privacy and terms links, sign out, bio 150). M9 will revisit copy and polish only.
+- Reversibility: n/a.

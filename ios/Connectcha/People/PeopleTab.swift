@@ -61,6 +61,7 @@ struct PeopleTab: View {
             }
             .inviteAction($inviteTarget)
             .followBackPrompt(people: people)
+            .appDestinations()
         }
     }
 
