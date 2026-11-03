@@ -150,3 +150,9 @@ Format: context, options with their main tradeoff, what was chosen and why, how 
 - Options considered: (a) Cap the text size or use `minimumScaleFactor` widely: keeps layouts tidy but defeats the purpose. (b) Keep full-size text and switch rows from side-by-side to stacked when `dynamicTypeSize.isAccessibilitySize`.
 - Chosen: (b) via a small `AdaptiveStack` helper; `minimumScaleFactor` is used only on the two count-tile labels. Checked by screenshots at AX5 (Home, People, Profile, Inbox).
 - Reversibility: Trivial.
+
+- **D-31: Visual direction "the kitchen table" replaces the Instagram-shaped UI** (2026-11-03, after M9)
+- Context: The owner judged the first build too close to Instagram. Three directions were mocked up as a canvas (no product code): A "the kitchen table", B "the bulletin", C "the family album". The owner chose A.
+- Options considered: (A) Warm paper, serif headings, photos as prints grouped by day, stories as a pile of "today's snapshots", three tabs with Share and Letters in the top bar. (B) Hyperlegible one-update-per-row list with big labelled buttons; the most conservative. (C) Month-by-month album with mixed-size tiles and top segmented navigation; the furthest from any social app but hardest at large text sizes.
+- Chosen: (A). Every feature and privacy rule stays; what changes is structure (no story ring, no centre plus button, no profile grid, no heart) and vocabulary (Snapshots, Lovely, Write back, Letters, Your circle, Lately). Details, tokens and the screen-by-screen mapping are in `DESIGN_DIRECTION.md`.
+- Reversibility: Moderate; it touches every view file but no model, API or database code.
