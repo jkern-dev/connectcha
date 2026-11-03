@@ -3,8 +3,9 @@ import PhotosUI
 import SwiftUI
 import UIKit
 
-/// Spec 6 creation: camera or camera roll, text overlay, location, replies
-/// toggle. Photos and videos up to 60 seconds.
+/// Spec 6 creation, shown as "Snapshot" in the Share sheet: camera or camera
+/// roll, a few words on the photo, a place, and whether people can write back.
+/// Photos and videos up to 60 seconds.
 struct CreateStoryView: View {
     @Environment(\.dismiss) private var dismiss
     var onPosted: () -> Void
@@ -37,37 +38,8 @@ struct CreateStoryView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: Spacing.l) {
+            VStack(alignment: .leading, spacing: Spacing.l) {
                 preview
-                if source != nil {
-                    TextField("Add text (optional)", text: $overlayText, axis: .vertical)
-                        .lineLimit(1...3)
-                        .font(.body)
-                        .padding(Spacing.m)
-                        .background(Color.cardBackground, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                        .onChange(of: overlayText) { _, new in if new.count > 120 { overlayText = String(new.prefix(120)) } }
-                        .padding(.horizontal, Spacing.m)
-                    HStack {
-                        Button { showLocation = true } label: {
-                            Label(location?.name ?? "Add a location (optional)", systemImage: "mappin.and.ellipse").lineLimit(1)
-                        }
-                        .buttonStyle(.quietPill)
-                        if location != nil {
-                            Button("Remove location", systemImage: "xmark.circle.fill") { location = nil }
-                                .labelStyle(.iconOnly).frame(minWidth: 44, minHeight: 44)
-                        }
-                        Spacer()
-                    }
-                    .padding(.horizontal, Spacing.m)
-                    Toggle(isOn: $repliesEnabled) {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Allow replies")
-                            Text("Replies and reactions come to you as private messages.").font(.subheadline).foregroundStyle(.secondary)
-                        }
-                    }
-                    .padding(.horizontal, Spacing.m)
-                }
-                ErrorText(text: error).padding(.horizontal, Spacing.m)
                 HStack(spacing: Spacing.s) {
                     PhotosPicker(selection: $pickerItem, matching: .any(of: [.images, .videos])) {
                         Label(source == nil ? "Camera roll" : "Change", systemImage: "photo.on.rectangle")
@@ -79,28 +51,74 @@ struct CreateStoryView: View {
                     .buttonStyle(.secondary)
                     .disabled(!cameraAvailable)
                 }
-                .padding(.horizontal, Spacing.m)
                 if !cameraAvailable {
                     Text("The camera isn't available on this device. Choose from your camera roll.")
-                        .font(.footnote).foregroundStyle(.secondary).padding(.horizontal, Spacing.m)
+                        .font(.footnote).foregroundStyle(Palette.muted)
                 }
+                if source != nil {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("A few words on the photo")
+                            .font(.caption.weight(.semibold))
+                            .textCase(.uppercase)
+                            .tracking(0.6)
+                            .foregroundStyle(Palette.muted)
+                        TextField("Optional", text: $overlayText, axis: .vertical)
+                            .lineLimit(1...3)
+                            .font(.serif(.title3))
+                            .italic()
+                            .foregroundStyle(Palette.ink)
+                            .onChange(of: overlayText) { _, new in if new.count > 120 { overlayText = String(new.prefix(120)) } }
+                            .accessibilityLabel("A few words on the photo, optional")
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .card(padding: 16)
+                    VStack(spacing: 0) {
+                        Button { showLocation = true } label: {
+                            HStack(spacing: Spacing.m) {
+                                Image(systemName: "mappin.and.ellipse").foregroundStyle(Color.accentColor).frame(width: 24)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Where").font(.body.weight(.semibold)).foregroundStyle(Palette.ink)
+                                    Text(location?.name ?? "A place name, if you like.").font(.subheadline).foregroundStyle(Palette.muted).lineLimit(2)
+                                }
+                                Spacer()
+                                if location != nil {
+                                    Button("Remove location", systemImage: "xmark.circle.fill") { location = nil }
+                                        .labelStyle(.iconOnly).frame(minWidth: 44, minHeight: 44).foregroundStyle(Palette.muted)
+                                } else {
+                                    Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(Palette.muted)
+                                }
+                            }
+                            .padding(16)
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.cardPress)
+                        CardDivider()
+                        Toggle(isOn: $repliesEnabled) {
+                            HStack(spacing: Spacing.m) {
+                                Image(systemName: "pencil.line").foregroundStyle(Color.accentColor).frame(width: 24)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Let people write back").font(.body.weight(.semibold)).foregroundStyle(Palette.ink)
+                                    Text("Replies and reactions come to you as letters.").font(.subheadline).foregroundStyle(Palette.muted)
+                                }
+                            }
+                        }
+                        .tint(Color.accentColor)
+                        .padding(16)
+                    }
+                    .card(padding: 0)
+                }
+                ErrorText(text: error)
                 Button {
                     Task { await post() }
                 } label: {
-                    Text("Share to your story")
+                    Text("Share today's snapshot")
                 }
                 .buttonStyle(.primary)
                 .disabled(source == nil || preparing || posting)
-                .padding(.horizontal, Spacing.m)
             }
-            .padding(.vertical, Spacing.m)
+            .padding(Spacing.gutter)
         }
         .background(Color.appBackground.ignoresSafeArea())
-        .navigationTitle("New story")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
-        }
         .sheet(isPresented: $showLocation) { LocationSearchView(selection: $location) }
         .fullScreenCover(isPresented: $showCamera) {
             CameraPicker { picked in
@@ -120,7 +138,7 @@ struct CreateStoryView: View {
             if posting {
                 VStack(spacing: Spacing.m) {
                     ProgressView()
-                    Text(status ?? "Sharing…").font(.headline)
+                    Text(status ?? "Sharing…").font(.body.weight(.semibold))
                 }
                 .padding(Spacing.l)
                 .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
@@ -128,41 +146,52 @@ struct CreateStoryView: View {
         }
     }
 
+    /// The chosen photo as a print on the table; a dashed outline before.
     private var preview: some View {
-        ZStack {
-            Color.black
-            if let source {
-                Image(uiImage: source.preview)
-                    .resizable()
-                    .scaledToFit()
-                if !overlayText.trimmingCharacters(in: .whitespaces).isEmpty {
-                    Text(overlayText)
-                        .font(.title2.bold())
-                        .foregroundStyle(.white)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 14).padding(.vertical, 8)
-                        .background(.black.opacity(0.42), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-                        .padding(.horizontal, Spacing.l)
-                }
-                if case .video(_, _, let d) = source {
-                    Label(String(format: "%d:%02d", Int(d) / 60, Int(d) % 60), systemImage: "video.fill")
-                        .font(.caption.weight(.semibold)).padding(6)
-                        .background(.black.opacity(0.55), in: Capsule()).foregroundStyle(.white)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing).padding(Spacing.s)
-                }
-            } else {
-                VStack(spacing: Spacing.s) {
-                    if preparing { ProgressView().tint(.white) }
-                    Image(systemName: "circle.dashed").font(.system(size: 44)).foregroundStyle(.white.opacity(0.8))
-                    Text("Pick a photo or video").foregroundStyle(.white.opacity(0.8))
+        HStack {
+            Spacer(minLength: 0)
+            Group {
+                if let source {
+                    PrintFrame(tilt: -1.5, width: 230, height: 300) {
+                        ZStack {
+                            Image(uiImage: source.preview)
+                                .resizable()
+                                .scaledToFill()
+                            if !overlayText.trimmingCharacters(in: .whitespaces).isEmpty {
+                                Text(overlayText)
+                                    .font(.title3.bold())
+                                    .foregroundStyle(.white)
+                                    .multilineTextAlignment(.center)
+                                    .padding(.horizontal, 12).padding(.vertical, 6)
+                                    .background(.black.opacity(0.42), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                                    .padding(.horizontal, 12)
+                            }
+                            if case .video(_, _, let d) = source {
+                                Text(String(format: "%d:%02d", Int(d) / 60, Int(d) % 60))
+                                    .font(.caption.weight(.semibold)).padding(.horizontal, 8).padding(.vertical, 3)
+                                    .background(Palette.printPaper.opacity(0.92), in: Capsule()).foregroundStyle(Palette.printInk)
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing).padding(8)
+                            }
+                        }
+                    }
+                    .accessibilityLabel("Snapshot preview")
+                } else {
+                    VStack(spacing: Spacing.s) {
+                        if preparing { ProgressView() }
+                        Image(systemName: "photo").font(.title).foregroundStyle(Color.accentColor)
+                        Text("Pick a photo or a short video").font(.subheadline).foregroundStyle(Palette.muted)
+                    }
+                    .frame(width: 230, height: 300)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: Radius.print, style: .continuous)
+                            .strokeBorder(Palette.dashed, style: StrokeStyle(lineWidth: 2, dash: [6, 5]))
+                    )
+                    .accessibilityLabel("No media chosen")
                 }
             }
+            Spacer(minLength: 0)
         }
-        .aspectRatio(9 / 14, contentMode: .fit)
-        .frame(maxWidth: .infinity)
-        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .padding(.horizontal, Spacing.m)
-        .accessibilityLabel(source == nil ? "No media chosen" : "Story preview")
+        .padding(.vertical, Spacing.s)
     }
 
     private func prepare(_ item: PhotosPickerItem) async {
@@ -183,7 +212,7 @@ struct CreateStoryView: View {
         do {
             let seconds = try await VideoExporter.duration(of: url)
             guard MediaLimits.videoDurationIsAllowed(seconds) else {
-                error = "That video is \(Int(seconds.rounded())) seconds long. Stories can be up to 60 seconds."
+                error = "That video is \(Int(seconds.rounded())) seconds long. Snapshots can be up to 60 seconds."
                 return
             }
             let thumb = try await VideoExporter.thumbnail(of: url)

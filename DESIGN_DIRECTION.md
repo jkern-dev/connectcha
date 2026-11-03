@@ -1,6 +1,6 @@
 # Design direction: the kitchen table
 
-Status: chosen by the owner on 2026-11-03. Mock-ups only; no product code has changed yet.
+Status: chosen by the owner on 2026-11-03 and implemented in the app the same day (D-32). The sections below describe the direction; "Where it differs from the mock-ups" at the end lists the small departures made while building.
 Mock-ups: https://claude.ai/artifact/2rtbWKyXwATtjFiw4oXk7x (private canvas; eleven boards for this direction, plus the two directions that were explored and not chosen).
 
 ## Why
@@ -109,8 +109,17 @@ The right column names the SwiftUI file that changes. Nothing below the view lay
 7. Sign-in and onboarding copy.
 8. Re-run the UI suite; the tests find controls by accessibility identifier, so most changes are label strings in the tests (`Like` becomes `Lovely`, `Inbox` becomes `Letters`, the Create tab disappears in favour of the Share button).
 
-## Open for the owner
+## Choices made when building (D-32)
 
-- Font: bundle Fraunces or use the system serif. Fraunces has more character; the system serif is free of any file to ship and renders identically in every text size.
-- The word "Lovely". Alternatives that fit the voice: "Love it", "Warms my heart" (too long for a button), a plain heart icon with "Love". The mock-ups use "Lovely".
-- Whether Lately should also be reachable from Home when there is something new. The mock-ups keep it under You to leave Home calm.
+- Font: the system serif (New York) through `Font.serif(_:)` in `Theme.swift`. No font file to ship, identical rendering at every text size; Fraunces can be swapped in later by changing that one helper.
+- The word "Lovely" stays. The count under a photo reads "4 found it lovely"; the list the poster can open is titled "Found it lovely".
+- Lately stays under You (the clock in the top bar). Home carries no activity entry point, so it stays calm.
+
+## Where it differs from the mock-ups
+
+- Every photo on Home is a full card. The mock-ups showed later photos of a day as thumbnail rows; that would have taken "Lovely" and "Write back" off those photos, which are the two things a relative does most. The day headings carry the table feel on their own.
+- Your own page keeps the counts spec 8.2 gives you ("People who follow you · 3 people", "People you follow · 3 people"). Other people's counts are never shown, as before.
+- Letters has no "New letter" button. A letter can only start from a write-back (spec 7, D-26), so the button would have had nothing to offer.
+- "Today's snapshots" shows "You" as the label on your own print rather than "Seen · You".
+- The snapshot viewer sizes the print to the photo's shape (wide for landscape, tall for portrait) instead of a fixed tall print.
+- Someone's page shows "Your letters" whenever a thread exists, even while your request is still pending, because the thread was started earlier under the rules (D-26).

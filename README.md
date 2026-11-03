@@ -85,7 +85,7 @@ Environment variables the demo script passes to the simulator (see `DECISIONS.md
 |---|---|
 | `CONNECTCHA_DEMO=1` | Seeds the signed-in persona's contacts into the simulator's Contacts |
 | `CONNECTCHA_AUTO_SIGNIN=15550000001` | Signs in with that test number and the fixed code |
-| `CONNECTCHA_START_TAB=people` | Opens on a tab: `home`, `people`, `create`, `inbox`, `profile` |
+| `CONNECTCHA_START_TAB=people` | Opens on a tab: `home`, `people`, `you` (`profile` still works); `inbox` opens Home with Letters pushed, `create` with the Share sheet up |
 | launch argument `-reset-session` | Signs out first |
 
 Example: `SIMCTL_CHILD_CONNECTCHA_DEMO=1 SIMCTL_CHILD_CONNECTCHA_AUTO_SIGNIN=15550000004 xcrun simctl launch <udid> com.connectcha.app`

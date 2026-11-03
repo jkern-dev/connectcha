@@ -18,17 +18,20 @@ struct PostDetailView: View {
     var body: some View {
         ScrollView {
             if let post {
-                PostCard(
-                    post: post,
-                    onLike: { Task { await toggleLike() } },
-                    onOpenLikers: { showLikers = true },
-                    onMessage: post.isMine ? nil : { composing = true },
-                    onMenu: post.isMine ? { showMenu = true } : nil
-                )
-                if post.isMine {
-                    Text(post.responsesEnabled ? "Responses are on for this post." : "Responses are off for this post.")
-                        .font(.subheadline).foregroundStyle(.secondary).padding()
+                VStack(alignment: .leading, spacing: Spacing.m) {
+                    PostCard(
+                        post: post,
+                        onLike: { Task { await toggleLike() } },
+                        onOpenLikers: { showLikers = true },
+                        onMessage: post.isMine ? nil : { composing = true },
+                        onMenu: post.isMine ? { showMenu = true } : nil
+                    )
+                    if post.isMine {
+                        Text(post.responsesEnabled ? "People can write back to this photo." : "Write-backs are off for this photo.")
+                            .font(.footnote).foregroundStyle(Palette.muted).padding(.horizontal, 4)
+                    }
                 }
+                .padding(Spacing.gutter)
             } else if let error {
                 VStack(spacing: Spacing.m) { ErrorText(text: error) }.padding()
             } else {
@@ -36,17 +39,17 @@ struct PostDetailView: View {
             }
         }
         .background(Color.appBackground.ignoresSafeArea())
-        .navigationTitle("Post")
+        .navigationTitle(post.map { FeedModel.dayLabel(for: $0.publishedAt ?? Date()) } ?? "Photo")
         .navigationBarTitleDisplayMode(.inline)
         .task { await load() }
-        .confirmationDialog("Post options", isPresented: $showMenu, titleVisibility: .hidden) {
-            Button("Edit caption or location") { showEdit = true }
-            Button("Delete post", role: .destructive) { confirmDelete = true }
+        .confirmationDialog("Photo options", isPresented: $showMenu, titleVisibility: .hidden) {
+            Button("Change the words or the place") { showEdit = true }
+            Button("Take it off the table", role: .destructive) { confirmDelete = true }
         }
-        .confirmationDialog("Delete this post?", isPresented: $confirmDelete, titleVisibility: .visible) {
+        .confirmationDialog("Take this off the table?", isPresented: $confirmDelete, titleVisibility: .visible) {
             Button("Delete", role: .destructive) { Task { await deletePost() } }
         } message: {
-            Text("It disappears for everyone. Responses people sent will say \"Post no longer available\".")
+            Text("It disappears for everyone. Letters people wrote about it will say the photo is no longer on the table.")
         }
         .sheet(isPresented: $showEdit) {
             if let post { EditPostView(post: post) { updated in self.post = updated; feed?.replace(updated) } }
@@ -109,18 +112,20 @@ struct LikersView: View {
         NavigationStack {
             List {
                 if likers.isEmpty, error == nil {
-                    Text("No likes yet.").foregroundStyle(.secondary)
+                    Text("Nobody yet.").foregroundStyle(Palette.muted)
                 }
                 ForEach(likers) { person in
                     HStack(spacing: Spacing.m) {
                         AvatarView(profile: person, size: 44)
-                        Text(person.displayName).font(.body)
+                        Text(person.displayName).font(.body).foregroundStyle(Palette.ink)
                     }
                     .padding(.vertical, Spacing.xs)
                 }
                 if let error { ErrorText(text: error) }
             }
-            .navigationTitle("Liked by")
+            .scrollContentBackground(.hidden)
+            .background(Color.appBackground)
+            .navigationTitle("Found it lovely")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
             .task {
@@ -166,18 +171,19 @@ struct EditPostView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Caption") {
-                    TextField("Write a caption", text: $caption, axis: .vertical)
+                Section("On the back") {
+                    TextField("A few words, if you like", text: $caption, axis: .vertical)
                         .lineLimit(3...8)
+                        .font(.serif(.body)).italic()
                         .onChange(of: caption) { _, new in if new.count > 1000 { caption = String(new.prefix(1000)) } }
-                    Text("\(caption.count)/1000").font(.caption).foregroundStyle(.secondary)
+                    Text("\(caption.count)/1000").font(.caption).foregroundStyle(Palette.muted)
                 }
-                Section("Location") {
+                Section("Where") {
                     Button {
                         showLocation = true
                     } label: {
                         HStack {
-                            Label(location?.name ?? "Add a location", systemImage: "mappin.and.ellipse")
+                            Label(location?.name ?? "Add a place", systemImage: "mappin.and.ellipse")
                             Spacer()
                             if location != nil {
                                 Button("Remove", role: .destructive) { location = nil }.buttonStyle(.borderless)
@@ -186,13 +192,15 @@ struct EditPostView: View {
                     }
                 }
                 Section {
-                    Toggle("Allow responses", isOn: $responsesEnabled)
+                    Toggle("Let people write back", isOn: $responsesEnabled).tint(Color.accentColor)
                 } footer: {
-                    Text("Responses are private messages to you, never public comments.")
+                    Text("Write-backs come to you as letters, never as public comments.")
                 }
                 if let error { Section { ErrorText(text: error) } }
             }
-            .navigationTitle("Edit post")
+            .scrollContentBackground(.hidden)
+            .background(Color.appBackground)
+            .navigationTitle("Change the words")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }

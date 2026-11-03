@@ -55,18 +55,26 @@ struct AvatarView: View {
             if let id = profile.avatarMediaId {
                 RemoteImage(mediaId: id, variant: size > 120 ? .full : .thumb)
             } else {
-                Circle().fill(Color.accentColor.opacity(0.18))
+                Circle().fill(Palette.tint)
                 Text(profile.initials)
-                    .font(.system(size: size * 0.4, weight: .semibold, design: .rounded))
-                    .foregroundStyle(Color.accentColor)
+                    .font(.system(size: size * 0.38, weight: .bold, design: .serif))
+                    .foregroundStyle(Palette.walnutDeep)
                     .minimumScaleFactor(0.5)
             }
         }
         .frame(width: size, height: size)
         .clipShape(Circle())
         .overlay {
+            // A thin white border, like a print, instead of a story ring.
+            Circle().strokeBorder(Color.white, lineWidth: max(1.5, size * 0.03))
+        }
+        .overlay(alignment: .bottomTrailing) {
             if storyRing {
-                Circle().strokeBorder(Color.accentColor, lineWidth: max(2, size * 0.05)).padding(-max(3, size * 0.06))
+                Image(systemName: "sun.max.fill")
+                    .font(.system(size: max(10, size * 0.22), weight: .bold))
+                    .foregroundStyle(.white, Color.accentColor)
+                    .background(Circle().fill(Color.accentColor).padding(-2))
+                    .accessibilityHidden(true)
             }
         }
         .accessibilityHidden(true)

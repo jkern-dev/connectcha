@@ -33,6 +33,10 @@ Full list in `DECISIONS.md`. The ones that change what you will see or pay:
 7. **Debug-only switches** (D-11) make the demo possible: auto sign-in by test number, start tab, contact seeding, in-app push poller. None exist in release builds.
 8. **Layouts stack at large text sizes** instead of shrinking text (D-30).
 
+## The restyle (2026-11-03)
+
+After the build the owner judged the screens too close to Instagram. Three directions were mocked up on a design canvas (link in `DESIGN_DIRECTION.md`); the owner chose "the kitchen table" and asked for it to be built. It now is: warm paper, a serif for headings and captions, photos as prints, three tabs (Home, People, You) with Share and Letters in Home's top bar, and plain words throughout (Snapshots, Lovely, Write back, Letters, Your circle, Lately). Only view files and the asset-catalog colours changed; models, API, database and Edge Functions are as they were. `DESIGN_DIRECTION.md` has the tokens, the vocabulary table and the places the build departs from the mock-ups; D-31 and D-32 in `DECISIONS.md` record the choice and the three decisions taken while building. The UI suite was updated to the new words and still covers the same scenarios.
+
 ## Known issues
 
 - Emoji render as a missing-glyph box in the iOS 26.3 simulator runtime on this Mac. The bytes are correct; phones render them.

@@ -8,22 +8,19 @@ struct NotificationsStepView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.l) {
-                Image(systemName: "bell.badge.fill")
-                    .font(.system(size: 44))
-                    .foregroundStyle(Color.accentColor)
-                    .accessibilityHidden(true)
-                    .padding(.top, Spacing.l)
                 ScreenHeader(
-                    title: "Know when something happens",
-                    subtitle: "Connectcha can tell you when someone wants to follow you, approves you, or sends you a message."
+                    title: "Hear from them",
+                    subtitle: "Connectcha can tell you when someone asks to see your photos, lets you in, or writes you a letter."
                 )
+                .padding(.top, Spacing.l)
                 VStack(alignment: .leading, spacing: Spacing.s) {
-                    Label("Follow requests and approvals", systemImage: "person.badge.plus")
-                    Label("Messages and responses to your posts", systemImage: "bubble.left")
-                    Label("New posts from people whose bell you turn on", systemImage: "bell")
-                    Label("Never for likes, and never for marketing", systemImage: "hand.raised")
+                    Label("Someone asks to see your photos, or lets you in", systemImage: "person.badge.plus")
+                    Label("Letters and write-backs to your photos", systemImage: "envelope")
+                    Label("New photos from people you ask to hear from", systemImage: "sun.max")
+                    Label("Never for lovelies, and never for marketing", systemImage: "hand.raised")
                 }
                 .font(.body)
+                .foregroundStyle(Palette.body)
                 Button {
                     asking = true
                     Task {

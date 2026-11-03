@@ -66,7 +66,7 @@ struct NameStepView: View {
             VStack(alignment: .leading, spacing: Spacing.l) {
                 ScreenHeader(
                     title: "What's your name?",
-                    subtitle: "Friends and family who don't have you in their contacts will see this name."
+                    subtitle: "People who have your number saved see the name they gave you. Everyone else sees this one."
                 )
                 .padding(.top, Spacing.l)
 
@@ -150,8 +150,8 @@ struct PhotoStepView: View {
         ScrollView {
             VStack(spacing: Spacing.l) {
                 ScreenHeader(
-                    title: "Add a photo of you",
-                    subtitle: "It helps people recognise you. You can skip this and add one later."
+                    title: "A photo of you",
+                    subtitle: "It helps people recognise you at the table. You can skip this and add one later."
                 )
                 .padding(.top, Spacing.l)
 

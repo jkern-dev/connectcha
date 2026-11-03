@@ -33,37 +33,57 @@ private struct LoadingScreen: View {
     }
 }
 
-/// The five tabs from spec 8.5. Screens are filled in milestone by milestone.
-enum AppTab: String, Hashable { case home, people, create, inbox, profile }
+/// Three tabs (DESIGN_DIRECTION.md): Home, People, You. Share and Letters live
+/// in Home's top bar; Lately and Settings in You's.
+enum AppTab: String, Hashable {
+    case home, people, you
+
+    /// Accepts the older names too (`profile`, and `inbox`/`create`, which
+    /// open Home with Letters pushed or the Share sheet up).
+    init?(launchName: String) {
+        switch launchName {
+        case "home", "inbox", "create": self = .home
+        case "people": self = .people
+        case "you", "profile": self = .you
+        default: return nil
+        }
+    }
+}
+
+/// What Home should do straight after launch (debug launches and deep links).
+enum HomeStart: Equatable { case none, letters, share }
 
 struct MainTabView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.scenePhase) private var scenePhase
-    @State private var selection: AppTab = {
+    @State private var selection: AppTab
+    private let homeStart: HomeStart
+
+    init() {
+        var tab = AppTab.home
+        var start = HomeStart.none
         #if DEBUG
-        if let raw = ProcessInfo.processInfo.environment["CONNECTCHA_START_TAB"], let tab = AppTab(rawValue: raw) { return tab }
+        if let raw = ProcessInfo.processInfo.environment["CONNECTCHA_START_TAB"] {
+            if let t = AppTab(launchName: raw) { tab = t }
+            if raw == "inbox" { start = .letters }
+            if raw == "create" { start = .share }
+        }
         #endif
-        return .home
-    }()
+        _selection = State(initialValue: tab)
+        homeStart = start
+    }
 
     var body: some View {
         TabView(selection: $selection) {
-            Tab("Home", systemImage: "house.fill", value: AppTab.home) {
-                HomeTab()
+            Tab("Home", systemImage: "house", value: AppTab.home) {
+                HomeTab(start: homeStart)
             }
-            Tab("People", systemImage: "person.2.fill", value: AppTab.people) {
+            Tab("People", systemImage: "person.2", value: AppTab.people) {
                 PeopleTab()
             }
             .badge(model.unread.pendingRequests)
-            Tab("Create", systemImage: "plus.circle.fill", value: AppTab.create) {
-                CreateTab(onPublished: { selection = .home })
-            }
-            Tab("Inbox", systemImage: "bubble.left.and.bubble.right.fill", value: AppTab.inbox) {
-                InboxTab()
-            }
-            .badge(model.unread.unreadConversations)
-            Tab("Profile", systemImage: "person.crop.circle.fill", value: AppTab.profile) {
-                MyProfileTab()
+            Tab("You", systemImage: "person", value: AppTab.you) {
+                YouTab()
             }
         }
         .task {
@@ -89,5 +109,3 @@ struct MainTabView: View {
         }
     }
 }
-
-

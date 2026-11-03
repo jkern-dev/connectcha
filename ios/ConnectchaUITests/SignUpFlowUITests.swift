@@ -20,7 +20,7 @@ final class SignUpFlowUITests: XCTestCase {
         phone.tap()
         phone.typeText("5550000008")
 
-        let textMe = app.buttons["Text me a code"]
+        let textMe = app.buttons["Text me the code"]
         XCTAssertTrue(textMe.isEnabled)
         textMe.tap()
 
@@ -63,9 +63,8 @@ final class SignUpFlowUITests: XCTestCase {
         XCTAssertTrue(tabBar.waitForExistence(timeout: 20), "signed-in users land on the tab bar")
         XCTAssertTrue(app.tabBars.buttons["Home"].exists)
         XCTAssertTrue(app.tabBars.buttons["People"].exists)
-        XCTAssertTrue(app.tabBars.buttons["Create"].exists)
-        XCTAssertTrue(app.tabBars.buttons["Inbox"].exists)
-        XCTAssertTrue(app.tabBars.buttons["Profile"].exists)
+        XCTAssertTrue(app.tabBars.buttons["You"].exists)
+        XCTAssertEqual(app.tabBars.buttons.count, 3, "three tabs: Share and Letters live in Home's top bar")
     }
 
     @MainActor
@@ -77,7 +76,7 @@ final class SignUpFlowUITests: XCTestCase {
         // with 0) never enables the button, so no code request is ever sent.
         phone.tap()
         phone.typeText("0447700900")
-        XCTAssertFalse(app.buttons["Text me a code"].isEnabled)
+        XCTAssertFalse(app.buttons["Text me the code"].isEnabled)
         let message = app.staticTexts.containing(NSPredicate(format: "label CONTAINS[c] 'US phone number'")).firstMatch
         XCTAssertTrue(message.waitForExistence(timeout: 5))
     }
@@ -89,7 +88,7 @@ final class SignUpFlowUITests: XCTestCase {
         XCTAssertTrue(phone.waitForExistence(timeout: 15))
         phone.tap()
         phone.typeText("5550000009")
-        app.buttons["Text me a code"].tap()
+        app.buttons["Text me the code"].tap()
         let code = app.textFields["Six digit code"]
         XCTAssertTrue(code.waitForExistence(timeout: 15))
         code.tap()

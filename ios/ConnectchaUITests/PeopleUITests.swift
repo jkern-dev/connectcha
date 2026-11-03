@@ -58,14 +58,13 @@ final class PeopleUITests: XCTestCase {
         let dad = app.staticTexts["Dad"]
         XCTAssertTrue(dad.waitForExistence(timeout: 30))
         XCTAssertFalse(app.staticTexts["Robert Kern"].exists)
-        XCTAssertTrue(app.staticTexts["In your contacts"].exists)
+        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'In your contacts'")).firstMatch.exists)
 
         // Non-US contact: tapping Invite shows the message and no composer.
         let lucia = app.buttons["Invite Lucía Fernández"]
-        let table = app.collectionViews.firstMatch.exists ? app.collectionViews.firstMatch : app.tables.firstMatch
         var tries = 0
         while !lucia.exists && tries < 12 {
-            table.swipeUp()
+            app.swipeUp()
             tries += 1
         }
         XCTAssertTrue(lucia.waitForExistence(timeout: 5), "non-US contacts stay in the invite list")
@@ -84,12 +83,14 @@ final class PeopleUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Contacts access is off"].waitForExistence(timeout: 20))
         // Dad's request is still there (under the profile name, since no contacts are readable).
         XCTAssertTrue(app.staticTexts["Robert Kern"].waitForExistence(timeout: 20))
-        XCTAssertTrue(app.staticTexts["Not in contacts"].exists)
-        XCTAssertTrue(app.buttons["Approve"].exists)
-        XCTAssertTrue(app.buttons["Decline"].exists)
+        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'Not in contacts'")).firstMatch.exists)
+        XCTAssertTrue(app.buttons["request.approve"].exists)
+        XCTAssertTrue(app.buttons["request.decline"].exists)
         // No discovery surface without contacts.
         XCTAssertFalse(app.staticTexts["People you know"].exists)
-        // Posting stays available.
-        XCTAssertTrue(app.tabBars.buttons["Create"].isEnabled)
+        // Sharing stays available.
+        app.tabBars.buttons["Home"].tap()
+        XCTAssertTrue(app.buttons["Share"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["Share"].isEnabled)
     }
 }

@@ -17,7 +17,7 @@ final class OnboardingUITests: XCTestCase {
         XCTAssertTrue(app.links["Terms"].exists || app.buttons["Terms"].exists, "terms linked on the first screen")
         XCTAssertTrue(app.links["Privacy Policy"].exists || app.buttons["Privacy Policy"].exists)
         phone.tap(); phone.typeText("5550000009")
-        app.buttons["Text me a code"].tap()
+        app.buttons["Text me the code"].tap()
         let code = app.textFields["Six digit code"]
         XCTAssertTrue(code.waitForExistence(timeout: 15))
         code.tap(); code.typeText("123456")

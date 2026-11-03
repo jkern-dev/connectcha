@@ -54,15 +54,18 @@ struct EditProfileView: View {
                 Section {
                     TextField("A few words about you", text: $bio, axis: .vertical)
                         .lineLimit(3...6)
+                        .font(.serif(.body)).italic()
                         .onChange(of: bio) { _, new in if new.count > bioLimit { bio = String(new.prefix(bioLimit)) } }
                 } header: {
-                    Text("Bio")
+                    Text("A few words")
                 } footer: {
-                    Text("\(bio.count)/\(bioLimit)")
+                    Text("\(bio.count)/\(bioLimit). Shown to people you've let in.")
                 }
                 if let error { Section { ErrorText(text: error) } }
             }
-            .navigationTitle("Edit profile")
+            .scrollContentBackground(.hidden)
+            .background(Color.appBackground)
+            .navigationTitle("Your photo and words")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }

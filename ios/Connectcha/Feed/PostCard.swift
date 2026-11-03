@@ -1,7 +1,8 @@
 import AVKit
 import SwiftUI
 
-/// One post in the feed or on its own screen (spec 5.2, 5.3).
+/// One post as a card on the table (spec 5.2, 5.3): who and when, the photo,
+/// a line on the back in italic serif, then "Lovely" and "Write back to X".
 struct PostCard: View {
     let post: Post
     var onLike: () -> Void
@@ -11,51 +12,35 @@ struct PostCard: View {
     var onMenu: (() -> Void)? = nil
 
     @State private var page = 0
-    @State private var showHeartBurst = false
+    @State private var showBurst = false
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.s) {
+        VStack(alignment: .leading, spacing: 12) {
             header
             mediaPager
-            actions
             if !post.caption.isEmpty {
                 Text(post.caption)
-                    .font(.body)
+                    .captionSerif(.title3)
                     .fixedSize(horizontal: false, vertical: true)
-                    .padding(.horizontal, Spacing.m)
             }
-            if post.responsesEnabled, !post.isMine, let onMessage {
-                Button(action: onMessage) {
-                    HStack {
-                        Image(systemName: "bubble.left")
-                        Text("Message \(post.author.displayName)")
-                        Spacer()
-                    }
-                    .font(.body)
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, Spacing.m)
-                    .frame(minHeight: 44)
-                    .background(Color.subtleBackground, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-                }
-                .buttonStyle(.plain)
-                .padding(.horizontal, Spacing.m)
-                .accessibilityLabel("Message \(post.author.displayName) about this post")
-            }
+            actions
         }
-        .padding(.vertical, Spacing.s)
-        .background(Color.cardBackground)
+        .card()
     }
+
+    // MARK: Header
 
     private var header: some View {
         HStack(spacing: Spacing.s) {
             NavigationLink(value: ProfileRoute(userId: post.author.id, phoneHash: nil)) {
-                HStack(spacing: Spacing.s) {
-                    AvatarView(profile: post.author, size: 40)
+                HStack(spacing: 10) {
+                    AvatarView(profile: post.author, size: 36)
                     VStack(alignment: .leading, spacing: 1) {
-                        Text(post.author.displayName).font(.headline)
+                        Text(post.author.displayName).font(.body.weight(.semibold)).foregroundStyle(Palette.ink)
                         Text(metaLine)
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                            .font(.footnote)
+                            .foregroundStyle(Palette.muted)
                             .lineLimit(2)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -67,13 +52,13 @@ struct PostCard: View {
                 Button(action: onMenu) {
                     Image(systemName: "ellipsis")
                         .font(.body.weight(.semibold))
+                        .foregroundStyle(Palette.ink)
                         .frame(width: 44, height: 44)
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("Post options")
+                .accessibilityLabel("Photo options")
             }
         }
-        .padding(.horizontal, Spacing.m)
     }
 
     private var metaLine: String {
@@ -82,6 +67,8 @@ struct PostCard: View {
         if let place = post.locationName, !place.isEmpty { parts.append(place) }
         return parts.joined(separator: " · ")
     }
+
+    // MARK: Media
 
     private var mediaAspect: CGFloat {
         // Use the first item's ratio for the whole pager; cap very tall media.
@@ -99,10 +86,10 @@ struct PostCard: View {
                         MediaView(item: item).tag(index)
                     }
                 }
-                .tabViewStyle(.page(indexDisplayMode: .always))
+                .tabViewStyle(.page(indexDisplayMode: .never))
             }
-            if showHeartBurst {
-                Image(systemName: "heart.fill")
+            if showBurst {
+                Image(systemName: "sun.max.fill")
                     .font(.system(size: 96))
                     .foregroundStyle(.white)
                     .shadow(radius: 8)
@@ -112,49 +99,78 @@ struct PostCard: View {
         }
         .aspectRatio(mediaAspect, contentMode: .fit)
         .frame(maxWidth: .infinity)
-        .clipped()
+        .clipShape(RoundedRectangle(cornerRadius: Radius.media, style: .continuous))
+        .overlay(alignment: .bottomTrailing) {
+            if post.media.count > 1 {
+                Text("\(page + 1) of \(post.media.count)")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Palette.printInk)
+                    .padding(.horizontal, 8).padding(.vertical, 3)
+                    .background(Palette.printPaper.opacity(0.92), in: Capsule())
+                    .padding(10)
+                    .accessibilityHidden(true)
+            }
+        }
         .contentShape(Rectangle())
         .onTapGesture(count: 2) {
             if !post.likedByMe { onLike() }
-            withAnimation(.spring(duration: 0.3)) { showHeartBurst = true }
+            withAnimation(.spring(duration: 0.3)) { showBurst = true }
             Task {
                 try? await Task.sleep(for: .milliseconds(700))
-                withAnimation { showHeartBurst = false }
+                withAnimation { showBurst = false }
             }
         }
         .onTapGesture(count: 1) { onOpenPost?() }
         .accessibilityElement(children: .contain)
-        .accessibilityLabel("\(post.media.count) \(post.media.count == 1 ? "item" : "items") by \(post.author.displayName)")
-        .accessibilityHint("Double tap twice quickly to like")
+        .accessibilityLabel("\(post.media.count) \(post.media.count == 1 ? "photo" : "photos") by \(post.author.displayName)\(post.media.count > 1 ? ", swipe sideways for more" : "")")
+        .accessibilityHint("Double tap twice quickly to say lovely")
     }
 
+    // MARK: Actions
+
     private var actions: some View {
-        HStack(spacing: Spacing.m) {
-            Button(action: onLike) {
-                Image(systemName: post.likedByMe ? "heart.fill" : "heart")
-                    .font(.title2)
-                    .foregroundStyle(post.likedByMe ? Color.red : Color.primary)
-                    .frame(width: 44, height: 44)
-                    .contentTransition(.symbolEffect(.replace))
+        VStack(alignment: .leading, spacing: 2) {
+            AdaptiveStack(alignment: .leading, spacing: 10) {
+                Button(action: onLike) {
+                    Label("Lovely", systemImage: post.likedByMe ? "sun.max.fill" : "sun.max")
+                        .contentTransition(.symbolEffect(.replace))
+                        .frame(maxWidth: typeSize.isAccessibilitySize ? .infinity : nil)
+                }
+                .buttonStyle(.quietPill)
+                .accessibilityLabel("Lovely")
+                .accessibilityValue(post.likedByMe ? "you said so" : "")
+                .accessibilityHint(post.likedByMe ? "Takes it back" : "Tells \(post.author.displayName) you found it lovely")
+
+                if !typeSize.isAccessibilitySize { Spacer(minLength: 0) }
+
+                if post.responsesEnabled, !post.isMine, let onMessage {
+                    Button("Write back to \(post.author.displayName)", action: onMessage)
+                        .buttonStyle(.link)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.85)
+                        .frame(maxWidth: typeSize.isAccessibilitySize ? .infinity : nil, alignment: .leading)
+                        .accessibilityHint("A private letter, never a public comment")
+                }
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel(post.likedByMe ? "Unlike" : "Like")
 
             // Anyone sees the count; only the poster can open the list (spec 5.3).
             if post.likeCount > 0 {
-                let text = Text("\(post.likeCount) like\(post.likeCount == 1 ? "" : "s")").font(.body.weight(.medium))
+                let words = "\(post.likeCount) found it lovely"
                 if post.isMine, let onOpenLikers {
-                    Button(action: onOpenLikers) { text.frame(minHeight: 44) }
-                        .buttonStyle(.plain)
-                        .accessibilityHint("Shows who liked your post")
+                    Button(words, action: onOpenLikers)
+                        .buttonStyle(.link)
+                        .font(.subheadline.weight(.semibold))
+                        .accessibilityHint("Shows who")
                         .accessibilityIdentifier("post.likeCount.mine")
                 } else {
-                    text.frame(minHeight: 44).accessibilityIdentifier("post.likeCount")
+                    Text(words)
+                        .font(.subheadline)
+                        .foregroundStyle(Palette.muted)
+                        .frame(minHeight: 32)
+                        .accessibilityIdentifier("post.likeCount")
                 }
             }
-            Spacer()
         }
-        .padding(.horizontal, Spacing.m)
     }
 }
 
@@ -192,8 +208,8 @@ struct InlineVideoView: View {
                     Task { await start() }
                 } label: {
                     ZStack {
-                        Circle().fill(.black.opacity(0.55)).frame(width: 72, height: 72)
-                        if loading { ProgressView().tint(.white) } else { Image(systemName: "play.fill").font(.title).foregroundStyle(.white) }
+                        Circle().fill(Palette.printPaper.opacity(0.92)).frame(width: 64, height: 64)
+                        if loading { ProgressView().tint(Palette.printInk) } else { Image(systemName: "play.fill").font(.title2).foregroundStyle(Palette.printInk) }
                     }
                 }
                 .buttonStyle(.plain)
@@ -201,11 +217,11 @@ struct InlineVideoView: View {
                 if let d = item.durationS {
                     Text(durationLabel(d))
                         .font(.caption.weight(.semibold))
-                        .padding(.horizontal, 6).padding(.vertical, 3)
-                        .background(.black.opacity(0.55), in: Capsule())
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
-                        .padding(Spacing.s)
+                        .padding(.horizontal, 8).padding(.vertical, 3)
+                        .background(Palette.printPaper.opacity(0.92), in: Capsule())
+                        .foregroundStyle(Palette.printInk)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
+                        .padding(10)
                 }
             }
             if failed {

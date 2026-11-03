@@ -23,7 +23,7 @@ struct ContactsStepView: View {
 
                 Button("Not now") { onDone() }
                     .buttonStyle(.secondary)
-                Text("You can turn this on later from the People tab. Without it you can't find anyone, but you can still approve requests, follow back and post.")
+                Text("You can turn this on later from People. Without it you can't find anyone, but you can still let people in, follow back and share.")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
@@ -68,7 +68,7 @@ struct PeopleStepView: View {
                             title: "People you know",
                             subtitle: sync.status.canRead
                                 ? "No one from your contacts is on Connectcha yet. You can invite people next."
-                                : "Turn on contacts access from the People tab whenever you like."
+                                : "Turn on contacts access from People whenever you like."
                         )
                         .padding(.top, Spacing.l)
                         Button("Continue") { onDone() }.buttonStyle(.primary)
@@ -98,9 +98,9 @@ struct PeopleStepView: View {
                         }
                     } header: {
                         VStack(alignment: .leading, spacing: Spacing.s) {
-                            Text("People you know").font(.largeTitle.bold()).foregroundStyle(.primary)
-                            Text("These people from your contacts are on Connectcha. Tick the ones you'd like to follow. They'll need to approve.")
-                                .font(.body).foregroundStyle(.secondary)
+                            Text("People you know").font(.serif(.largeTitle, weight: .bold)).foregroundStyle(Palette.ink)
+                            Text("These people from your contacts are on Connectcha. Tick the ones you'd like to follow. They'll need to say yes.")
+                                .font(.body).foregroundStyle(Palette.muted)
                         }
                         .textCase(nil)
                         .padding(.bottom, Spacing.s)
@@ -162,7 +162,7 @@ struct InviteStepView: View {
             if !sync.status.canRead || sync.invites.isEmpty {
                 ScrollView {
                     VStack(alignment: .leading, spacing: Spacing.l) {
-                        ScreenHeader(title: "Invite people", subtitle: "You can invite friends and family from the People tab at any time.")
+                        ScreenHeader(title: "Invite people", subtitle: "You can invite friends and family from People at any time.")
                             .padding(.top, Spacing.l)
                         Button("Continue") { onDone() }.buttonStyle(.primary)
                     }
@@ -176,9 +176,9 @@ struct InviteStepView: View {
                         }
                     } header: {
                         VStack(alignment: .leading, spacing: Spacing.s) {
-                            Text("Invite people").font(.largeTitle.bold()).foregroundStyle(.primary)
+                            Text("Invite people").font(.serif(.largeTitle, weight: .bold)).foregroundStyle(Palette.ink)
                             Text("These contacts aren't on Connectcha yet. Tapping Invite opens your Messages app with a note you can send.")
-                                .font(.body).foregroundStyle(.secondary)
+                                .font(.body).foregroundStyle(Palette.muted)
                         }
                         .textCase(nil)
                         .padding(.bottom, Spacing.s)

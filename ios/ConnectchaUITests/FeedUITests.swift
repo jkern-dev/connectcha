@@ -32,9 +32,9 @@ final class FeedUITests: XCTestCase {
         XCTAssertTrue(scrollTo(caption, in: app), "Josh's own post is in his feed")
         let mineCount = app.buttons["post.likeCount.mine"].firstMatch
         XCTAssertTrue(mineCount.exists, "the poster's count is tappable")
-        XCTAssertEqual(mineCount.label, "4 likes")
+        XCTAssertEqual(mineCount.label, "4 found it lovely")
         mineCount.tap()
-        XCTAssertTrue(app.navigationBars["Liked by"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.navigationBars["Found it lovely"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.staticTexts["Mom"].waitForExistence(timeout: 10), "the poster sees names (saved name for a contact)")
         XCTAssertTrue(app.staticTexts["Ana Silva"].exists)
         app.buttons["Done"].tap()
@@ -44,12 +44,12 @@ final class FeedUITests: XCTestCase {
         app = launch(as: "15550000002")
         let captionForMom = app.staticTexts.containing(NSPredicate(format: "label BEGINSWITH 'Hike with the dogs'")).firstMatch
         XCTAssertTrue(scrollTo(captionForMom, in: app))
-        let fourLikesText = app.staticTexts.matching(identifier: "post.likeCount").matching(NSPredicate(format: "label == '4 likes'")).firstMatch
+        let fourLikesText = app.staticTexts.matching(identifier: "post.likeCount").matching(NSPredicate(format: "label == '4 found it lovely'")).firstMatch
         XCTAssertTrue(fourLikesText.exists, "a viewer sees the count as plain text")
-        let fourLikesButton = app.buttons.matching(identifier: "post.likeCount.mine").matching(NSPredicate(format: "label == '4 likes'"))
+        let fourLikesButton = app.buttons.matching(identifier: "post.likeCount.mine").matching(NSPredicate(format: "label == '4 found it lovely'"))
         XCTAssertEqual(fourLikesButton.count, 0, "a viewer cannot open the list for someone else's post")
         fourLikesText.tap()
-        XCTAssertFalse(app.navigationBars["Liked by"].waitForExistence(timeout: 2))
+        XCTAssertFalse(app.navigationBars["Found it lovely"].waitForExistence(timeout: 2))
     }
 
     /// S15: a new user sees pending requests and prompts, never filler.
@@ -75,20 +75,20 @@ final class FeedUITests: XCTestCase {
             }
             app.tabBars.buttons["People"].tap()
         }
-        XCTAssertTrue(app.navigationBars["People"].waitForExistence(timeout: 30))
-        let requestJosh = app.buttons["Request to follow Josh Kern"]
+        XCTAssertTrue(app.staticTexts["Your circle"].waitForExistence(timeout: 30))
+        let requestJosh = app.buttons["Ask to follow Josh Kern"]
         if requestJosh.waitForExistence(timeout: 20) { requestJosh.tap() }
-        XCTAssertTrue(app.buttons["Requested"].firstMatch.waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["Asked"].firstMatch.waitForExistence(timeout: 10))
 
         app.tabBars.buttons["Home"].tap()
-        XCTAssertTrue(app.staticTexts["Your feed is empty for now"].waitForExistence(timeout: 20), "empty state is shown")
-        XCTAssertTrue(app.staticTexts["Waiting for approval"].exists, "pending requests are listed")
+        XCTAssertTrue(app.staticTexts["Nothing on the table yet"].waitForExistence(timeout: 20), "empty state is shown")
+        XCTAssertTrue(app.staticTexts["Waiting for their yes"].exists, "pending requests are listed")
         XCTAssertTrue(app.staticTexts["Josh Kern"].exists)
         XCTAssertTrue(app.buttons["Find people you know"].exists)
-        XCTAssertTrue(app.buttons["Make your first post"].exists)
-        // No filler: no post cards, no like buttons.
-        XCTAssertEqual(app.buttons.matching(identifier: "Like").count, 0)
-        XCTAssertEqual(app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Message '")).count, 0)
+        XCTAssertTrue(app.buttons["Share your first photo"].exists)
+        // No filler: no photo cards, no Lovely buttons.
+        XCTAssertEqual(app.buttons.matching(identifier: "Lovely").count, 0)
+        XCTAssertEqual(app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Write back'")).count, 0)
     }
 
     /// S5 at feed level: Priya loses Josh's post the moment he removes her.
@@ -99,9 +99,9 @@ final class FeedUITests: XCTestCase {
         XCTAssertTrue(scrollTo(hike, in: app), "Priya follows Josh and sees his post")
 
         app.terminate()
-        app = launch(as: "15550000001", tab: "profile")
-        XCTAssertTrue(app.navigationBars["Profile"].waitForExistence(timeout: 30))
-        app.buttons.matching(NSPredicate(format: "label CONTAINS 'followers'")).firstMatch.tap()
+        app = launch(as: "15550000001", tab: "you")
+        XCTAssertTrue(app.staticTexts["Josh Kern"].waitForExistence(timeout: 30))
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'People who follow you'")).firstMatch.tap()
         let priya = app.staticTexts["Priya Nair"]
         XCTAssertTrue(priya.waitForExistence(timeout: 15))
         priya.swipeLeft()
@@ -112,7 +112,7 @@ final class FeedUITests: XCTestCase {
 
         app.terminate()
         app = launch(as: "15550000006")
-        XCTAssertTrue(app.navigationBars["Connectcha"].waitForExistence(timeout: 30))
+        XCTAssertTrue(app.staticTexts["Connectcha"].waitForExistence(timeout: 30))
         let hikeAgain = app.staticTexts.containing(NSPredicate(format: "label BEGINSWITH 'Hike with the dogs'")).firstMatch
         XCTAssertFalse(scrollTo(hikeAgain, in: app, maxSwipes: 10), "the removed follower no longer sees the post")
         // She was not told: no activity item.

@@ -2,12 +2,14 @@ import AVKit
 import Photos
 import SwiftUI
 
-/// Full-screen story playback (spec 6): several in a row play in order; tap
-/// right or left to move; swipe down to close. Followers can reply or send a
-/// quick reaction (both go to the one-to-one conversation); the author sees
-/// who viewed, can delete, and can save to the phone.
+/// Looking at a snapshot (spec 6): one print held up on the paper background,
+/// thin progress bars at the top; several in a row play in order; tap right or
+/// left to move; swipe down to close. Followers can write back or send a quick
+/// reaction (both go to the one-to-one letters); the author sees who looked,
+/// can delete, and can save to the phone.
 struct StoryViewerView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.dynamicTypeSize) private var typeSize
     let groups: [StoryGroup]
     let startGroup: Int
     var tray: StoryTrayModel?
@@ -44,29 +46,41 @@ struct StoryViewerView: View {
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            Palette.tint.opacity(0.35).ignoresSafeArea()
+            Color.appBackground.opacity(0.9).ignoresSafeArea()
             if let story, let group {
-                media(for: story)
-                    .ignoresSafeArea()
                 VStack(spacing: 0) {
                     progressBars(group)
                     header(story)
-                    Spacer()
+                    Spacer(minLength: 0)
+                    print(for: story)
+                    Spacer(minLength: 0)
+                    if !typeSize.isAccessibilitySize {
+                        HStack {
+                            Text("tap left · previous"); Spacer(); Text("hold · pause"); Spacer(); Text("tap right · next")
+                        }
+                        .font(.caption2)
+                        .foregroundStyle(Palette.muted)
+                        .padding(.horizontal, Spacing.gutter)
+                        .padding(.bottom, 6)
+                        .accessibilityHidden(true)
+                    }
                     footer(story)
                 }
-                .padding(.horizontal, Spacing.m)
                 .padding(.top, Spacing.s)
                 tapZones
             } else {
-                Text("No stories").foregroundStyle(.white)
+                Text("No snapshots").foregroundStyle(Palette.muted)
             }
             if let toast {
                 Text(toast)
                     .font(.body.weight(.medium))
+                    .foregroundStyle(Palette.ink)
                     .padding(.horizontal, 16).padding(.vertical, 10)
-                    .background(.ultraThinMaterial, in: Capsule())
+                    .background(Color.cardBackground, in: Capsule())
+                    .shadow(color: Palette.shadow.opacity(0.15), radius: 4, y: 2)
                     .frame(maxHeight: .infinity, alignment: .bottom)
-                    .padding(.bottom, 120)
+                    .padding(.bottom, 130)
                     .transition(.opacity)
             }
         }
@@ -78,21 +92,65 @@ struct StoryViewerView: View {
                     if v.translation.height > 120 { dismiss() } else { withAnimation { dragOffset = 0 } }
                 }
         )
-        .statusBarHidden()
-        .preferredColorScheme(.dark)
         .onAppear { start() }
         .onDisappear { stopTimer(); player?.pause() }
         .onChange(of: replying) { _, focused in paused = focused }
         .sheet(isPresented: $showViewers, onDismiss: { paused = false }) {
             if let story { StoryViewersSheet(story: story) }
         }
-        .confirmationDialog("Delete this story?", isPresented: $confirmDelete, titleVisibility: .visible) {
+        .confirmationDialog("Take this snapshot down?", isPresented: $confirmDelete, titleVisibility: .visible) {
             Button("Delete", role: .destructive) { Task { await deleteCurrent() } }
         }
         .onChange(of: confirmDelete) { _, open in paused = open }
     }
 
     // MARK: Pieces
+
+    private func print(for story: Story) -> some View {
+        GeometryReader { geo in
+            // The print follows the photo's shape: a landscape photo gets a
+            // wide print, a portrait one a tall print, within the room there is.
+            let width = min(geo.size.width - 48, 360)
+            let captionHeight: CGFloat = story.locationName == nil ? 12 : 34
+            let innerWidth = width - 24
+            let naturalInner = innerWidth / max(story.media.aspectRatio, 0.01)
+            let innerHeight = min(max(naturalInner, innerWidth * 0.7), geo.size.height - 24 - captionHeight)
+            let height = innerHeight + 24 + captionHeight
+            VStack(spacing: 0) {
+                ZStack {
+                    media(for: story)
+                    if paused && !replying {
+                        Image(systemName: "pause.fill")
+                            .font(.footnote.weight(.bold))
+                            .foregroundStyle(Palette.printInk)
+                            .frame(width: 36, height: 36)
+                            .background(Palette.printPaper.opacity(0.9), in: Circle())
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                            .padding(10)
+                            .accessibilityLabel("Paused")
+                    }
+                }
+                .frame(width: innerWidth, height: innerHeight)
+                .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                if let place = story.locationName {
+                    Text(place)
+                        .font(.serif(.subheadline)).italic()
+                        .foregroundStyle(Palette.body)
+                        .lineLimit(1)
+                        .padding(.top, 8)
+                }
+            }
+            .padding(12)
+            .frame(width: width, height: height)
+            .background(Palette.printPaper, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .shadow(color: Palette.shadow.opacity(0.22), radius: 14, y: 8)
+            .rotationEffect(.degrees(typeSize.isAccessibilitySize ? 0 : -1.2))
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .padding(.horizontal, Spacing.m)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(story.isMine ? "Your" : story.author.displayName + "'s") snapshot\(story.locationName.map { ", \($0)" } ?? "")")
+    }
 
     @ViewBuilder
     private func media(for story: Story) -> some View {
@@ -111,86 +169,92 @@ struct StoryViewerView: View {
     }
 
     private func progressBars(_ group: StoryGroup) -> some View {
-        HStack(spacing: 4) {
+        HStack(spacing: 6) {
             ForEach(Array(group.stories.enumerated()), id: \.element.id) { i, _ in
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
-                        Capsule().fill(.white.opacity(0.35))
-                        Capsule().fill(.white)
+                        Capsule().fill(Palette.border)
+                        Capsule().fill(Color.accentColor)
                             .frame(width: geo.size.width * (i < storyIndex ? 1 : i == storyIndex ? progress : 0))
                     }
                 }
-                .frame(height: 3)
+                .frame(height: 4)
             }
         }
+        .padding(.horizontal, Spacing.gutter)
         .accessibilityHidden(true)
     }
 
     private func header(_ story: Story) -> some View {
         HStack(spacing: Spacing.s) {
-            AvatarView(profile: story.author, size: 36)
+            AvatarView(profile: story.author, size: 40)
             VStack(alignment: .leading, spacing: 0) {
-                Text(story.isMine ? "You" : story.author.displayName).font(.headline).foregroundStyle(.white)
-                HStack(spacing: 4) {
-                    Text(RelativeTime.string(from: story.createdAt))
-                    if let place = story.locationName { Text("·").accessibilityHidden(true); Text(place).lineLimit(1) }
-                }
-                .font(.caption).foregroundStyle(.white.opacity(0.85))
+                Text(story.isMine ? "You" : story.author.displayName).font(.body.weight(.semibold)).foregroundStyle(Palette.ink)
+                Text(timeLine(story))
+                    .font(.footnote).foregroundStyle(Palette.muted)
+                    .lineLimit(1)
             }
             Spacer()
             if story.isMine {
                 Menu {
                     Button("Save to Photos", systemImage: "square.and.arrow.down") { Task { await saveCurrent() } }
-                    Button("Delete story", systemImage: "trash", role: .destructive) { confirmDelete = true }
+                    Button("Take it down", systemImage: "trash", role: .destructive) { confirmDelete = true }
                 } label: {
-                    Image(systemName: "ellipsis.circle.fill").font(.title2).foregroundStyle(.white).frame(width: 44, height: 44)
+                    Image(systemName: "ellipsis").font(.body.weight(.semibold)).foregroundStyle(Palette.ink).frame(width: 44, height: 44)
                 }
-                .accessibilityLabel("Story options")
+                .accessibilityLabel("Snapshot options")
                 .onTapGesture { paused = true }
             }
             Button { dismiss() } label: {
-                Image(systemName: "xmark.circle.fill").font(.title2).foregroundStyle(.white).frame(width: 44, height: 44)
+                Image(systemName: "xmark").font(.body.weight(.semibold)).foregroundStyle(Palette.ink).frame(width: 44, height: 44)
             }
             .accessibilityLabel("Close")
         }
-        .padding(.top, Spacing.s)
-        .shadow(radius: 4)
+        .padding(.horizontal, Spacing.gutter)
+        .padding(.top, 10)
+    }
+
+    private func timeLine(_ story: Story) -> String {
+        let when = RelativeTime.string(from: story.createdAt)
+        if archiveMode {
+            return story.expiresAt > Date() ? "\(when) · still up" : when
+        }
+        let gone = story.expiresAt.formatted(date: .omitted, time: .shortened)
+        return "\(when) · gone by \(gone)"
     }
 
     @ViewBuilder
     private func footer(_ story: Story) -> some View {
-        if story.isMine {
-            Button {
-                paused = true
-                showViewers = true
-            } label: {
-                Label(archiveMode ? "\(story.viewCount ?? 0) views" : "Seen by \(story.viewCount ?? 0)", systemImage: "eye")
-                    .font(.body.weight(.medium))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 16).padding(.vertical, 10)
-                    .background(.white.opacity(0.2), in: Capsule())
-            }
-            .padding(.bottom, Spacing.l)
-            .accessibilityIdentifier("story.seenBy")
-        } else if story.repliesEnabled {
-            VStack(spacing: Spacing.s) {
+        VStack(spacing: Spacing.s) {
+            if story.isMine {
+                Button {
+                    paused = true
+                    showViewers = true
+                } label: {
+                    Label(lookedLabel(story), systemImage: "eye")
+                }
+                .buttonStyle(.quietPill)
+                .accessibilityIdentifier("story.seenBy")
+            } else if story.repliesEnabled {
                 HStack(spacing: Spacing.s) {
                     ForEach(["❤️", "😂", "👏", "😮"], id: \.self) { emoji in
                         Button(emoji) { Task { await send(emoji, reaction: true) } }
-                            .font(.title)
+                            .font(.title2)
                             .frame(minWidth: 52, minHeight: 44)
-                            .background(.white.opacity(0.15), in: Capsule())
+                            .background(Color.cardBackground, in: Capsule())
+                            .overlay(Capsule().strokeBorder(Palette.border, lineWidth: 1.5))
                             .accessibilityLabel("React \(emoji)")
                     }
                 }
-                HStack {
-                    TextField("Reply to \(story.author.displayName)", text: $reply)
+                HStack(spacing: Spacing.s) {
+                    TextField("Write back to \(story.author.displayName)…", text: $reply)
                         .focused($replying)
                         .textFieldStyle(.plain)
-                        .padding(.horizontal, 14)
+                        .padding(.horizontal, 16)
                         .frame(minHeight: 48)
-                        .background(.white.opacity(0.18), in: Capsule())
-                        .foregroundStyle(.white)
+                        .background(Color.cardBackground, in: Capsule())
+                        .overlay(Capsule().strokeBorder(Palette.border, lineWidth: 1.5))
+                        .foregroundStyle(Palette.ink)
                         .submitLabel(.send)
                         .onSubmit { Task { await send(reply, reaction: false) } }
                     if !reply.isEmpty {
@@ -198,24 +262,35 @@ struct StoryViewerView: View {
                             .buttonStyle(.pill)
                     }
                 }
+            } else {
+                Text("\(story.author.displayName) turned write-backs off for this one")
+                    .font(.subheadline).foregroundStyle(Palette.muted)
+                    .frame(minHeight: 44)
             }
-            .padding(.bottom, Spacing.m)
-        } else {
-            Text("Replies are off for this story")
-                .font(.subheadline).foregroundStyle(.white.opacity(0.8))
-                .padding(.bottom, Spacing.l)
         }
+        .padding(.horizontal, Spacing.gutter)
+        .padding(.top, Spacing.s)
+        .padding(.bottom, Spacing.l)
+        .frame(maxWidth: .infinity)
+        .background(Color.appBackground.ignoresSafeArea())
+        .overlay(alignment: .top) { Rectangle().fill(Palette.hairline).frame(height: 1) }
+    }
+
+    private func lookedLabel(_ story: Story) -> String {
+        let n = story.viewCount ?? 0
+        if archiveMode { return "\(n) looked" }
+        return n == 0 ? "Nobody has looked yet" : "Looked at by \(n)"
     }
 
     private var tapZones: some View {
         HStack(spacing: 0) {
             Color.clear.contentShape(Rectangle()).onTapGesture { previous() }
-                .accessibilityLabel("Previous story").accessibilityAddTraits(.isButton)
+                .accessibilityLabel("Previous snapshot").accessibilityAddTraits(.isButton)
             Color.clear.contentShape(Rectangle()).onTapGesture { next() }
-                .accessibilityLabel("Next story").accessibilityAddTraits(.isButton)
+                .accessibilityLabel("Next snapshot").accessibilityAddTraits(.isButton)
         }
-        .padding(.top, 90)
-        .padding(.bottom, 140)
+        .padding(.top, 110)
+        .padding(.bottom, 150)
         .onLongPressGesture(minimumDuration: 0.2, pressing: { pressing in paused = pressing }, perform: {})
     }
 
@@ -316,7 +391,7 @@ struct StoryViewerView: View {
             let _: SentMessage = try await API.shared.rpc("respond_to_story", RespondParams(pStoryId: story.id, pBody: text, pIsReaction: reaction))
             reply = ""
             replying = false
-            show(reaction ? "Sent \(text)" : "Reply sent")
+            show(reaction ? "Sent \(text)" : "Sent as a letter")
         } catch {
             show(APIError(error).message)
         }
@@ -337,9 +412,9 @@ struct StoryViewerView: View {
         guard let story else { return }
         paused = true
         defer { paused = false }
-        guard let urls = await MediaCache.shared.urls(for: story.media.id) else { show("Couldn't load the story"); return }
+        guard let urls = await MediaCache.shared.urls(for: story.media.id) else { show("Couldn't load the snapshot"); return }
         let status = await PHPhotoLibrary.requestAuthorization(for: .addOnly)
-        guard status == .authorized || status == .limited else { show("Allow access to Photos in Settings to save stories."); return }
+        guard status == .authorized || status == .limited else { show("Allow access to Photos in Settings to save snapshots."); return }
         do {
             let (data, _) = try await URLSession.shared.data(from: urls.url)
             let tmp = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + (story.media.kind == .video ? ".mp4" : ".jpg"))
@@ -353,7 +428,7 @@ struct StoryViewerView: View {
             }
             show("Saved to Photos")
         } catch {
-            show("Couldn't save the story")
+            show("Couldn't save the snapshot")
         }
     }
 
@@ -366,7 +441,7 @@ struct StoryViewerView: View {
     }
 }
 
-/// Only the author sees who viewed (spec 6).
+/// Only the author sees who looked (spec 6).
 struct StoryViewersSheet: View {
     let story: Story
     @Environment(\.dismiss) private var dismiss
@@ -376,18 +451,20 @@ struct StoryViewersSheet: View {
     var body: some View {
         NavigationStack {
             List {
-                if viewers.isEmpty, error == nil { Text("Nobody has seen this yet.").foregroundStyle(.secondary) }
+                if viewers.isEmpty, error == nil { Text("Nobody has looked yet.").foregroundStyle(Palette.muted) }
                 ForEach(viewers) { v in
                     HStack(spacing: Spacing.m) {
                         AvatarView(profile: v.viewer, size: 44)
-                        Text(v.viewer.displayName)
+                        Text(v.viewer.displayName).foregroundStyle(Palette.ink)
                         Spacer()
-                        Text(RelativeTime.string(from: v.viewedAt)).font(.subheadline).foregroundStyle(.secondary)
+                        Text(RelativeTime.string(from: v.viewedAt)).font(.subheadline).foregroundStyle(Palette.muted)
                     }
                 }
                 if let error { ErrorText(text: error) }
             }
-            .navigationTitle("Seen by")
+            .scrollContentBackground(.hidden)
+            .background(Color.appBackground)
+            .navigationTitle("Who looked")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
             .task {

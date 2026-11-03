@@ -1,7 +1,8 @@
 import SwiftUI
 
-/// Spec 10 in-app column: follow requests, approvals and likes, with likes
-/// grouped per post ("Mom and 3 others liked your post").
+/// "Lately" (spec 10 in-app column): requests, approvals and lovelies, with
+/// lovelies grouped per photo ("Mom and 3 others found your photo lovely"),
+/// under day headings.
 struct ActivityView: View {
     @Environment(AppModel.self) private var appModel
     @State private var items: [ActivityItem] = []
@@ -10,20 +11,40 @@ struct ActivityView: View {
     @State private var loaded = false
 
     var body: some View {
-        List {
-            if loaded, items.isEmpty {
-                Text("When someone requests to follow you, approves you or likes a post, it shows up here.")
-                    .foregroundStyle(.secondary)
+        ScrollView {
+            VStack(alignment: .leading, spacing: Spacing.l) {
+                ScreenHeader(title: "Lately", subtitle: "What people in your circle did with your photos.")
+                    .padding(.horizontal, Spacing.gutter)
+                if loaded, items.isEmpty {
+                    Text("When someone asks to see your photos, lets you in, or finds a photo lovely, it shows up here.")
+                        .font(.subheadline)
+                        .foregroundStyle(Palette.muted)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .card(padding: 16)
+                        .padding(.horizontal, Spacing.gutter)
+                }
+                ForEach(ActivityGrouping.days(ActivityGrouping.group(items))) { day in
+                    VStack(alignment: .leading, spacing: Spacing.m) {
+                        SectionHeading(title: day.label, rule: true)
+                        ForEach(day.entries) { entry in
+                            ActivityRowView(entry: entry, people: people)
+                        }
+                    }
+                    .padding(.horizontal, Spacing.gutter)
+                }
+                if let error { ErrorText(text: error).padding(.horizontal, Spacing.gutter) }
+                if loaded, !items.isEmpty {
+                    Text("Nobody but you sees this list.")
+                        .font(.footnote).foregroundStyle(Palette.muted)
+                        .padding(.horizontal, Spacing.gutter)
+                }
             }
-            ForEach(ActivityGrouping.group(items)) { entry in
-                ActivityRowView(entry: entry, people: people)
-            }
-            if let error { ErrorText(text: error) }
+            .padding(.vertical, Spacing.s)
+            .padding(.bottom, Spacing.xl)
         }
-        .listStyle(.plain)
-        .scrollContentBackground(.hidden)
-        .background(Color.appBackground)
-        .navigationTitle("Activity")
+        .background(Color.appBackground.ignoresSafeArea())
+        .navigationTitle("Lately")
+        .navigationBarTitleDisplayMode(.inline)
         .task { await load() }
         .refreshable { await load() }
         .followBackPrompt(people: people)
@@ -54,6 +75,13 @@ nonisolated struct ActivityEntry: Identifiable, Hashable, Sendable {
     let id: String
     let kind: Kind
     let date: Date
+}
+
+/// Entries under one day heading.
+nonisolated struct ActivityDay: Identifiable, Sendable {
+    let label: String
+    let entries: [ActivityEntry]
+    var id: String { label }
 }
 
 nonisolated enum ActivityGrouping {
@@ -87,6 +115,20 @@ nonisolated enum ActivityGrouping {
         return out.sorted { $0.date > $1.date }
     }
 
+    /// Sorted entries bucketed under "Today", "Yesterday", a weekday, a date.
+    static func days(_ entries: [ActivityEntry], now: Date = Date()) -> [ActivityDay] {
+        var out: [ActivityDay] = []
+        for entry in entries {
+            let label = FeedModel.dayLabel(for: entry.date, now: now)
+            if let last = out.last, last.label == label {
+                out[out.count - 1] = ActivityDay(label: label, entries: last.entries + [entry])
+            } else {
+                out.append(ActivityDay(label: label, entries: [entry]))
+            }
+        }
+        return out
+    }
+
     /// "Mom and 3 others"
     static func namesText(_ names: [String]) -> String {
         switch names.count {
@@ -106,42 +148,35 @@ struct ActivityRowView: View {
         switch entry.kind {
         case .request(let item):
             if let request = people.data.incoming.first(where: { $0.id == item.requestId }) {
-                RequestRow(request: request, people: people)
+                RequestRow(request: request, people: people).card(padding: 16)
             } else {
-                row(actor: item.actor, text: "\(item.actor.displayName) requested to follow you", date: item.createdAt, cover: nil, route: ProfileRoute(userId: item.actor.id, phoneHash: nil))
+                row(actor: item.actor, text: "\(item.actor.displayName) asked to see your photos.", date: item.createdAt, cover: nil, route: ProfileRoute(userId: item.actor.id, phoneHash: nil))
             }
         case .approved(let item):
-            row(actor: item.actor, text: "\(item.actor.displayName) approved your request", date: item.createdAt, cover: nil, route: ProfileRoute(userId: item.actor.id, phoneHash: nil))
+            row(actor: item.actor, text: "\(item.actor.displayName) let you in.", link: "See their photos", date: item.createdAt, cover: nil, route: ProfileRoute(userId: item.actor.id, phoneHash: nil))
         case .likes(let postId, let actors, let cover, let latest):
             let names = actors.map(\.displayName)
-            NavigationLink(value: PostRoute(postId: postId)) {
-                HStack(spacing: Spacing.m) {
-                    AvatarView(profile: actors[0], size: 44)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("\(ActivityGrouping.namesText(names)) liked your post").font(.body)
-                        Text(RelativeTime.string(from: latest)).font(.caption).foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    if let cover {
-                        RemoteImage(mediaId: cover.id, variant: .thumb).frame(width: 44, height: 44).clipShape(RoundedRectangle(cornerRadius: 8))
-                    }
-                }
-                .padding(.vertical, Spacing.xs)
-            }
+            row(actor: actors[0], text: "\(ActivityGrouping.namesText(names)) found your photo lovely.", date: latest, cover: cover, route: PostRoute(postId: postId))
         }
     }
 
-    private func row(actor: Profile, text: String, date: Date, cover: MediaItem?, route: ProfileRoute) -> some View {
+    private func row<Route: Hashable>(actor: Profile, text: String, link: String? = nil, date: Date, cover: MediaItem?, route: Route) -> some View {
         NavigationLink(value: route) {
             HStack(spacing: Spacing.m) {
                 AvatarView(profile: actor, size: 44)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(text).font(.body)
-                    Text(RelativeTime.string(from: date)).font(.caption).foregroundStyle(.secondary)
+                    Text(text).font(.body).foregroundStyle(Palette.ink).fixedSize(horizontal: false, vertical: true)
+                    if let link { Text(link).font(.subheadline.weight(.semibold)).foregroundStyle(Color.accentColor) }
+                    Text(RelativeTime.string(from: date)).font(.footnote).foregroundStyle(Palette.muted)
                 }
                 Spacer()
+                if let cover {
+                    RemoteImage(mediaId: cover.id, variant: .thumb).frame(width: 44, height: 44).clipShape(RoundedRectangle(cornerRadius: 8))
+                }
             }
-            .padding(.vertical, Spacing.xs)
+            .card()
         }
+        .buttonStyle(.cardPress)
+        .accessibilityElement(children: .combine)
     }
 }

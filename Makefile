@@ -76,15 +76,18 @@ ios-ui-test: ios-project sims ## Run the iOS UI scenario tests on simulator A, r
 	cd $(IOS_DIR) && xcodebuild -project Connectcha.xcodeproj -scheme Connectcha \
 	  -destination "platform=iOS Simulator,id=$$(./../scripts/sim-id.sh '$(SIM_A_NAME)')" \
 	  -derivedDataPath $(DERIVED) build-for-testing 2>&1 | xcbeautify --quiet
-	@for c in $(UI_TEST_CLASSES); do \
+	@failed=0; for c in $(UI_TEST_CLASSES); do \
 	  echo "▶ $$c (fresh demo data)"; \
 	  $(MAKE) --no-print-directory reset >/dev/null; \
 	  psql $(DB_URL) -At -q -c "select tests.create_user('demo_nia','15550000008','Nia','Newcomer');" >/dev/null; \
 	  ( cd $(IOS_DIR) && xcodebuild -project Connectcha.xcodeproj -scheme Connectcha \
 	    -destination "platform=iOS Simulator,id=$$(./../scripts/sim-id.sh '$(SIM_A_NAME)')" \
 	    -derivedDataPath $(DERIVED) -only-testing:ConnectchaUITests/$$c \
-	    test-without-building 2>&1 | xcbeautify --quiet | grep -E "✖|❌|error:|Executed [0-9]+ tests, with" | awk '!seen[$$0]++' | head -6 ); \
-	done
+	    test-without-building > $(DERIVED)/ui-$$c.log 2>&1 ); status=$$?; \
+	  grep -E "✖|❌|error:|Executed [0-9]+ tests?, with" $(DERIVED)/ui-$$c.log | awk '!seen[$$0]++' | head -6; \
+	  if [ $$status -ne 0 ]; then failed=1; echo "✖ $$c failed (full log: $(DERIVED)/ui-$$c.log)"; fi; \
+	done; \
+	if [ $$failed -ne 0 ]; then echo "UI tests: some classes failed"; exit 1; fi; echo "UI tests: all classes passed"
 
 ios-test: ios-project sims ## Run the iOS unit tests on simulator A
 	cd $(IOS_DIR) && xcodebuild -project Connectcha.xcodeproj -scheme Connectcha \

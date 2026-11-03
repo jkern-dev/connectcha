@@ -13,6 +13,16 @@ final class MessagingUITests: XCTestCase {
         return app
     }
 
+    /// Letters is pushed from Home; a launch with tab "inbox" lands there already.
+    @MainActor
+    private func openLetters(_ app: XCUIApplication) {
+        app.tabBars.buttons["Home"].tap()
+        if !app.navigationBars["Letters"].waitForExistence(timeout: 2) {
+            app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Letters'")).firstMatch.tap()
+        }
+        XCTAssertTrue(app.navigationBars["Letters"].waitForExistence(timeout: 10))
+    }
+
     @MainActor
     private func scrollTo(_ element: XCUIElement, in app: XCUIApplication, maxSwipes: Int = 8) -> Bool {
         var swipes = 0
@@ -26,26 +36,26 @@ final class MessagingUITests: XCTestCase {
     @MainActor
     func testResponseIsPrivateToThePair() throws {
         var app = launch(as: "15550000003")   // Dad follows Mom
-        let message = app.buttons["Message Linda about this post"].firstMatch
-        XCTAssertTrue(scrollTo(message, in: app), "the input under Mom's post reads 'Message Linda' (Dad's saved name)")
+        let message = app.buttons["Write back to Linda"].firstMatch
+        XCTAssertTrue(scrollTo(message, in: app), "the link under Mom's photo reads 'Write back to Linda' (Dad's saved name)")
         message.tap()
-        let field = app.textFields.matching(NSPredicate(format: "placeholderValue BEGINSWITH 'Message '")).firstMatch
+        let field = app.textFields.matching(NSPredicate(format: "placeholderValue BEGINSWITH 'Write to '")).firstMatch
         XCTAssertTrue(field.waitForExistence(timeout: 10))
         field.tap()
         field.typeText("Those tomatoes look great")
         app.buttons["Send"].tap()
         XCTAssertFalse(field.waitForExistence(timeout: 5), "compose screen closes after sending")
 
-        // Dad's inbox has the conversation with a post preview.
-        app.tabBars.buttons["Inbox"].tap()
+        // Dad's letters have the conversation with a photo preview.
+        openLetters(app)
         XCTAssertTrue(app.staticTexts["Linda"].waitForExistence(timeout: 15))
         app.staticTexts["Linda"].tap()
-        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'Responding to'")).firstMatch.waitForExistence(timeout: 10), "post preview")
+        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'About'")).firstMatch.waitForExistence(timeout: 10), "post preview")
 
         // Josh follows Mom too but never sees Dad's response.
         app.terminate()
         app = launch(as: "15550000001", tab: "inbox")
-        XCTAssertTrue(app.navigationBars["Inbox"].waitForExistence(timeout: 30))
+        XCTAssertTrue(app.navigationBars["Letters"].waitForExistence(timeout: 30))
         XCTAssertFalse(app.staticTexts.matching(NSPredicate(format: "label CONTAINS 'tomatoes look great'")).firstMatch.exists)
         XCTAssertFalse(app.staticTexts["Dad"].exists, "no conversation with Dad about Mom's post")
 
@@ -71,21 +81,21 @@ final class MessagingUITests: XCTestCase {
 
         // Ana unfollows Josh and removes him as a follower.
         app.navigationBars.buttons.element(boundBy: 0).tap()
-        app.tabBars.buttons["Profile"].tap()
-        app.buttons.matching(NSPredicate(format: "label CONTAINS 'following'")).firstMatch.tap()
+        app.tabBars.buttons["You"].tap()
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'People you follow'")).firstMatch.tap()
         XCTAssertTrue(app.staticTexts["Josh Kern"].waitForExistence(timeout: 15))
         app.staticTexts["Josh Kern"].swipeLeft()
         app.buttons["Unfollow"].firstMatch.tap()
         if app.sheets.buttons["Unfollow"].firstMatch.waitForExistence(timeout: 3) { app.sheets.buttons["Unfollow"].firstMatch.tap() }
         app.navigationBars.buttons.element(boundBy: 0).tap()
-        app.buttons.matching(NSPredicate(format: "label CONTAINS 'followers'")).firstMatch.tap()
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'People who follow you'")).firstMatch.tap()
         XCTAssertTrue(app.staticTexts["Josh Kern"].waitForExistence(timeout: 15))
         app.staticTexts["Josh Kern"].swipeLeft()
         app.buttons["Remove"].firstMatch.tap()
         if app.sheets.buttons["Remove"].firstMatch.waitForExistence(timeout: 3) { app.sheets.buttons["Remove"].firstMatch.tap() }
 
         // The conversation is still there, read only.
-        app.tabBars.buttons["Inbox"].tap()
+        openLetters(app)
         XCTAssertTrue(app.staticTexts["Josh Kern"].waitForExistence(timeout: 15))
         XCTAssertTrue(app.staticTexts["Read only"].exists)
         app.staticTexts["Josh Kern"].tap()

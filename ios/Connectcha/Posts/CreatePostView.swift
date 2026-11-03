@@ -2,9 +2,9 @@ import AVFoundation
 import PhotosUI
 import SwiftUI
 
-/// Spec 5.2: 1 to 10 photos or videos (60 s each), optional caption and
-/// location, responses toggle. Upload runs through the media pipeline with
-/// progress and retry, then publish.
+/// Spec 5.2: 1 to 10 photos or videos (60 s each), a line on the back,
+/// a place, and whether people can write back. Upload runs through the media
+/// pipeline with progress and retry, then publish.
 struct CreatePostView: View {
     @Environment(AppModel.self) private var appModel
     @Environment(\.dismiss) private var dismiss
@@ -42,24 +42,20 @@ struct CreatePostView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.l) {
-                picker
-                if !drafts.isEmpty { previews }
-                captionField
-                locationRow
-                Toggle(isOn: $responsesEnabled) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Allow responses")
-                        Text("Responses are private messages to you, never public comments.").font(.subheadline).foregroundStyle(.secondary)
-                    }
-                }
-                .padding(.horizontal, Spacing.m)
-                ErrorText(text: error).padding(.horizontal, Spacing.m)
+                photosSection
+                captionCard
+                detailsCard
+                ErrorText(text: error)
+                Text("Goes to everyone in your circle and nobody else. You can take it off the table any time.")
+                    .font(.footnote)
+                    .foregroundStyle(Palette.muted)
+                    .fixedSize(horizontal: false, vertical: true)
                 shareButton
             }
-            .padding(.vertical, Spacing.m)
+            .padding(Spacing.gutter)
         }
         .background(Color.appBackground.ignoresSafeArea())
-        .navigationTitle("New post")
+        .navigationTitle("Share")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showLocation) { LocationSearchView(selection: $location) }
         .onChange(of: pickerItems) { _, items in Task { await prepare(items) } }
@@ -67,8 +63,8 @@ struct CreatePostView: View {
         .overlay {
             if publishing {
                 VStack(spacing: Spacing.m) {
-                    ProgressView(value: progress).progressViewStyle(.linear).frame(width: 220)
-                    Text(status ?? "Uploading…").font(.headline)
+                    ProgressView(value: progress).progressViewStyle(.linear).frame(width: 220).tint(Color.accentColor)
+                    Text(status ?? "Uploading…").font(.body.weight(.semibold))
                 }
                 .padding(Spacing.l)
                 .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
@@ -76,87 +72,146 @@ struct CreatePostView: View {
         }
     }
 
-    private var picker: some View {
+    // MARK: Photos
+
+    private var picker: PhotosPicker<some View> {
         PhotosPicker(selection: $pickerItems, maxSelectionCount: MediaLimits.maxItemsPerPost, selectionBehavior: .ordered,
                      matching: .any(of: [.images, .videos]), photoLibrary: .shared()) {
-            HStack {
-                Image(systemName: "photo.on.rectangle.angled")
-                Text(drafts.isEmpty ? "Choose photos or videos" : "Change selection")
-                Spacer()
-                if preparing { ProgressView() }
+            HStack(spacing: Spacing.s) {
+                if preparing { ProgressView() } else { Image(systemName: drafts.isEmpty ? "photo.on.rectangle.angled" : "plus") }
+                Text(drafts.isEmpty ? "Choose photos or videos" : "Add or change")
             }
         }
-        .buttonStyle(.secondary)
-        .padding(.horizontal, Spacing.m)
-        .accessibilityHint("Up to 10 items. Videos can be up to 60 seconds.")
     }
 
-    private var previews: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: Spacing.s) {
-                ForEach(drafts) { draft in
-                    ZStack(alignment: .bottomLeading) {
-                        Image(uiImage: draft.preview)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 110, height: 110)
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                        if let d = draft.duration {
-                            Label(String(format: "%d:%02d", Int(d) / 60, Int(d) % 60), systemImage: "video.fill")
-                                .font(.caption.weight(.semibold))
-                                .padding(6)
-                                .background(.black.opacity(0.55), in: Capsule())
-                                .foregroundStyle(.white)
-                                .padding(6)
+    @ViewBuilder
+    private var photosSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            SectionHeading(title: drafts.isEmpty ? "Your photos" : countTitle, note: "up to 10 · videos up to a minute")
+            if drafts.isEmpty {
+                picker
+                    .buttonStyle(.secondary)
+                    .accessibilityHint("Up to 10 items. Videos can be up to 60 seconds.")
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(alignment: .top, spacing: 14) {
+                        ForEach(Array(drafts.enumerated()), id: \.element.id) { index, draft in
+                            PrintFrame(tilt: Tilt.at(index), width: 104, height: 128, label: printLabel(index: index, draft: draft)) {
+                                Image(uiImage: draft.preview)
+                                    .resizable()
+                                    .scaledToFill()
+                            }
+                            .overlay(alignment: .topTrailing) {
+                                Button {
+                                    drafts.remove(at: index)
+                                } label: {
+                                    Image(systemName: "xmark")
+                                        .font(.caption.weight(.bold))
+                                        .foregroundStyle(.white)
+                                        .frame(width: 26, height: 26)
+                                        .background(Palette.ink, in: Circle())
+                                }
+                                .offset(x: 8, y: -8)
+                                .accessibilityLabel("Remove \(draft.kind == .video ? "video" : "photo") \(index + 1)")
+                            }
+                            .accessibilityLabel("\(draft.kind == .video ? "Video" : "Photo") \(index + 1) of \(drafts.count)")
                         }
                     }
-                    .accessibilityLabel(draft.kind == .video ? "Video" : "Photo")
+                    .padding(.vertical, 12)
+                    .padding(.horizontal, 6)
+                }
+                picker
+                    .buttonStyle(.quietPill)
+            }
+        }
+    }
+
+    private var countTitle: String {
+        let words = ["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"]
+        let n = drafts.count
+        let noun = drafts.allSatisfy { $0.kind == .video } ? (n == 1 ? "video" : "videos") : (n == 1 ? "photo" : "photos")
+        return "\(n <= words.count ? words[n - 1] : "\(n)") \(noun)"
+    }
+
+    private func printLabel(index: Int, draft: DraftItem) -> String {
+        if let d = draft.duration { return String(format: "%d · %d:%02d", index + 1, Int(d) / 60, Int(d) % 60) }
+        return index == 0 ? "1 · first" : "\(index + 1)"
+    }
+
+    // MARK: Caption and details
+
+    private var captionCard: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("On the back")
+                .font(.caption.weight(.semibold))
+                .textCase(.uppercase)
+                .tracking(0.6)
+                .foregroundStyle(Palette.muted)
+            TextField("A few words, if you like", text: $caption, axis: .vertical)
+                .lineLimit(2...8)
+                .font(.serif(.title3))
+                .italic()
+                .foregroundStyle(Palette.ink)
+                .onChange(of: caption) { _, new in if new.count > 1000 { caption = String(new.prefix(1000)) } }
+                .accessibilityLabel("A line on the back, optional")
+            if caption.count > 800 {
+                Text("\(caption.count)/1000").font(.caption).foregroundStyle(Palette.muted)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .card(padding: 16)
+    }
+
+    private var detailsCard: some View {
+        VStack(spacing: 0) {
+            Button { showLocation = true } label: {
+                HStack(spacing: Spacing.m) {
+                    Image(systemName: "mappin.and.ellipse").foregroundStyle(Color.accentColor).frame(width: 24)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Where").font(.body.weight(.semibold)).foregroundStyle(Palette.ink)
+                        Text(location?.name ?? "A place name, if you like. Never your exact spot.")
+                            .font(.subheadline).foregroundStyle(Palette.muted).lineLimit(2)
+                    }
+                    Spacer()
+                    if location != nil {
+                        Button("Remove", systemImage: "xmark.circle.fill") { location = nil }
+                            .labelStyle(.iconOnly)
+                            .frame(minWidth: 44, minHeight: 44)
+                            .foregroundStyle(Palette.muted)
+                            .accessibilityLabel("Remove location")
+                    } else {
+                        Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(Palette.muted)
+                    }
+                }
+                .padding(16)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.cardPress)
+            .accessibilityLabel(location.map { "Where: \($0.name)" } ?? "Where, optional")
+            CardDivider()
+            Toggle(isOn: $responsesEnabled) {
+                HStack(spacing: Spacing.m) {
+                    Image(systemName: "pencil.line").foregroundStyle(Color.accentColor).frame(width: 24)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Let people write back").font(.body.weight(.semibold)).foregroundStyle(Palette.ink)
+                        Text("Replies come to you as letters, never as public comments.").font(.subheadline).foregroundStyle(Palette.muted)
+                    }
                 }
             }
-            .padding(.horizontal, Spacing.m)
+            .tint(Color.accentColor)
+            .padding(16)
         }
-    }
-
-    private var captionField: some View {
-        VStack(alignment: .leading, spacing: Spacing.xs) {
-            TextField("Write a caption (optional)", text: $caption, axis: .vertical)
-                .lineLimit(3...8)
-                .font(.body)
-                .padding(Spacing.m)
-                .background(Color.cardBackground, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                .onChange(of: caption) { _, new in if new.count > 1000 { caption = String(new.prefix(1000)) } }
-            Text("\(caption.count)/1000").font(.caption).foregroundStyle(.secondary)
-        }
-        .padding(.horizontal, Spacing.m)
-    }
-
-    private var locationRow: some View {
-        HStack {
-            Button { showLocation = true } label: {
-                Label(location?.name ?? "Add a location (optional)", systemImage: "mappin.and.ellipse")
-                    .lineLimit(1)
-            }
-            .buttonStyle(.quietPill)
-            if location != nil {
-                Button("Remove", systemImage: "xmark.circle.fill") { location = nil }
-                    .labelStyle(.iconOnly)
-                    .frame(minWidth: 44, minHeight: 44)
-                    .accessibilityLabel("Remove location")
-            }
-            Spacer()
-        }
-        .padding(.horizontal, Spacing.m)
+        .card(padding: 0)
     }
 
     private var shareButton: some View {
         Button {
             Task { await publish() }
         } label: {
-            Text(drafts.count <= 1 ? "Share" : "Share \(drafts.count) items")
+            Text("Share with your circle")
         }
         .buttonStyle(.primary)
         .disabled(drafts.isEmpty || preparing || publishing)
-        .padding(.horizontal, Spacing.m)
     }
 
     // MARK: Preparation
@@ -208,7 +263,7 @@ struct CreatePostView: View {
         error = nil
         defer { publishing = false }
         do {
-            status = "Creating post…"
+            status = "Getting ready…"
             let specs = drafts.map { CreateParams.MediaSpec(kind: $0.kind.rawValue, durationS: $0.duration) }
             let created: CreatePostResult = try await API.shared.rpc("create_post", CreateParams(
                 pCaption: caption, pLocationName: location?.name, pLocationLat: location?.latitude,
@@ -225,7 +280,7 @@ struct CreatePostView: View {
                 }
                 progress = Double(index + 1) / Double(drafts.count + 1)
             }
-            status = "Publishing…"
+            status = "Putting it on the table…"
             try await API.shared.call("publish_post", FeedModel.PostParams(pPostId: created.postId))
             progress = 1
             onPublished()

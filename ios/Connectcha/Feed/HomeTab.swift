@@ -1,53 +1,61 @@
 import SwiftUI
 
-/// Spec 8.5 Home: story tray and feed, heart icon for activity.
+/// Home: today's snapshots, then the day's photos laid out on the table,
+/// grouped under day headings. Share and Letters sit in the top bar.
 struct HomeTab: View {
     @Environment(AppModel.self) private var appModel
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.dynamicTypeSize) private var typeSize
+    var start: HomeStart = .none
+
     @State private var feed = FeedModel()
     @State private var people = PeopleModel()
     @State private var tray = StoryTrayModel()
     @State private var likersFor: Post?
     @State private var path = NavigationPath()
+    @State private var sharing = false
+    @State private var startHandled = false
 
     var body: some View {
         NavigationStack(path: $path) {
             ScrollView {
-                LazyVStack(spacing: Spacing.s) {
+                LazyVStack(alignment: .leading, spacing: Spacing.l) {
+                    header
                     if !tray.groups.isEmpty || appModel.me != nil {
-                        StoryTrayView(model: tray)
+                        SnapshotsSection(model: tray)
                     }
                     if !feed.loadedOnce {
-                        ProgressView("Loading your feed…")
-                            .padding(.top, 60)
+                        ProgressView("Setting the table…")
+                            .frame(maxWidth: .infinity)
+                            .padding(.top, 40)
                     } else if feed.posts.isEmpty {
                         EmptyFeedView(people: people)
                     } else {
                         feedList
                     }
                 }
-                .padding(.bottom, Spacing.l)
+                .padding(.bottom, Spacing.xl)
             }
             .background(Color.appBackground.ignoresSafeArea())
-            .navigationTitle("Connectcha")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    NavigationLink(value: ActivityRoute()) {
-                        Image(systemName: "heart")
-                    }
-                    .accessibilityLabel("Activity")
-                }
-            }
+            .kitchenTableRoot(title: "Home")
             .refreshable {
                 await feed.refresh()
                 await tray.load()
                 await people.load()
+                await appModel.refreshUnread()
             }
             .task {
                 await feed.refresh()
                 await tray.load()
                 await people.load()
+                if !startHandled {
+                    startHandled = true
+                    switch start {
+                    case .letters: path.append(LettersRoute())
+                    case .share: sharing = true
+                    case .none: break
+                    }
+                }
             }
             .onChange(of: scenePhase) { _, phase in
                 if phase == .active { Task { await feed.refresh(); await tray.load() } }
@@ -56,6 +64,9 @@ struct HomeTab: View {
             .onDisappear { Task { await feed.markSeen() } }
             .sheet(item: $likersFor) { post in
                 LikersView(post: post)
+            }
+            .sheet(isPresented: $sharing) {
+                ShareComposerSheet(onPublished: { Task { await feed.refresh(); await tray.load() } })
             }
             .onChange(of: NotificationManager.shared.pendingDeepLink) { _, link in
                 guard let link else { return }
@@ -72,39 +83,132 @@ struct HomeTab: View {
         }
     }
 
+    // MARK: Header
+
+    private var header: some View {
+        AdaptiveStack(alignment: .leading, spacing: Spacing.m) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(DateWords.long())
+                    .font(.caption.weight(.medium))
+                    .textCase(.uppercase)
+                    .tracking(1)
+                    .foregroundStyle(Palette.muted)
+                BrandMark(size: .title)
+            }
+            .accessibilityElement(children: .combine)
+            if !typeSize.isAccessibilitySize { Spacer(minLength: 0) }
+            // Side by side normally; two full-width rows at accessibility sizes.
+            AdaptiveStack(alignment: .leading, spacing: 10) {
+                NavigationLink(value: LettersRoute()) {
+                    lettersLabel
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(appModel.unread.unreadConversations > 0
+                                    ? "Letters, \(appModel.unread.unreadConversations) unread"
+                                    : "Letters")
+                Button { sharing = true } label: {
+                    Label("Share", systemImage: "plus")
+                        .font(.body.weight(.semibold))
+                        .frame(maxWidth: typeSize.isAccessibilitySize ? .infinity : nil)
+                }
+                .buttonStyle(.pill)
+                .accessibilityHint("Photos for the table, or a snapshot that is gone tomorrow")
+            }
+        }
+        .padding(.horizontal, Spacing.gutter)
+        .padding(.top, Spacing.s)
+    }
+
+    @ViewBuilder
+    private var lettersLabel: some View {
+        if typeSize.isAccessibilitySize {
+            HStack {
+                Text("Letters").font(.body.weight(.semibold))
+                Spacer(minLength: 0)
+                if appModel.unread.unreadConversations > 0 { UnreadBadge(count: appModel.unread.unreadConversations) }
+            }
+            .frame(maxWidth: .infinity, minHeight: 54)
+            .padding(.horizontal, 20)
+            .background(Color.cardBackground, in: Capsule())
+            .overlay(Capsule().strokeBorder(Palette.border, lineWidth: 1.5))
+            .foregroundStyle(Palette.ink)
+        } else {
+            Image(systemName: "envelope")
+                .font(.body.weight(.medium))
+                .foregroundStyle(Palette.ink)
+                .frame(width: 44, height: 44)
+                .background(Color.cardBackground, in: Circle())
+                .shadow(color: Palette.shadow.opacity(0.08), radius: 1, y: 1)
+                .overlay(alignment: .topTrailing) {
+                    if appModel.unread.unreadConversations > 0 {
+                        UnreadBadge(count: appModel.unread.unreadConversations).offset(x: 4, y: -4)
+                    }
+                }
+        }
+    }
+
+    // MARK: Feed
+
     private var feedList: some View {
         let marker = FeedModel.caughtUpIndex(posts: feed.posts, seenThrough: feed.seenThrough)
-        return ForEach(Array(feed.posts.enumerated()), id: \.element.id) { index, post in
-            if marker == index { CaughtUpMarker() }
-            PostCard(
-                post: post,
-                onLike: { Task { await feed.toggleLike(post) } },
-                onOpenLikers: { likersFor = post },
-                onOpenPost: { path.append(PostRoute(postId: post.id)) },
-                onMessage: { path.append(ComposeResponseRoute(postId: post.id)) },
-                onMenu: post.isMine ? { path.append(PostRoute(postId: post.id)) } : nil
-            )
-            .onAppear { Task { await feed.loadMoreIfNeeded(current: post) } }
-            if marker == feed.posts.count, index == feed.posts.count - 1 { CaughtUpMarker() }
+        let groups = FeedModel.dayGroups(posts: feed.posts)
+        return ForEach(groups) { group in
+            VStack(alignment: .leading, spacing: Spacing.m) {
+                SectionHeading(title: group.label, rule: true)
+                    .padding(.horizontal, Spacing.gutter)
+                ForEach(Array(group.posts.enumerated()), id: \.element.id) { offset, post in
+                    let index = group.startIndex + offset
+                    if marker == index { CaughtUpMarker() }
+                    PostCard(
+                        post: post,
+                        onLike: { Task { await feed.toggleLike(post) } },
+                        onOpenLikers: { likersFor = post },
+                        onOpenPost: { path.append(PostRoute(postId: post.id)) },
+                        onMessage: { path.append(ComposeResponseRoute(postId: post.id)) },
+                        onMenu: post.isMine ? { path.append(PostRoute(postId: post.id)) } : nil
+                    )
+                    .padding(.horizontal, Spacing.gutter)
+                    .onAppear { Task { await feed.loadMoreIfNeeded(current: post) } }
+                    if marker == feed.posts.count, index == feed.posts.count - 1 { CaughtUpMarker() }
+                }
+            }
         }
+    }
+}
+
+struct UnreadBadge: View {
+    let count: Int
+    var body: some View {
+        Text("\(count)")
+            .font(.caption.weight(.bold))
+            .foregroundStyle(.white)
+            .padding(.horizontal, 6)
+            .frame(minWidth: 20, minHeight: 20)
+            .background(Color.accentColor, in: Capsule())
+            .accessibilityHidden(true)
     }
 }
 
 struct CaughtUpMarker: View {
     var body: some View {
-        VStack(spacing: Spacing.xs) {
-            Image(systemName: "checkmark.circle.fill").font(.title).foregroundStyle(Color.accentColor)
-            Text("You're all caught up").font(.headline)
-            Text("You've seen everything new since you were last here.").font(.subheadline).foregroundStyle(.secondary)
+        HStack(spacing: Spacing.s) {
+            Image(systemName: "checkmark").font(.body.weight(.bold)).foregroundStyle(Color.accentColor)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("You're caught up").font(.body.weight(.semibold)).foregroundStyle(Palette.ink)
+                Text("Everything new since you were last here is above. Older photos continue below.")
+                    .font(.footnote).foregroundStyle(Palette.muted)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer(minLength: 0)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, Spacing.l)
+        .softBox()
+        .padding(.horizontal, Spacing.gutter)
         .accessibilityElement(children: .combine)
     }
 }
 
-/// Spec 9.2: pending requests, prompts to invite or post, and why the feed is
-/// empty. Never filler content.
+/// Spec 9.2: pending requests, prompts to invite or share, and why the table
+/// is empty. Never filler content.
 struct EmptyFeedView: View {
     @Environment(AppModel.self) private var appModel
     let people: PeopleModel
@@ -112,16 +216,18 @@ struct EmptyFeedView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.l) {
             VStack(alignment: .leading, spacing: Spacing.s) {
-                Text("Your feed is empty for now")
-                    .font(.title2.bold())
-                Text("Connectcha only shows posts from people you follow. It fills up as people approve your requests.")
-                    .foregroundStyle(.secondary)
+                Text("Nothing on the table yet")
+                    .font(.serif(.title2, weight: .bold))
+                    .foregroundStyle(Palette.ink)
+                Text("Connectcha only shows photos from people who have let you in. It fills up as they say yes.")
+                    .font(.body)
+                    .foregroundStyle(Palette.muted)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
             if !people.data.outgoing.isEmpty {
                 VStack(alignment: .leading, spacing: Spacing.s) {
-                    Text("Waiting for approval").font(.headline)
+                    Text("Waiting for their yes").font(.body.weight(.semibold))
                     ForEach(people.data.outgoing) { request in
                         PendingRequestRow(targetId: request.targetId)
                     }
@@ -130,7 +236,7 @@ struct EmptyFeedView: View {
 
             if !people.data.incoming.isEmpty {
                 VStack(alignment: .leading, spacing: Spacing.s) {
-                    Text("People who want to follow you").font(.headline)
+                    Text("Waiting for your yes").font(.body.weight(.semibold))
                     ForEach(people.data.incoming) { request in
                         RequestRow(request: request, people: people)
                     }
@@ -139,25 +245,24 @@ struct EmptyFeedView: View {
 
             VStack(spacing: Spacing.s) {
                 NavigationLink(value: PeopleTabRoute()) {
-                    Label("Find people you know", systemImage: "person.2")
+                    Text("Find people you know")
                 }
                 .buttonStyle(.secondary)
                 NavigationLink(value: CreatePostRoute()) {
-                    Label("Make your first post", systemImage: "plus.circle")
+                    Text("Share your first photo")
                 }
                 .buttonStyle(.secondary)
             }
         }
-        .padding(Spacing.l)
-        .background(Color.cardBackground, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .padding(.horizontal, Spacing.m)
+        .card(padding: Spacing.l)
+        .padding(.horizontal, Spacing.gutter)
         .accessibilityIdentifier("feed.empty")
         .followBackPrompt(people: people)
     }
 }
 
-/// A person you have requested, resolved to a name through the match list
-/// (they are not yet visible by id until they approve).
+/// A person you have asked to follow, resolved to a name through the match
+/// list (they are not yet visible by id until they approve).
 struct PendingRequestRow: View {
     let targetId: UUID
     private var match: MatchedPerson? { ContactSync.shared.matches.first { $0.id == targetId } }
@@ -169,15 +274,14 @@ struct PendingRequestRow: View {
                 Text(match.savedName).font(.body)
             } else {
                 Circle().fill(Color.subtleBackground).frame(width: 40, height: 40)
-                Text("Someone you requested").font(.body)
+                Text("Someone you asked").font(.body)
             }
             Spacer()
-            Text("Requested").font(.subheadline).foregroundStyle(.secondary)
+            Text("Asked").font(.subheadline).foregroundStyle(Palette.muted)
         }
     }
 }
 
-nonisolated struct ActivityRoute: Hashable, Sendable {}
 nonisolated struct PeopleTabRoute: Hashable, Sendable {}
 nonisolated struct CreatePostRoute: Hashable, Sendable {}
 nonisolated struct ComposeResponseRoute: Hashable, Sendable { let postId: UUID }
@@ -187,8 +291,7 @@ struct FeedDestinations: ViewModifier {
     let feed: FeedModel
     func body(content: Content) -> some View {
         content
-            .navigationDestination(for: ActivityRoute.self) { _ in ActivityView() }
-            .navigationDestination(for: PeopleTabRoute.self) { _ in PeopleTab() }
+            .navigationDestination(for: PeopleTabRoute.self) { _ in PeopleTab(embedded: true) }
             .navigationDestination(for: CreatePostRoute.self) { _ in CreatePostView(onPublished: { Task { await feed.refresh() } }) }
             .navigationDestination(for: ComposeResponseRoute.self) { route in
                 ComposeResponseView(postId: route.postId, onSent: {})
@@ -199,4 +302,3 @@ struct FeedDestinations: ViewModifier {
 extension View {
     func feedDestinations(feed: FeedModel) -> some View { modifier(FeedDestinations(feed: feed)) }
 }
-

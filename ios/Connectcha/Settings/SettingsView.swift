@@ -12,15 +12,16 @@ struct SettingsView: View {
     var body: some View {
         List {
             Section {
-                Toggle("Follow requests", isOn: $settings.requests)
-                Toggle("Messages and responses", isOn: $settings.messages)
-                Toggle("Likes", isOn: $settings.likes)
-                Toggle("People you've turned on", isOn: $settings.bells)
+                Toggle("Someone asks to see your photos", isOn: $settings.requests)
+                Toggle("Letters and write-backs", isOn: $settings.messages)
+                Toggle("Someone finds a photo lovely", isOn: $settings.likes)
+                Toggle("People you asked to hear from", isOn: $settings.bells)
             } header: {
-                Text("Notifications")
+                Text("Tell me when")
             } footer: {
-                Text("\"People you've turned on\" are the people whose bell you tapped on their profile. Likes and story views never send a notification.")
+                Text("\"People you asked to hear from\" are the people with \"Tell me when they share something\" turned on. Lovelies and who looked at a snapshot never send a notification.")
             }
+            .tint(Color.accentColor)
             .onChange(of: settings) { _, new in Task { await save(new) } }
 
             Section("Help") {
@@ -58,6 +59,7 @@ struct SettingsView: View {
         .scrollContentBackground(.hidden)
         .background(Color.appBackground)
         .navigationTitle("Settings")
+        .navigationBarTitleDisplayMode(.inline)
         .onAppear { if let me = model.me { settings = me.notificationSettings } }
         .confirmationDialog("Sign out of Connectcha?", isPresented: $confirmSignOut, titleVisibility: .visible) {
             Button("Sign out", role: .destructive) { Task { await model.signOut() } }

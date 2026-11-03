@@ -71,6 +71,46 @@ final class FeedModel {
         return newer
     }
 
+    /// One day heading on the table and the posts under it, newest first.
+    nonisolated struct DayGroup: Identifiable, Sendable {
+        let label: String
+        let posts: [Post]
+        /// Index of the first post in the flat feed (for the caught-up marker).
+        let startIndex: Int
+        var id: String { label + (posts.first?.id.uuidString ?? "") }
+    }
+
+    /// Groups a newest-first feed under "Today", "Yesterday", a weekday name
+    /// for the rest of the week, then dates.
+    nonisolated static func dayGroups(posts: [Post], now: Date = Date(), calendar: Calendar = .current) -> [DayGroup] {
+        var out: [DayGroup] = []
+        for (index, post) in posts.enumerated() {
+            let label = dayLabel(for: post.publishedAt ?? .distantPast, now: now, calendar: calendar)
+            if let last = out.last, last.label == label {
+                out[out.count - 1] = DayGroup(label: label, posts: last.posts + [post], startIndex: last.startIndex)
+            } else {
+                out.append(DayGroup(label: label, posts: [post], startIndex: index))
+            }
+        }
+        return out
+    }
+
+    nonisolated static func dayLabel(for date: Date, now: Date = Date(), calendar: Calendar = .current) -> String {
+        if calendar.isDate(date, inSameDayAs: now) { return "Today" }
+        if let yesterday = calendar.date(byAdding: .day, value: -1, to: now), calendar.isDate(date, inSameDayAs: yesterday) { return "Yesterday" }
+        let days = calendar.dateComponents([.day], from: calendar.startOfDay(for: date), to: calendar.startOfDay(for: now)).day ?? 0
+        let f = DateFormatter()
+        f.calendar = calendar
+        if days > 1, days < 7 {
+            f.setLocalizedDateFormatFromTemplate("EEEE")
+        } else if calendar.component(.year, from: date) == calendar.component(.year, from: now) {
+            f.setLocalizedDateFormatFromTemplate("dMMMM")
+        } else {
+            f.setLocalizedDateFormatFromTemplate("dMMMMyyyy")
+        }
+        return f.string(from: date)
+    }
+
     /// Call when the person leaves the feed (tab switch or background).
     func markSeen() async {
         guard let newest = newestSeenThisVisit else { return }

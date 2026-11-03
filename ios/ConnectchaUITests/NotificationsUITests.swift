@@ -43,7 +43,7 @@ final class NotificationsUITests: XCTestCase {
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
         let allow = springboard.buttons["Allow"].firstMatch
         if allow.waitForExistence(timeout: 20) { allow.tap() }
-        XCTAssertTrue(app.navigationBars["Connectcha"].waitForExistence(timeout: 30))
+        XCTAssertTrue(app.staticTexts["Connectcha"].waitForExistence(timeout: 30))
         // Give the token registration and contact matching a moment.
         try await Task.sleep(for: .seconds(4))
 

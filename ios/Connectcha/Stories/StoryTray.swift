@@ -1,8 +1,8 @@
 import SwiftUI
 
-/// Spec 6 story tray: your own story first (A3), then people with unseen
-/// stories, most recent first. Ordering comes from the server
-/// (get_story_tray) and never depends on who you interact with.
+/// Spec 6 story tray, shown as "Today's snapshots": your own first (A3), then
+/// people with unseen snapshots, most recent first. Ordering comes from the
+/// server (get_story_tray) and never depends on who you interact with.
 @MainActor
 @Observable
 final class StoryTrayModel {
@@ -36,82 +36,125 @@ final class StoryTrayModel {
     }
 }
 
-struct StoryTrayView: View {
+/// A small pile of prints, one per person, with "Add yours" at the end. At
+/// accessibility text sizes the pile becomes plain rows.
+struct SnapshotsSection: View {
     @Environment(AppModel.self) private var appModel
+    @Environment(\.dynamicTypeSize) private var typeSize
     let model: StoryTrayModel
     @State private var viewing: StoryViewerStart?
     @State private var creating = false
 
+    private var showAdd: Bool { appModel.me != nil && !model.groups.contains(where: { $0.isMine }) }
+
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(alignment: .top, spacing: Spacing.m) {
-                if let me = appModel.me, !model.groups.contains(where: { $0.isMine }) {
-                    Button { creating = true } label: {
-                        TrayItem(profile: me.profile, label: "Your story", unseen: false, isMine: true, addBadge: true)
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("Add to your story")
-                }
-                ForEach(Array(model.groups.enumerated()), id: \.element.id) { index, group in
-                    Button {
-                        viewing = StoryViewerStart(groupIndex: index)
-                    } label: {
-                        TrayItem(profile: group.author,
-                                 label: group.isMine ? "Your story" : group.author.displayName,
-                                 unseen: !group.allSeen, isMine: group.isMine, addBadge: false)
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("\(group.isMine ? "Your" : group.author.displayName + "'s") story, \(group.allSeen ? "seen" : "new")")
-                    .accessibilityIdentifier("story.\(group.isMine ? "mine" : group.author.id.uuidString)")
-                }
+        VStack(alignment: .leading, spacing: 10) {
+            SectionHeading(title: "Today's snapshots", note: "gone tomorrow")
+                .padding(.horizontal, Spacing.gutter)
+            if typeSize.isAccessibilitySize {
+                rows
+            } else {
+                pile
             }
-            .padding(.horizontal, Spacing.m)
-            .padding(.vertical, Spacing.s)
         }
-        .background(Color.cardBackground)
         .fullScreenCover(item: $viewing) { start in
             StoryViewerView(groups: model.groups, startGroup: start.groupIndex, tray: model)
         }
         .fullScreenCover(isPresented: $creating) {
-            NavigationStack { CreateStoryView(onPosted: { Task { await model.load() } }) }
+            ShareComposerSheet(initialKind: .snapshot, onPublished: { Task { await model.load() } })
         }
+    }
+
+    private var pile: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(alignment: .top, spacing: 14) {
+                ForEach(Array(model.groups.enumerated()), id: \.element.id) { index, group in
+                    Button {
+                        viewing = StoryViewerStart(groupIndex: index)
+                    } label: {
+                        PrintFrame(tilt: Tilt.at(index), label: group.isMine ? "You" : group.author.displayName) {
+                            cover(group)
+                        }
+                        .opacity(group.allSeen && !group.isMine ? 0.72 : 1)
+                    }
+                    .buttonStyle(.cardPress)
+                    .accessibilityLabel(snapshotLabel(group))
+                    .accessibilityIdentifier("story.\(group.isMine ? "mine" : group.author.id.uuidString)")
+                }
+                if showAdd {
+                    addCard
+                }
+            }
+            .padding(.horizontal, Spacing.gutter)
+            .padding(.vertical, 10)
+        }
+    }
+
+    private var rows: some View {
+        VStack(spacing: Spacing.s) {
+            ForEach(Array(model.groups.enumerated()), id: \.element.id) { index, group in
+                Button {
+                    viewing = StoryViewerStart(groupIndex: index)
+                } label: {
+                    HStack(spacing: Spacing.m) {
+                        PrintFrame(width: 64, height: 76) { cover(group) }
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(group.isMine ? "You" : group.author.displayName).font(.body.weight(.bold)).foregroundStyle(Palette.ink)
+                            Text(group.allSeen ? "seen" : "new · tap to look").font(.subheadline).foregroundStyle(Palette.muted)
+                        }
+                        Spacer()
+                        Image(systemName: "chevron.right").foregroundStyle(Palette.muted)
+                    }
+                    .card()
+                }
+                .buttonStyle(.cardPress)
+                .accessibilityLabel(snapshotLabel(group))
+                .accessibilityIdentifier("story.\(group.isMine ? "mine" : group.author.id.uuidString)")
+            }
+            if showAdd {
+                Button { creating = true } label: {
+                    Label("Add a snapshot", systemImage: "plus")
+                }
+                .buttonStyle(.secondary)
+            }
+        }
+        .padding(.horizontal, Spacing.gutter)
+    }
+
+    private var addCard: some View {
+        Button { creating = true } label: {
+            VStack(spacing: 6) {
+                Image(systemName: "plus").font(.title3.weight(.semibold))
+                Text("Add yours").font(.footnote.weight(.semibold))
+            }
+            .foregroundStyle(Color.accentColor)
+            .frame(width: 96, height: 124)
+            .overlay(
+                RoundedRectangle(cornerRadius: Radius.print, style: .continuous)
+                    .strokeBorder(Palette.dashed, style: StrokeStyle(lineWidth: 2, dash: [6, 5]))
+            )
+        }
+        .buttonStyle(.cardPress)
+        .accessibilityLabel("Add a snapshot")
+        .accessibilityHint("A photo or short video that is gone tomorrow")
+    }
+
+    @ViewBuilder
+    private func cover(_ group: StoryGroup) -> some View {
+        // The first unseen snapshot, else the latest.
+        if let story = group.stories.first(where: { !$0.seen }) ?? group.stories.last {
+            RemoteImage(mediaId: story.media.id, variant: .thumb)
+        } else {
+            Color.subtleBackground
+        }
+    }
+
+    private func snapshotLabel(_ group: StoryGroup) -> String {
+        "\(group.isMine ? "Your" : group.author.displayName + "'s") snapshot, \(group.allSeen ? "seen" : "new")"
     }
 }
 
 nonisolated struct StoryViewerStart: Identifiable, Hashable, Sendable {
     let groupIndex: Int
     var id: Int { groupIndex }
-}
-
-private struct TrayItem: View {
-    @Environment(\.dynamicTypeSize) private var typeSize
-    let profile: Profile
-    let label: String
-    let unseen: Bool
-    let isMine: Bool
-    let addBadge: Bool
-
-    var body: some View {
-        VStack(spacing: 6) {
-            ZStack(alignment: .bottomTrailing) {
-                AvatarView(profile: profile, size: 64)
-                    .padding(4)
-                    .overlay {
-                        Circle().strokeBorder(unseen ? Color.accentColor : Color.secondary.opacity(0.35), lineWidth: unseen ? 3 : 2)
-                    }
-                if addBadge {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.title3)
-                        .foregroundStyle(.white, Color.accentColor)
-                        .accessibilityHidden(true)
-                }
-            }
-            Text(label)
-                .font(.caption)
-                .lineLimit(2)
-                .multilineTextAlignment(.center)
-                .frame(width: typeSize.isAccessibilitySize ? 120 : 84)
-                .foregroundStyle(unseen || isMine ? .primary : .secondary)
-        }
-    }
 }

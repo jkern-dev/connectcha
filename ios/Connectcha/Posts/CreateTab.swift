@@ -1,60 +1,62 @@
 import SwiftUI
 
-/// Spec 8.5 Create (+): new post or story.
-struct CreateTab: View {
+/// What kind of share: photos stay on the table; a snapshot is gone tomorrow.
+enum ShareKind: String, CaseIterable, Identifiable {
+    case photos = "Photos"
+    case snapshot = "Snapshot"
+    var id: String { rawValue }
+}
+
+/// The Share sheet (spec 8.5 Create): one place for a post or a story,
+/// presented from Home's top bar and from "Add yours" in the snapshots pile.
+struct ShareComposerSheet: View {
+    var initialKind: ShareKind = .photos
     var onPublished: () -> Void
-    @State private var path = NavigationPath()
+    @Environment(\.dismiss) private var dismiss
+    @State private var kind: ShareKind
+
+    init(initialKind: ShareKind = .photos, onPublished: @escaping () -> Void) {
+        self.initialKind = initialKind
+        self.onPublished = onPublished
+        _kind = State(initialValue: initialKind)
+    }
 
     var body: some View {
-        NavigationStack(path: $path) {
-            VStack(spacing: Spacing.l) {
-                Spacer()
-                ScreenHeader(title: "What would you like to share?")
-                NavigationLink(value: CreatePostRoute()) {
-                    CreateChoice(icon: "photo.on.rectangle", title: "New post", detail: "Photos or videos for your feed. Up to 10 at a time.")
+        NavigationStack {
+            VStack(spacing: 0) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Picker("What kind of share", selection: $kind) {
+                        ForEach(ShareKind.allCases) { k in Text(k.rawValue).tag(k) }
+                    }
+                    .pickerStyle(.segmented)
+                    Text(kind == .photos
+                         ? "Photos stay on the table for your circle. Up to 10 at a time."
+                         : "One photo or short video for today. Gone tomorrow, kept for you.")
+                        .font(.footnote)
+                        .foregroundStyle(Palette.muted)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityHidden(true)
                 }
-                NavigationLink(value: CreateStoryRoute()) {
-                    CreateChoice(icon: "circle.dashed", title: "New story", detail: "A photo or video that disappears after 24 hours.")
+                .padding(.horizontal, Spacing.gutter)
+                .padding(.top, Spacing.s)
+                .padding(.bottom, Spacing.xs)
+                switch kind {
+                case .photos:
+                    CreatePostView(onPublished: { onPublished() })
+                case .snapshot:
+                    CreateStoryView(onPosted: { onPublished() })
                 }
-                Spacer()
             }
-            .buttonStyle(.plain)
-            .padding(Spacing.l)
             .background(Color.appBackground.ignoresSafeArea())
-            .navigationTitle("Create")
-            .navigationDestination(for: CreatePostRoute.self) { _ in
-                CreatePostView(onPublished: onPublished)
+            .navigationTitle("Share")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
             }
-            .navigationDestination(for: CreateStoryRoute.self) { _ in
-                CreateStoryView(onPosted: onPublished)
-            }
+            .appDestinations()
         }
+        .presentationDragIndicator(.visible)
     }
 }
 
 nonisolated struct CreateStoryRoute: Hashable, Sendable {}
-
-struct CreateChoice: View {
-    let icon: String
-    let title: String
-    let detail: String
-
-    var body: some View {
-        HStack(spacing: Spacing.m) {
-            Image(systemName: icon)
-                .font(.title)
-                .foregroundStyle(Color.accentColor)
-                .frame(width: 48)
-                .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title).font(.title3.weight(.semibold))
-                Text(detail).font(.subheadline).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-            }
-            Spacer()
-            Image(systemName: "chevron.right").foregroundStyle(.tertiary).accessibilityHidden(true)
-        }
-        .padding(Spacing.m)
-        .background(Color.cardBackground, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .accessibilityElement(children: .combine)
-    }
-}
