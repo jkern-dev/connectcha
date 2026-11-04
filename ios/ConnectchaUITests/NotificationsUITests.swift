@@ -58,7 +58,7 @@ final class NotificationsUITests: XCTestCase {
         _ = try await call("rest/v1/rpc/respond_to_post", token: mom, body: ["p_post_id": postId, "p_body": "Lovely day for it"])
 
         // The banner names Mom by Josh's saved contact name, never "Linda Kern".
-        let banner = springboard.staticTexts.containing(NSPredicate(format: "label CONTAINS 'responded to your post'")).firstMatch
+        let banner = springboard.staticTexts.containing(NSPredicate(format: "label CONTAINS 'wrote back about your photo'")).firstMatch
         XCTAssertTrue(banner.waitForExistence(timeout: 30), "a push banner appears")
         XCTAssertTrue(banner.label.contains("Mom"), "saved name on device: \(banner.label)")
         XCTAssertFalse(banner.label.contains("Linda"), "profile name must not leak into the banner when a saved name exists")

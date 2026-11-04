@@ -143,7 +143,7 @@ final class FollowingUITests: XCTestCase {
         signOut(app)
         signIn(app, digits: "5550000004")
         XCTAssertTrue(app.staticTexts["Ben Carter"].waitForExistence(timeout: 30))
-        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS 'approved you and wants to follow you back'")).firstMatch.exists)
+        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS 'let you in and asked to follow you back'")).firstMatch.exists)
         assertNoPhoneNumbers(app)
         app.buttons["request.approve"].firstMatch.tap()
         // Ana already follows Ben, so no follow-back offer this time.

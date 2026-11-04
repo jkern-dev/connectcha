@@ -16,26 +16,30 @@ export function categoryFor(type: PushType): Category {
   }
 }
 
-/** The alert text the server can produce: profile name only (the device may replace it). */
+/**
+ * The alert text the server can produce: profile name only (the device may
+ * replace it). The words follow DESIGN_DIRECTION.md: photos, snapshots,
+ * letters, "let you in"; never post, story, message or approve.
+ */
 export function alertText(type: PushType, actorName: string, extra: Record<string, unknown>): { title: string; body: string } {
   switch (type) {
     case "follow_request":
       return extra.source === "follow_back"
-        ? { title: "Connectcha", body: `${actorName} approved you and wants to follow you back` }
-        : { title: "Connectcha", body: `${actorName} wants to follow you` };
+        ? { title: "Connectcha", body: `${actorName} let you in and asked to follow you back` }
+        : { title: "Connectcha", body: `${actorName} asked to see your photos` };
     case "request_approved":
-      return { title: "Connectcha", body: `${actorName} approved your request` };
+      return { title: "Connectcha", body: `${actorName} let you in` };
     case "message":
       switch (extra.kind) {
-        case "post_response": return { title: "Connectcha", body: `${actorName} responded to your post` };
-        case "story_response": return { title: "Connectcha", body: `${actorName} replied to your story` };
-        case "story_reaction": return { title: "Connectcha", body: `${actorName} reacted to your story` };
-        default: return { title: "Connectcha", body: `${actorName} sent you a message` };
+        case "post_response": return { title: "Connectcha", body: `${actorName} wrote back about your photo` };
+        case "story_response": return { title: "Connectcha", body: `${actorName} wrote back about your snapshot` };
+        case "story_reaction": return { title: "Connectcha", body: `${actorName} reacted to your snapshot` };
+        default: return { title: "Connectcha", body: `${actorName} wrote to you` };
       }
     case "bell_post":
-      return { title: "Connectcha", body: `${actorName} shared a new post` };
+      return { title: "Connectcha", body: `${actorName} shared a photo` };
     case "bell_story":
-      return { title: "Connectcha", body: `${actorName} added a story` };
+      return { title: "Connectcha", body: `${actorName} put up a snapshot` };
   }
 }
 

@@ -287,7 +287,7 @@ struct RequestRow: View {
             }
             .buttonStyle(.plain)
             Text(request.isFollowBack
-                 ? "\(name) approved you and wants to follow you back. Saying yes lets \(name) see your photos and snapshots."
+                 ? "\(name) let you in and asked to follow you back. Saying yes lets \(name) see your photos and snapshots."
                  : "Saying yes lets \(name) see your photos and snapshots. Nothing is visible until you do.")
                 .font(.subheadline)
                 .foregroundStyle(Palette.body)

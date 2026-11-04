@@ -14,7 +14,7 @@ struct PushPayloadTests {
             "actor_name": "Linda Kern",
             "conversation_id": UUID().uuidString,
             "kind": "post_response",
-            "body_template": "{name} responded to your post",
+            "body_template": "{name} wrote back about your photo",
         ]
     }
 
@@ -23,16 +23,16 @@ struct PushPayloadTests {
         let payload = PushPayload(userInfo: userInfo)
         #expect(payload?.kind == .message)
         #expect(payload?.actorId == momId)
-        let body = PushPayload.rewrittenBody(template: payload?.bodyTemplate, originalBody: "Linda Kern responded to your post",
+        let body = PushPayload.rewrittenBody(template: payload?.bodyTemplate, originalBody: "Linda Kern wrote back about your photo",
                                              actorId: momId, savedNames: { $0 == momId ? "Mom" : nil })
-        #expect(body == "Mom responded to your post")
+        #expect(body == "Mom wrote back about your photo")
     }
 
     @Test("without a saved name the profile name stays")
     func fallback() {
-        let body = PushPayload.rewrittenBody(template: "{name} wants to follow you", originalBody: "Sam Lee wants to follow you",
+        let body = PushPayload.rewrittenBody(template: "{name} asked to see your photos", originalBody: "Sam Lee asked to see your photos",
                                              actorId: UUID(), savedNames: { _ in nil })
-        #expect(body == "Sam Lee wants to follow you")
+        #expect(body == "Sam Lee asked to see your photos")
         #expect(PushPayload.rewrittenBody(template: nil, originalBody: "x", actorId: momId, savedNames: { _ in "Mom" }) == "x")
     }
 
@@ -46,8 +46,8 @@ struct PushPayloadTests {
         let group = "group.test.push.\(UUID().uuidString)"
         MatchMap(ownerId: UUID(), entries: [momId: .init(contactIdentifier: "c", savedName: "Mom")], updatedAt: Date()).save(appGroup: group)
         let loaded = MatchMap.load(appGroup: group)
-        #expect(PushPayload.rewrittenBody(template: "{name} approved your request", originalBody: "Linda Kern approved your request",
-                                          actorId: momId, savedNames: { loaded?.savedName(for: $0) }) == "Mom approved your request")
+        #expect(PushPayload.rewrittenBody(template: "{name} let you in", originalBody: "Linda Kern let you in",
+                                          actorId: momId, savedNames: { loaded?.savedName(for: $0) }) == "Mom let you in")
         MatchMap.delete(appGroup: group)
     }
 }

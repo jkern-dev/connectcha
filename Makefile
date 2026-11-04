@@ -93,7 +93,10 @@ ios-test: ios-project sims ## Run the iOS unit tests on simulator A
 	cd $(IOS_DIR) && xcodebuild -project Connectcha.xcodeproj -scheme Connectcha \
 	  -destination "platform=iOS Simulator,id=$$(./../scripts/sim-id.sh '$(SIM_A_NAME)')" \
 	  -derivedDataPath $(DERIVED) -only-testing:ConnectchaTests \
-	  test 2>&1 | xcbeautify --quiet
+	  test > $(DERIVED)/unit.log 2>&1; status=$$?; \
+	xcbeautify --quiet < $(DERIVED)/unit.log; \
+	grep -E "Executed [0-9]+ tests?, with" $(DERIVED)/unit.log | tail -1; \
+	if [ $$status -ne 0 ]; then echo "✖ unit tests failed (full log: $(DERIVED)/unit.log)"; exit 1; fi
 
 # ----------------------------------------------------------------------------
 # Demo

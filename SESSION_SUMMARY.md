@@ -29,7 +29,7 @@ Full list in `DECISIONS.md`. The ones that change what you will see or pay:
 3. **No PhoneNumberKit** (D-02); a small US-only normaliser instead.
 4. **Avatars are media rows** (D-06), one upload path for everything.
 5. **Settings and Edit profile were built early** (D-16) because the demo needed sign-out.
-6. **Pushes never contain message text** (D-29): "Mom responded to your post", not the words.
+6. **Pushes never contain message text** (D-29): "Mom wrote back about your photo", not the words.
 7. **Debug-only switches** (D-11) make the demo possible: auto sign-in by test number, start tab, contact seeding, in-app push poller. None exist in release builds.
 8. **Layouts stack at large text sizes** instead of shrinking text (D-30).
 

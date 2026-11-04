@@ -93,6 +93,9 @@ struct HomeTab: View {
                     .textCase(.uppercase)
                     .tracking(1)
                     .foregroundStyle(Palette.muted)
+                    // One line even when the Letters badge takes width.
+                    .lineLimit(typeSize.isAccessibilitySize ? nil : 1)
+                    .minimumScaleFactor(0.75)
                 BrandMark(size: .title)
             }
             .accessibilityElement(children: .combine)
