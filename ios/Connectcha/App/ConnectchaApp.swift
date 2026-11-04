@@ -6,16 +6,31 @@ struct ConnectchaApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var model = AppModel()
 
+    /// True when this process hosts the unit test bundle (UI tests launch the
+    /// app separately and don't see these variables). The real app must stay
+    /// inert then: no session restore, no contact matching, no network.
+    /// Otherwise its own startup traffic mixes into tests that record every
+    /// request, such as the S7 "no names on the wire" check.
+    nonisolated static let isHostingUnitTests: Bool = {
+        let env = ProcessInfo.processInfo.environment
+        return env["XCTestConfigurationFilePath"] != nil || env["XCTestBundlePath"] != nil
+    }()
+
     init() {
         MediaCache.configureURLCache()
-        NotificationManager.shared.install()
+        if !Self.isHostingUnitTests { NotificationManager.shared.install() }
     }
 
     var body: some Scene {
         WindowGroup {
-            RootView()
-                .environment(model)
-                .task { model.start() }
+            if Self.isHostingUnitTests {
+                Text("Running unit tests")
+                    .foregroundStyle(.secondary)
+            } else {
+                RootView()
+                    .environment(model)
+                    .task { model.start() }
+            }
         }
     }
 }
