@@ -1,0 +1,11 @@
+// Build-time configuration for the hosted stack (Release builds, and Debug
+// builds when Override.xcconfig includes this file; see `make ios-use-hosted`).
+//
+// The anon key is public by design: it ships inside the app and only grants
+// what the row-level security rules allow. Fill the two Supabase values from
+// the hosted project's Settings → API page (phase C of TESTFLIGHT_PLAN.md).
+// `$()` splits the `//` so xcconfig doesn't treat the URL as a comment.
+SUPABASE_URL = https:/$()/lmsdnuouvgqsryvhoxzx.supabase.co
+SUPABASE_ANON_KEY = sb_publishable_Ji9ZXY1Uk4JJmaxfJklcBQ_M6gCw7lz
+INVITE_URL = https:/$()/connectcha.pages.dev/
+SUPPORT_EMAIL = ask.connectcha@gmail.com

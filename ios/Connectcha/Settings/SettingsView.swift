@@ -7,6 +7,8 @@ struct SettingsView: View {
     @Environment(AppModel.self) private var model
     @State private var settings = NotificationSettings.allOn
     @State private var confirmSignOut = false
+    @State private var confirmDelete = false
+    @State private var deleting = false
     @State private var error: String?
 
     var body: some View {
@@ -28,7 +30,7 @@ struct SettingsView: View {
                 Link(destination: URL(string: "mailto:\(AppConfig.supportEmail)?subject=Connectcha")!) {
                     Label("Email support", systemImage: "envelope")
                 }
-                Text("For problems or to delete your account, email \(AppConfig.supportEmail).")
+                Text("For problems or questions, email \(AppConfig.supportEmail).")
                     .font(.subheadline).foregroundStyle(.secondary)
             }
 
@@ -53,6 +55,16 @@ struct SettingsView: View {
                 Button("Sign out", role: .destructive) { confirmSignOut = true }
                     .accessibilityIdentifier("settings.signOut")
             }
+
+            Section {
+                Button("Delete your account", role: .destructive) { confirmDelete = true }
+                    .accessibilityIdentifier("settings.deleteAccount")
+                    .disabled(deleting)
+            } header: {
+                Text("Leaving")
+            } footer: {
+                Text("Deleting removes your photos, snapshots, your circle and every letter you wrote or received. It can't be undone.")
+            }
             if let error { Section { ErrorText(text: error) } }
         }
         .listStyle(.insetGrouped)
@@ -65,6 +77,21 @@ struct SettingsView: View {
             Button("Sign out", role: .destructive) { Task { await model.signOut() } }
         } message: {
             Text("You'll need a new text code to sign in again.")
+        }
+        .confirmationDialog("Delete your account?", isPresented: $confirmDelete, titleVisibility: .visible) {
+            Button("Delete my account", role: .destructive) { Task { await deleteAccount() } }
+        } message: {
+            Text("Your photos, snapshots, your circle and all your letters are deleted for good. People who follow you will no longer see you.")
+        }
+    }
+
+    private func deleteAccount() async {
+        deleting = true
+        defer { deleting = false }
+        do {
+            try await model.deleteAccount()
+        } catch {
+            self.error = APIError(error).message
         }
     }
 

@@ -11,3 +11,6 @@ supabase/functions/.env
 supabase/seed/media/.cache/
 .demo/
 *.xcresult
+ios/Config/Override.xcconfig
+supabase/.hosted.env
+.apple.env

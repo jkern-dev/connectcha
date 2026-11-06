@@ -163,3 +163,21 @@ Format: context, options with their main tradeoff, what was chosen and why, how 
 - What changed: view files and the asset-catalog colours only. Models, API calls, the database and the Edge Functions are untouched. The tab bar is Home / People / You; Share and Letters are in Home's top bar; `CONNECTCHA_START_TAB` still accepts the old names (`profile`, and `inbox` / `create`, which open Home with Letters pushed or the Share sheet up). The UI tests were updated to the new words and keep their scenario coverage; the demo script and scenario table follow.
 - Reversibility: Moderate. `git revert` of the restyle commit brings the old screens back; nothing below the view layer depends on it.
 - Follow-up (2026-11-04): the push banners were the one place the old words still reached the user, on the lock screen. `send-push/payload.ts` now says "asked to see your photos", "let you in", "wrote back about your photo / snapshot", "reacted to your snapshot", "shared a photo", "put up a snapshot". The `{name}` template mechanism (D-27) is unchanged, so the extension and the bridge need no change. A Deno test rejects any banner containing post, story, message or approve.
+
+- **D-33: Push tokens record sandbox or production; the server picks the APNs host per token** (2026-11-06, M10)
+- Context: A Debug build installed by Xcode carries the development push entitlement and receives a sandbox APNs token; TestFlight and App Store builds receive a production one. The two APNs servers reject each other's tokens. `send-push` had one global `APNS_ENVIRONMENT` setting, so either the owner's development phone or every tester would have gone without pushes.
+- Options considered: (a) Keep one global setting and accept that Debug phones get no pushes once it says production. (b) Record the platform per token (`ios`, `ios_sandbox`, `ios_simulator`) and choose the host per token.
+- Chosen: (b). `NotificationManager` registers `ios_sandbox` in DEBUG builds; `apnsHost(platform)` in `send-push/apns.ts` picks the server; simulator tokens never reach APNs. Migration `20261106000100_push_platforms.sql` widens the check constraint.
+- Reversibility: Trivial.
+
+- **D-34: In-app account deletion removes everything, including conversations** (2026-11-06, M10)
+- Context: Spec 13.2 deferred in-app deletion and left open what happens to a deleted person's messages. Apple guideline 5.1.1(v) requires in-app deletion for apps with account creation, and Beta App Review sometimes enforces it. `OPERATIONS.md` had claimed that sent messages remain, but the schema cascades from `profiles` through `conversations`, so a deletion removes every conversation the person was part of, with both sides' messages.
+- Options considered: (a) Keep the cascade: the account and everything about it is gone, like someone leaving a group; one function, no schema change. (b) Keep their letters for the other person: a nullable sender, a "deleted person" placeholder in the schema and in every screen that shows a name.
+- Chosen: (a), by the owner. `delete_my_account()` deletes the caller's `auth.users` row; Settings → Leaving → "Delete your account" with a plain-words confirmation; the app then drops the session locally (a global sign-out would fail for a user that no longer exists) and clears the phone as sign-out does. Bucket objects are removed by the daily `cleanup-orphans` run. pgTAP `070_account_deletion.sql`; UI test `SettingsUITests`.
+- Reversibility: Moderate if (b) is ever wanted; the function and the button stay.
+
+- **D-35: `supabase/config.toml` is the local stack only; hosted Auth settings live in the dashboard** (2026-11-06, M10)
+- Context: `supabase config push` copies `config.toml` to the hosted project. The file holds nine demo numbers that sign in with code 123456, a placeholder Twilio block and relaxed SMS limits.
+- Options considered: (a) Split the file with per-remote overrides and keep pushing. (b) Never push; configure hosted Auth by hand once and script everything else.
+- Chosen: (b). A warning block at the top of `config.toml`; `scripts/hosted-setup.sh` (`make hosted-setup`) does migrations, functions, secrets, the webhook settings and the cleanup cron, and prints the three dashboard steps that remain.
+- Reversibility: Trivial.

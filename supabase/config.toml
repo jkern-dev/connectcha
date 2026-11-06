@@ -1,3 +1,10 @@
+# LOCAL STACK ONLY (D-35). This file configures the Docker stack on a developer
+# Mac and CI: demo phone numbers that sign in with the fixed code 123456, a
+# placeholder Twilio block, relaxed SMS rate limits. NEVER run
+# `supabase config push`: it would copy all of that to the hosted project.
+# Hosted Auth settings live in the dashboard; `scripts/hosted-setup.sh` does
+# the rest (migrations, functions, secrets, webhook, cron).
+#
 # For detailed configuration reference documentation, visit:
 # https://supabase.com/docs/guides/local-development/cli/config
 # A string used to distinguish different Supabase projects on the same host. Defaults to the

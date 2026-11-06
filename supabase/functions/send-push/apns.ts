@@ -10,10 +10,12 @@ function base64url(data: Uint8Array | string): string {
   return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
-function pemToPkcs8(pem: string): Uint8Array {
+function pemToPkcs8(pem: string): Uint8Array<ArrayBuffer> {
   const b64 = pem.replace(/-----BEGIN PRIVATE KEY-----/, "").replace(/-----END PRIVATE KEY-----/, "").replace(/\s+/g, "");
   const bin = atob(b64);
-  return Uint8Array.from(bin, (c) => c.charCodeAt(0));
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
 }
 
 /** ES256 provider token, cached for 50 minutes (APNs allows up to an hour). */
@@ -34,10 +36,20 @@ async function providerToken(): Promise<string> {
 
 export type APNsResult = "sent" | "dead" | "failed";
 
-export async function sendToAPNs(deviceToken: string, payload: unknown): Promise<APNsResult> {
-  const host = (Deno.env.get("APNS_ENVIRONMENT") ?? "sandbox") === "production"
-    ? "https://api.push.apple.com"
-    : "https://api.sandbox.push.apple.com";
+/** Which APNs server a token belongs to (D-33): `ios` tokens come from
+ *  TestFlight and App Store builds (production), `ios_sandbox` from Debug
+ *  builds installed by Xcode. Simulator tokens never reach APNs. */
+export function apnsHost(platform: string): string | null {
+  switch (platform) {
+    case "ios": return "https://api.push.apple.com";
+    case "ios_sandbox": return "https://api.sandbox.push.apple.com";
+    default: return null;
+  }
+}
+
+export async function sendToAPNs(deviceToken: string, platform: string, payload: unknown): Promise<APNsResult> {
+  const host = apnsHost(platform);
+  if (!host) return "failed";
   const bundleId = Deno.env.get("APNS_BUNDLE_ID") ?? "com.connectcha.app";
   try {
     const res = await fetch(`${host}/3/device/${deviceToken}`, {

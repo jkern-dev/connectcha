@@ -5,7 +5,8 @@
 // APNS_MODE=stub   records what would be sent in push_deliveries; the demo
 //                  bridge (scripts/push-bridge.sh) delivers those to the
 //                  simulators with `xcrun simctl push`, so banners really show.
-// APNS_MODE=apns   signs a JWT with the .p8 key and calls APNs over HTTP/2.
+// APNS_MODE=apns   signs a JWT with the .p8 key and calls APNs over HTTP/2,
+//                  production or sandbox per token platform (D-33).
 //
 // The payload carries the type, ids and the actor's *profile* name with
 // mutable-content so the on-device extension can swap in the saved contact
@@ -13,12 +14,12 @@
 import { serviceClient } from "../_shared/supabase.ts";
 import { error, json } from "../_shared/http.ts";
 import { buildPayload, categoryFor, PushType } from "./payload.ts";
-import { sendToAPNs } from "./apns.ts";
+import { apnsHost, sendToAPNs } from "./apns.ts";
 
 interface Job {
   outbox: { id: number; recipient_id: string; type: PushType; payload: Record<string, unknown>; sent_at: string | null };
   settings: { requests: boolean; messages: boolean; likes: boolean; bells: boolean } | null;
-  tokens: { token: string; platform: "ios" | "ios_simulator" }[];
+  tokens: { token: string; platform: "ios" | "ios_sandbox" | "ios_simulator" }[];
 }
 
 Deno.serve(async (req) => {
@@ -58,8 +59,8 @@ Deno.serve(async (req) => {
   const dead: string[] = [];
 
   for (const device of job.tokens) {
-    if (mode === "apns" && device.platform === "ios") {
-      const result = await sendToAPNs(device.token, payload);
+    if (mode === "apns" && apnsHost(device.platform)) {
+      const result = await sendToAPNs(device.token, device.platform, payload);
       if (result === "sent") deliveries.push({ token: device.token, platform: device.platform, payload });
       else if (result === "dead") dead.push(device.token);
     } else {

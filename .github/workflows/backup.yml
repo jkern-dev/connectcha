@@ -1,0 +1,47 @@
+name: Weekly database backup
+
+# Supabase Free has no automatic backups (plan R-B). Dumps the schema and data
+# with the Supabase CLI, encrypts the dump, and keeps it as a workflow artifact
+# for 90 days in this private repository. Restoring is described in
+# OPERATIONS.md ("Restoring a backup").
+#
+# Repository secrets: SUPABASE_DB_URL (session pooler URL from the dashboard's
+# Connect dialog) and BACKUP_PASSPHRASE (any long random string; keep a copy
+# outside GitHub, the dumps are useless without it).
+on:
+  schedule:
+    - cron: "41 9 * * 1"
+  workflow_dispatch:
+
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+    if: ${{ vars.HOSTED_ENABLED == 'true' }}
+    timeout-minutes: 30
+    steps:
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Dump schema and data
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          mkdir -p dump
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f dump/schema.sql
+          supabase db dump --db-url "$SUPABASE_DB_URL" --data-only -f dump/data.sql
+          ls -l dump
+      - name: Encrypt
+        env:
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          tar czf dump.tar.gz dump
+          gpg --batch --yes --symmetric --cipher-algo AES256 --passphrase "$BACKUP_PASSPHRASE" -o "connectcha-$(date -u +%F).tar.gz.gpg" dump.tar.gz
+          rm -rf dump dump.tar.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: connectcha-db-${{ github.run_id }}
+          path: connectcha-*.tar.gz.gpg
+          retention-days: 90
+          if-no-files-found: error

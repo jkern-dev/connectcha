@@ -31,6 +31,11 @@ settings:
     LOCALIZATION_PREFERS_STRING_CATALOGS: YES
     STRING_CATALOG_GENERATE_SYMBOLS: NO
     DEAD_CODE_STRIPPING: YES
+    # One version for the app and the extension (App Store Connect rejects a
+    # mismatch). `make archive` overrides CURRENT_PROJECT_VERSION with a
+    # date-based build number so every upload is unique and increasing.
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
   configs:
     Debug:
       SWIFT_ACTIVE_COMPILATION_CONDITIONS: "DEBUG"
@@ -52,9 +57,11 @@ targets:
         excludes:
           - "**/.DS_Store"
       - path: Shared
+    # Debug: the local stack (Debug.xcconfig includes Local.xcconfig and an
+    # optional gitignored Override.xcconfig). Release: the hosted stack.
     configFiles:
-      Debug: Config/Local.xcconfig
-      Release: Config/Local.xcconfig
+      Debug: Config/Debug.xcconfig
+      Release: Config/Hosted.xcconfig
     dependencies:
       - package: Supabase
         product: Supabase
@@ -71,8 +78,8 @@ targets:
       path: Connectcha/Info.plist
       properties:
         CFBundleDisplayName: Connectcha
-        CFBundleShortVersionString: "0.1.0"
-        CFBundleVersion: "1"
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
         UILaunchScreen:
           UIColorName: LaunchBackground
         UISupportedInterfaceOrientations:
@@ -117,8 +124,8 @@ targets:
       path: ConnectchaNSE/Info.plist
       properties:
         CFBundleDisplayName: Connectcha Names
-        CFBundleShortVersionString: "0.1.0"
-        CFBundleVersion: "1"
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
         NSExtension:
           NSExtensionPointIdentifier: com.apple.usernotifications.service
           NSExtensionPrincipalClass: "$(PRODUCT_MODULE_NAME).NotificationService"

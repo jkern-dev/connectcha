@@ -1,0 +1,6 @@
+// Debug builds: the local stack by default. To point a Debug build (for
+// example one installed on a phone from Xcode) at the hosted stack instead,
+// run `make ios-use-hosted`, which writes Override.xcconfig (gitignored)
+// including Hosted.xcconfig. `make ios-use-local` removes it again.
+#include "Local.xcconfig"
+#include? "Override.xcconfig"

@@ -132,6 +132,22 @@ final class AppModel {
     func signOut() async {
         await NotificationManager.shared.unregister()
         try? await API.shared.client.auth.signOut()
+        forgetLocalState()
+    }
+
+    /// D-34: deletes the account on the server (everything the person owns
+    /// cascades, including their conversations), then clears this phone the
+    /// same way sign-out does. The session is dropped locally only: the
+    /// server no longer knows the user, so a global sign-out would fail.
+    func deleteAccount() async throws {
+        let id = me?.id
+        try await API.shared.call("delete_my_account")
+        try? await API.shared.client.auth.signOut(scope: .local)
+        if let id { OnboardingProgress.reset(for: id) }
+        forgetLocalState()
+    }
+
+    private func forgetLocalState() {
         ContactSync.shared.signedOut()
         MediaCache.shared.clearAll()
         me = nil

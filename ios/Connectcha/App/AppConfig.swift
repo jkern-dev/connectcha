@@ -16,7 +16,7 @@ enum AppConfig {
         return URL(string: raw) ?? URL(string: "http://127.0.0.1:8787/")!
     }()
 
-    static let supportEmail: String = (info["SupportEmail"] as? String) ?? "support@connectcha.example"
+    static let supportEmail: String = (info["SupportEmail"] as? String) ?? "ask.connectcha@gmail.com"
 
     static let appGroupIdentifier: String = (info["AppGroupIdentifier"] as? String) ?? "group.com.connectcha.shared"
 

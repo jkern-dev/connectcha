@@ -57,9 +57,17 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     }
 
     /// Called from the app delegate with the APNs token on a real device.
+    /// A Debug build from Xcode carries the development push entitlement and
+    /// gets a sandbox token; TestFlight and App Store builds get a production
+    /// one. The server sends to the matching APNs host per token (D-33).
     func didRegister(deviceToken: Data) {
         let hex = deviceToken.map { String(format: "%02x", $0) }.joined()
-        Task { await upload(token: hex, platform: "ios") }
+        #if DEBUG
+        let platform = "ios_sandbox"
+        #else
+        let platform = "ios"
+        #endif
+        Task { await upload(token: hex, platform: platform) }
     }
 
     nonisolated struct TokenParams: Encodable, Sendable {

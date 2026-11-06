@@ -21,6 +21,7 @@ SIM_RUNTIME := com.apple.CoreSimulator.SimRuntime.iOS-26-3
 DB_URL := postgresql://postgres:postgres@127.0.0.1:54322/postgres
 
 .PHONY: help up down reset status test-db test-functions test ios-project ios-config ios-build ios-test ios-ui-test \
+        ios-use-hosted ios-use-local archive upload hosted-setup \
         sims sim-a sim-b demo demo-stop seed-media logs push-bridge privacy-check
 
 help: ## Show this help
@@ -65,12 +66,20 @@ ios-project: ## Regenerate ios/Connectcha.xcodeproj from ios/project.yml
 ios-config: ## Write ios/Config/Local.xcconfig from the running local stack
 	./scripts/write-ios-config.sh
 
+ios-use-hosted: ## Point Debug builds at the hosted stack (writes ios/Config/Override.xcconfig, gitignored)
+	@printf '// Written by `make ios-use-hosted`; `make ios-use-local` removes it.\n#include "Hosted.xcconfig"\n' > $(IOS_DIR)/Config/Override.xcconfig
+	@echo "Debug builds now read ios/Config/Hosted.xcconfig"
+
+ios-use-local: ## Point Debug builds back at the local stack
+	@rm -f $(IOS_DIR)/Config/Override.xcconfig
+	@echo "Debug builds read ios/Config/Local.xcconfig"
+
 ios-build: ios-project ## Build the app for the simulator
 	cd $(IOS_DIR) && xcodebuild -project Connectcha.xcodeproj -scheme Connectcha \
 	  -destination 'generic/platform=iOS Simulator' -derivedDataPath $(DERIVED) \
 	  build 2>&1 | xcbeautify --quiet
 
-UI_TEST_CLASSES := SignUpFlowUITests OnboardingUITests PeopleUITests FollowingUITests FeedUITests StoriesUITests MessagingUITests NotificationsUITests
+UI_TEST_CLASSES := SignUpFlowUITests OnboardingUITests PeopleUITests FollowingUITests FeedUITests StoriesUITests MessagingUITests NotificationsUITests SettingsUITests
 
 ios-ui-test: ios-project sims ## Run the iOS UI scenario tests on simulator A, resetting demo data before each class
 	cd $(IOS_DIR) && xcodebuild -project Connectcha.xcodeproj -scheme Connectcha \
@@ -97,6 +106,31 @@ ios-test: ios-project sims ## Run the iOS unit tests on simulator A
 	xcbeautify --quiet < $(DERIVED)/unit.log; \
 	grep -E "Executed [0-9]+ tests?, with" $(DERIVED)/unit.log | tail -1; \
 	if [ $$status -ne 0 ]; then echo "✖ unit tests failed (full log: $(DERIVED)/unit.log)"; exit 1; fi
+
+# ----------------------------------------------------------------------------
+# Release (TestFlight). Needs the Apple Developer account: copy .apple.env.example
+# to .apple.env (gitignored) and fill it in. See OPERATIONS.md "Shipping a build".
+# ----------------------------------------------------------------------------
+-include .apple.env
+BUILD_NUMBER ?= $(shell date +%Y%m%d%H%M)
+ARCHIVE := $(DERIVED)/Connectcha.xcarchive
+
+archive: ios-project ## Archive a Release build for real iPhones (build number = today's date and time)
+	@test -n "$(APPLE_TEAM_ID)" || { echo "APPLE_TEAM_ID is not set; see .apple.env.example"; exit 1; }
+	set -o pipefail; cd $(IOS_DIR) && xcodebuild -project Connectcha.xcodeproj -scheme Connectcha -configuration Release \
+	  -destination 'generic/platform=iOS' -archivePath $(ARCHIVE) -allowProvisioningUpdates \
+	  DEVELOPMENT_TEAM=$(APPLE_TEAM_ID) CURRENT_PROJECT_VERSION=$(BUILD_NUMBER) archive 2>&1 | xcbeautify --quiet
+	@echo "Archived build $(BUILD_NUMBER) at $(ARCHIVE)"
+
+upload: ## Upload the last archive to App Store Connect (it appears in TestFlight after processing)
+	@test -n "$(ASC_KEY_ID)" -a -n "$(ASC_ISSUER_ID)" -a -f "$(ASC_KEY_PATH)" || { echo "ASC_KEY_ID, ASC_ISSUER_ID and ASC_KEY_PATH are needed; see .apple.env.example"; exit 1; }
+	sed 's/APPLE_TEAM_ID/$(APPLE_TEAM_ID)/' $(IOS_DIR)/ExportOptions.plist > $(DERIVED)/ExportOptions.plist
+	set -o pipefail; xcodebuild -exportArchive -archivePath $(ARCHIVE) -exportOptionsPlist $(DERIVED)/ExportOptions.plist \
+	  -exportPath $(DERIVED)/export -allowProvisioningUpdates \
+	  -authenticationKeyPath $(ASC_KEY_PATH) -authenticationKeyID $(ASC_KEY_ID) -authenticationKeyIssuerID $(ASC_ISSUER_ID) 2>&1 | xcbeautify --quiet
+
+hosted-setup: ## Configure the hosted Supabase project from supabase/.hosted.env (safe to rerun)
+	./scripts/hosted-setup.sh
 
 # ----------------------------------------------------------------------------
 # Demo

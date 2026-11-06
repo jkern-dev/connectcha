@@ -11,6 +11,6 @@ cat > ios/Config/Local.xcconfig <<EOF
 SUPABASE_URL = ${url}
 SUPABASE_ANON_KEY = ${ANON_KEY}
 INVITE_URL = http:/\$()/127.0.0.1:8787/
-SUPPORT_EMAIL = support@connectcha.example
+SUPPORT_EMAIL = ask.connectcha@gmail.com
 EOF
 echo "wrote ios/Config/Local.xcconfig for ${API_URL}"

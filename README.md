@@ -7,7 +7,8 @@ A photo and video sharing app for friends and family where people can only find 
 - `DEMO.md` walks through the prototype on two simulators (`make demo`).
 - `TEST_SCENARIOS.md` says how each of the 17 scenarios was checked.
 - `DECISIONS.md` records every choice the spec and plan left open; `OPEN_QUESTIONS.md` lists the ones only the owner can settle.
-- `OPERATIONS.md` is the runbook (what exists, hosted setup, what M10 adds); `REFINEMENT_LOG.md` records the polish passes.
+- `OPERATIONS.md` is the runbook (what exists, hosted setup, shipping a build); `REFINEMENT_LOG.md` records the polish passes.
+- `TESTFLIGHT_PLAN.md` is the path from the prototype to TestFlight and the first real testers (M10).
 
 ## Layout
 
@@ -58,6 +59,9 @@ Everything runs locally. No hosted accounts are needed.
 | `make privacy-check` | Prove a submitted contact hash reaches no log or table |
 | `make ios-project` | Regenerate `ios/Connectcha.xcodeproj` from `ios/project.yml` |
 | `make demo` | Start everything and launch two signed-in simulators |
+| `make ios-use-hosted` / `make ios-use-local` | Point Debug builds at the hosted stack or back at the local one |
+| `make hosted-setup` | Configure the hosted Supabase project from `supabase/.hosted.env` (see `OPERATIONS.md`) |
+| `make archive` / `make upload` | Build a TestFlight release and upload it (needs `.apple.env`) |
 | `supabase status` | Show local URLs and keys; Studio is at <http://127.0.0.1:54323> |
 
 ## Signing in locally
