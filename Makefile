@@ -113,12 +113,15 @@ ios-test: ios-project sims ## Run the iOS unit tests on simulator A
 # ----------------------------------------------------------------------------
 -include .apple.env
 BUILD_NUMBER ?= $(shell date +%Y%m%d%H%M)
+# With the App Store Connect API key, -allowProvisioningUpdates can register the app
+# identifiers, the App Group and the push capability without an Apple ID signed into Xcode.
+ASC_AUTH_FLAGS = $(if $(ASC_KEY_ID),-authenticationKeyPath $(ASC_KEY_PATH) -authenticationKeyID $(ASC_KEY_ID) -authenticationKeyIssuerID $(ASC_ISSUER_ID),)
 ARCHIVE := $(DERIVED)/Connectcha.xcarchive
 
 archive: ios-project ## Archive a Release build for real iPhones (build number = today's date and time)
 	@test -n "$(APPLE_TEAM_ID)" || { echo "APPLE_TEAM_ID is not set; see .apple.env.example"; exit 1; }
 	set -o pipefail; cd $(IOS_DIR) && xcodebuild -project Connectcha.xcodeproj -scheme Connectcha -configuration Release \
-	  -destination 'generic/platform=iOS' -archivePath $(ARCHIVE) -allowProvisioningUpdates \
+	  -destination 'generic/platform=iOS' -archivePath $(ARCHIVE) -allowProvisioningUpdates $(ASC_AUTH_FLAGS) \
 	  DEVELOPMENT_TEAM=$(APPLE_TEAM_ID) CURRENT_PROJECT_VERSION=$(BUILD_NUMBER) archive 2>&1 | xcbeautify --quiet
 	@echo "Archived build $(BUILD_NUMBER) at $(ARCHIVE)"
 
