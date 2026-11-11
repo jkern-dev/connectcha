@@ -89,8 +89,10 @@ step "Done"
 for s in "${skipped[@]:-}"; do [ -n "$s" ] && echo "Skipped: $s"; done
 cat <<EOF
 Still to do in the Supabase dashboard (Authentication):
-  1. Providers → Phone: enable, provider Twilio Verify, Account SID, Auth Token, Verify Service SID.
-  2. Providers → Phone → Test phone numbers: the reviewer number and code only (OPEN_QUESTIONS Q8).
+  1. Providers → Phone: enable, provider Twilio Verify, Account SID, Auth Token, Verify Service SID,
+     and "Enable phone confirmations" ON (off lets password sign-up skip the text).
+  2. Providers → Phone → Test phone numbers: the reviewer number and code only (OPEN_QUESTIONS Q8),
+     number without the plus sign (15555550100).
   3. Hooks: enable "Before User Created" → Postgres function public.before_user_created_hook.
 Then fill ios/Config/Hosted.xcconfig (URL https://${SUPABASE_PROJECT_REF}.supabase.co and the anon key).
 EOF
