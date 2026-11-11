@@ -51,7 +51,7 @@ Order and detail are in `TESTFLIGHT_PLAN.md` (phase C). The mechanics:
 4. **Never run `supabase config push`** (D-35). `supabase/config.toml` is the local stack: demo numbers with code 123456, a placeholder Twilio block, relaxed limits.
 5. **App.** Put the project URL and anon key in `ios/Config/Hosted.xcconfig` (committed; the anon key is public by design). Release builds read it. For a Debug build on a phone against the hosted stack, `make ios-use-hosted`; `make ios-use-local` switches back.
 6. **Cloudflare Pages.** Deploy `web/` (static, no build step). Put the Pages address in `Hosted.xcconfig` as `INVITE_URL`; the privacy and terms links in the app derive from it.
-7. **GitHub Actions.** Repository secrets `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_DB_URL`, `BACKUP_PASSPHRASE`; repository variable `HOSTED_ENABLED=true`. That turns on `keepalive.yml` (one read a day so the Free project never pauses) and `backup.yml` (weekly encrypted dump kept as a 90-day artifact).
+7. **GitHub Actions.** `make github-secrets` (`scripts/github-secrets.sh`, needs `gh auth login`) sets repository secrets `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_DB_URL`, `BACKUP_PASSPHRASE` (generated once, kept in `supabase/.hosted.env`) and the repository variable `HOSTED_ENABLED=true`, then runs both workflows once. That turns on `keepalive.yml` (one read a day so the Free project never pauses) and `backup.yml` (weekly encrypted dump kept as a 90-day artifact).
 
 ### Push notifications for real
 

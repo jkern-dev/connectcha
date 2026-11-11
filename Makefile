@@ -20,7 +20,7 @@ SIM_B_NAME := Connectcha B
 SIM_RUNTIME := com.apple.CoreSimulator.SimRuntime.iOS-26-3
 DB_URL := postgresql://postgres:postgres@127.0.0.1:54322/postgres
 
-.PHONY: help up down reset status test-db test-functions test ios-project ios-config ios-build ios-test ios-ui-test \
+.PHONY: github-secrets help up down reset status test-db test-functions test ios-project ios-config ios-build ios-test ios-ui-test \
         ios-use-hosted ios-use-local archive upload hosted-setup \
         sims sim-a sim-b demo demo-stop seed-media logs push-bridge privacy-check
 
@@ -131,6 +131,10 @@ upload: ## Upload the last archive to App Store Connect (it appears in TestFligh
 
 hosted-setup: ## Configure the hosted Supabase project from supabase/.hosted.env (safe to rerun)
 	./scripts/hosted-setup.sh
+
+## GitHub secrets and variable for the keep-alive and backup workflows (OPERATIONS.md step 7)
+github-secrets:
+	./scripts/github-secrets.sh
 
 # ----------------------------------------------------------------------------
 # Demo

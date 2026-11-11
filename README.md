@@ -60,7 +60,7 @@ Everything runs locally. No hosted accounts are needed.
 | `make ios-project` | Regenerate `ios/Connectcha.xcodeproj` from `ios/project.yml` |
 | `make demo` | Start everything and launch two signed-in simulators |
 | `make ios-use-hosted` / `make ios-use-local` | Point Debug builds at the hosted stack or back at the local one |
-| `make hosted-setup` | Configure the hosted Supabase project from `supabase/.hosted.env` (see `OPERATIONS.md`) |
+| `make hosted-setup` / `make github-secrets` | Configure the hosted Supabase project from `supabase/.hosted.env` (see `OPERATIONS.md`) |
 | `make archive` / `make upload` | Build a TestFlight release and upload it (needs `.apple.env`) |
 | `supabase status` | Show local URLs and keys; Studio is at <http://127.0.0.1:54323> |
 
