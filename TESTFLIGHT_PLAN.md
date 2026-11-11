@@ -155,8 +155,9 @@ Order: 1, 2, 3, 5 first (configuration, about half a day), then 4, then 6, 7, 8.
 **Phase C progress (2026-11-06):**
 - **Supabase: done.** Project `lmsdnuouvgqsryvhoxzx` (us-west-2) linked; all seven migrations applied (18 tables, all with row-level security; 53 client-callable functions; the US-only hook function present); the four Edge Functions deployed and answering (send-push refuses calls without the secret, get-media-urls refuses calls without a session); `private.settings` holds the webhook URL and secret; `cleanup-orphans` scheduled daily at 09:00 UTC with `pg_cron`. `ios/Config/Hosted.xcconfig` carries the project URL and publishable key. `supabase/.hosted.env` (gitignored) holds the project reference, database password and webhook secret.
 - **Still in the Supabase dashboard, at the Twilio step:** Phone provider (Twilio Verify), the reviewer test number, and switching on the "Before User Created" hook (Authentication → Hooks → Postgres function `public.before_user_created_hook`).
-- **Cloudflare: next.** R2 bucket and API token, then Pages.
-- **Twilio: after that.**
+- **Cloudflare R2: done (2026-11-11).** Bucket `connectcha-media` with a read-and-write token scoped to it; `R2_*` filled in `supabase/.hosted.env` and `make hosted-setup` rerun (the owner runs it; the S3 secrets are on the functions). Verified: hosted `cleanup-orphans` lists the bucket (scanned 0), and a presigned PUT, presigned GET, runtime list and delete all succeeded against R2 through `_shared/s3.ts`.
+- **Cloudflare Pages: done (2026-11-11).** Project `connectcha` connected to the GitHub repo (`main`, output directory `web`), so pushes redeploy. Production address `https://connectcha.pages.dev/` matches `INVITE_URL`; `privacy.html` and `terms.html` answer (Pages redirects them to the extensionless paths, which the app's links follow). `TESTFLIGHT_LINK` in `web/index.html` still waits for the public TestFlight link (phase E).
+- **Twilio: next.**
 
 ### What phase C will need from each account
 
