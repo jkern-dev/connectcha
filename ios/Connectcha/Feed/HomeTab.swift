@@ -85,41 +85,69 @@ struct HomeTab: View {
 
     // MARK: Header
 
+    /// Date and wordmark beside the Letters and Share buttons when they fit on
+    /// one row; otherwise the buttons drop to a second row so neither the
+    /// wordmark nor "Share" ever breaks across lines.
     private var header: some View {
-        AdaptiveStack(alignment: .leading, spacing: Spacing.m) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(DateWords.long())
-                    .font(.caption.weight(.medium))
-                    .textCase(.uppercase)
-                    .tracking(1)
-                    .foregroundStyle(Palette.muted)
-                    // One line even when the Letters badge takes width.
-                    .lineLimit(typeSize.isAccessibilitySize ? nil : 1)
-                    .minimumScaleFactor(0.75)
-                BrandMark(size: .title)
-            }
-            .accessibilityElement(children: .combine)
-            if !typeSize.isAccessibilitySize { Spacer(minLength: 0) }
-            // Side by side normally; two full-width rows at accessibility sizes.
-            AdaptiveStack(alignment: .leading, spacing: 10) {
-                NavigationLink(value: LettersRoute()) {
-                    lettersLabel
+        Group {
+            if typeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: Spacing.m) {
+                    titleBlock
+                    VStack(alignment: .leading, spacing: 10) { headerActions }
                 }
-                .buttonStyle(.plain)
-                .accessibilityLabel(appModel.unread.unreadConversations > 0
-                                    ? "Letters, \(appModel.unread.unreadConversations) unread"
-                                    : "Letters")
-                Button { sharing = true } label: {
-                    Label("Share", systemImage: "plus")
-                        .font(.body.weight(.semibold))
-                        .frame(maxWidth: typeSize.isAccessibilitySize ? .infinity : nil)
+            } else {
+                ViewThatFits(in: .horizontal) {
+                    // A flexible frame rather than a Spacer: a Spacer's ideal
+                    // width is unbounded, which would make this row never "fit".
+                    HStack(alignment: .center, spacing: Spacing.m) {
+                        titleBlock.frame(maxWidth: .infinity, alignment: .leading)
+                        HStack(spacing: 10) { headerActions }
+                    }
+                    VStack(alignment: .leading, spacing: Spacing.m) {
+                        titleBlock
+                        HStack(spacing: 10) { headerActions }
+                    }
                 }
-                .buttonStyle(.pill)
-                .accessibilityHint("Photos for the table, or a snapshot that is gone tomorrow")
             }
         }
         .padding(.horizontal, Spacing.gutter)
         .padding(.top, Spacing.s)
+    }
+
+    private var titleBlock: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(DateWords.long())
+                .font(.caption.weight(.medium))
+                .textCase(.uppercase)
+                .tracking(1)
+                .foregroundStyle(Palette.muted)
+                .lineLimit(typeSize.isAccessibilitySize ? nil : 1)
+                .minimumScaleFactor(0.75)
+            BrandMark(size: .title)
+                .lineLimit(1)
+                .fixedSize(horizontal: true, vertical: false)
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    @ViewBuilder
+    private var headerActions: some View {
+        NavigationLink(value: LettersRoute()) {
+            lettersLabel
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(appModel.unread.unreadConversations > 0
+                            ? "Letters, \(appModel.unread.unreadConversations) unread"
+                            : "Letters")
+        Button { sharing = true } label: {
+            Label("Share", systemImage: "plus")
+                .font(.body.weight(.semibold))
+                .lineLimit(1)
+                .fixedSize(horizontal: true, vertical: false)
+                .frame(maxWidth: typeSize.isAccessibilitySize ? .infinity : nil)
+        }
+        .buttonStyle(.pill)
+        .accessibilityHint("Photos for the table, or a snapshot that is gone tomorrow")
     }
 
     @ViewBuilder
