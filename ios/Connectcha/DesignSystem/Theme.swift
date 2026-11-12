@@ -377,3 +377,47 @@ nonisolated enum DateWords {
         return f.string(from: date)
     }
 }
+
+// MARK: - Wide windows (iPhone Duo unfolded)
+
+/// Two pages side by side, like an open album. Each page takes exactly half
+/// the width, so on a folding screen the join between them sits on the fold
+/// and no control straddles it.
+struct TwoPages<Left: View, Right: View>: View {
+    @ViewBuilder var left: () -> Left
+    @ViewBuilder var right: () -> Right
+
+    var body: some View {
+        HStack(spacing: 0) {
+            left().frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            right().frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        }
+    }
+}
+
+/// Whether a screen should lay itself out as two pages. Driven by the size
+/// class only (never the device or the pose), and off at accessibility text
+/// sizes, where half a window is too narrow to read comfortably.
+struct WideLayout: DynamicProperty {
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    @Environment(\.dynamicTypeSize) private var typeSize
+
+    var isOn: Bool { sizeClass == .regular && !typeSize.isAccessibilitySize }
+}
+
+extension View {
+    /// Keeps a single-column screen at a comfortable reading width, centred,
+    /// when the window is much wider than a phone.
+    func readablePage(maxWidth: CGFloat = 620) -> some View {
+        frame(maxWidth: maxWidth).frame(maxWidth: .infinity)
+    }
+
+    /// A sheet on a phone-width window; the whole window when it is wide, so
+    /// the content keeps its two pages instead of shrinking into a form sheet.
+    func sheetOrCover<Content: View>(isPresented: Binding<Bool>, wide: Bool,
+                                     @ViewBuilder content: @escaping () -> Content) -> some View {
+        self
+            .sheet(isPresented: wide ? .constant(false) : isPresented, content: content)
+            .fullScreenCover(isPresented: wide ? isPresented : .constant(false), content: content)
+    }
+}

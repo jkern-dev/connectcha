@@ -21,6 +21,7 @@ struct CreatePostView: View {
     @State private var status: String?
     @State private var error: String?
     @State private var preparing = false
+    private let wide = WideLayout()
 
     nonisolated struct DraftItem: Identifiable, Sendable {
         let id = UUID()
@@ -40,19 +41,29 @@ struct CreatePostView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: Spacing.l) {
-                photosSection
-                captionCard
-                detailsCard
-                ErrorText(text: error)
-                Text("Goes to everyone in your circle and nobody else. You can take it off the table any time.")
-                    .font(.footnote)
-                    .foregroundStyle(Palette.muted)
-                    .fixedSize(horizontal: false, vertical: true)
-                shareButton
+        Group {
+            if wide.isOn {
+                // Unfolded: the prints on the left page, what goes on the
+                // back and the Share button on the right.
+                TwoPages {
+                    ScrollView {
+                        photosSection.padding(Spacing.gutter)
+                    }
+                } right: {
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: Spacing.l) { wordsAndShare }
+                            .padding(Spacing.gutter)
+                    }
+                }
+            } else {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: Spacing.l) {
+                        photosSection
+                        wordsAndShare
+                    }
+                    .padding(Spacing.gutter)
+                }
             }
-            .padding(Spacing.gutter)
         }
         .background(Color.appBackground.ignoresSafeArea())
         .navigationTitle("Share")
@@ -70,6 +81,18 @@ struct CreatePostView: View {
                 .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
             }
         }
+    }
+
+    @ViewBuilder
+    private var wordsAndShare: some View {
+        captionCard
+        detailsCard
+        ErrorText(text: error)
+        Text("Goes to everyone in your circle and nobody else. You can take it off the table any time.")
+            .font(.footnote)
+            .foregroundStyle(Palette.muted)
+            .fixedSize(horizontal: false, vertical: true)
+        shareButton
     }
 
     // MARK: Photos
@@ -92,29 +115,21 @@ struct CreatePostView: View {
                 picker
                     .buttonStyle(.secondary)
                     .accessibilityHint("Up to 10 items. Videos can be up to 60 seconds.")
+            } else if wide.isOn {
+                // A page to themselves: larger prints in rows that wrap.
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 18)], spacing: 22) {
+                    ForEach(Array(drafts.enumerated()), id: \.element.id) { index, draft in
+                        draftPrint(index: index, draft: draft, width: 150, height: 184)
+                    }
+                }
+                .padding(.vertical, 12)
+                picker
+                    .buttonStyle(.quietPill)
             } else {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(alignment: .top, spacing: 14) {
                         ForEach(Array(drafts.enumerated()), id: \.element.id) { index, draft in
-                            PrintFrame(tilt: Tilt.at(index), width: 104, height: 128, label: printLabel(index: index, draft: draft)) {
-                                Image(uiImage: draft.preview)
-                                    .resizable()
-                                    .scaledToFill()
-                            }
-                            .overlay(alignment: .topTrailing) {
-                                Button {
-                                    drafts.remove(at: index)
-                                } label: {
-                                    Image(systemName: "xmark")
-                                        .font(.caption.weight(.bold))
-                                        .foregroundStyle(.white)
-                                        .frame(width: 26, height: 26)
-                                        .background(Palette.ink, in: Circle())
-                                }
-                                .offset(x: 8, y: -8)
-                                .accessibilityLabel("Remove \(draft.kind == .video ? "video" : "photo") \(index + 1)")
-                            }
-                            .accessibilityLabel("\(draft.kind == .video ? "Video" : "Photo") \(index + 1) of \(drafts.count)")
+                            draftPrint(index: index, draft: draft, width: 104, height: 128)
                         }
                     }
                     .padding(.vertical, 12)
@@ -124,6 +139,28 @@ struct CreatePostView: View {
                     .buttonStyle(.quietPill)
             }
         }
+    }
+
+    private func draftPrint(index: Int, draft: DraftItem, width: CGFloat, height: CGFloat) -> some View {
+        PrintFrame(tilt: Tilt.at(index), width: width, height: height, label: printLabel(index: index, draft: draft)) {
+            Image(uiImage: draft.preview)
+                .resizable()
+                .scaledToFill()
+        }
+        .overlay(alignment: .topTrailing) {
+            Button {
+                drafts.remove(at: index)
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.white)
+                    .frame(width: 26, height: 26)
+                    .background(Palette.ink, in: Circle())
+            }
+            .offset(x: 8, y: -8)
+            .accessibilityLabel("Remove \(draft.kind == .video ? "video" : "photo") \(index + 1)")
+        }
+        .accessibilityLabel("\(draft.kind == .video ? "Video" : "Photo") \(index + 1) of \(drafts.count)")
     }
 
     private var countTitle: String {

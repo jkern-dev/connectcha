@@ -42,6 +42,7 @@ struct ActivityView: View {
             .padding(.vertical, Spacing.s)
             .padding(.bottom, Spacing.xl)
         }
+        .readablePage()
         .background(Color.appBackground.ignoresSafeArea())
         .navigationTitle("Lately")
         .navigationBarTitleDisplayMode(.inline)

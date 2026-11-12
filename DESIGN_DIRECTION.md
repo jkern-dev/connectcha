@@ -123,3 +123,28 @@ The right column names the SwiftUI file that changes. Nothing below the view lay
 - "Today's snapshots" shows "You" as the label on your own print rather than "Seen · You".
 - The snapshot viewer sizes the print to the photo's shape (wide for landscape, tall for portrait) instead of a fixed tall print.
 - Someone's page shows "Your letters" whenever a thread exists, even while your request is still pending, because the thread was started earlier under the rules (D-26).
+
+## Wide windows: iPhone Duo unfolded
+
+Mock-ups: https://claude.ai/artifact/JiBVhQoGXFJZQBBjPVwJUx (private canvas; three folded boards, four unfolded).
+
+Built on 2026-11-12, driven by the horizontal size class only (`WideLayout` in `Theme.swift`), never by device or pose. At accessibility text sizes every screen stays single-column.
+
+| Screen | Wide layout | Where |
+|---|---|---|
+| Home | Left page: header, snapshots in rows that wrap, the newest unread letter. Right page: the day's photos | `Feed/HomeTab.swift`, `Stories/StoryTray.swift` |
+| Letters | Threads on the left, the open letter on the right; the newest thread opens by itself | `Messaging/InboxTab.swift`, `Messaging/ConversationView.swift` (`embedded`) |
+| Looking at a snapshot | The print and its tap zones on the left; who it is from, "Next on the table" and the reply bar on the right | `Stories/StoryViewerView.swift` |
+| Share | Covers the whole window instead of a sheet; prints on the left, the words and the Share button on the right | `Posts/CreateTab.swift`, `Posts/CreatePostView.swift` |
+| Everything else | Single column held to a reading width (`readablePage()`) | People, You, someone's page, a photo, Lately, Past snapshots, the snapshot composer |
+
+`TwoPages` gives each page exactly half the width so the join sits on the fold.
+
+Not built yet, because it needs the iOS 27.1 SDK (Xcode 27.1) and this Mac has Xcode 26.3:
+
+- A build made with Xcode 26.3 does not get the full inner display on an iPhone Duo at all, so none of the above reaches Duo owners until the app is rebuilt with the newer Xcode.
+- Folded, the system moves a standard tab bar and standard toolbar buttons into the strip on the right edge. Home's Letters and Share buttons are drawn in the page (the navigation bar is hidden on tab roots), so they will stay in the page until they become real toolbar items.
+- Unfolded, the mock-ups put the tabs in a strip on the left edge. That is the system's sidebar placement for tabs, also new in that SDK. Until then the tabs sit wherever the system puts them.
+- The fold's exact position and width come from the new reserved-region API; `TwoPages` assumes the content area is centred on the fold, which stops being true once a side strip takes space on one edge.
+
+To look at the wide layouts today, build a Debug copy that also runs on iPad and open it on an iPad mini simulator: add `TARGETED_DEVICE_FAMILY=1,2` to the `xcodebuild` command line (do not change `project.yml`; the shipped app stays iPhone-only).

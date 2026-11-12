@@ -38,6 +38,7 @@ struct PostDetailView: View {
                 ProgressView().padding(.top, 80)
             }
         }
+        .readablePage()
         .background(Color.appBackground.ignoresSafeArea())
         .navigationTitle(post.map { FeedModel.dayLabel(for: $0.publishedAt ?? Date()) } ?? "Photo")
         .navigationBarTitleDisplayMode(.inline)

@@ -24,6 +24,7 @@ struct YouTab: View {
                 }
                 .padding(.bottom, Spacing.xl)
             }
+            .readablePage()
             .background(Color.appBackground.ignoresSafeArea())
             .kitchenTableRoot(title: "You")
             .task { await load() }
@@ -308,6 +309,7 @@ struct RequestsView: View {
             }
             .padding(Spacing.gutter)
         }
+        .readablePage()
         .background(Color.appBackground.ignoresSafeArea())
         .navigationTitle("Waiting for your yes")
         .navigationBarTitleDisplayMode(.inline)

@@ -43,6 +43,7 @@ struct StoryArchiveView: View {
             }
             .padding(Spacing.gutter)
         }
+        .readablePage()
         .background(Color.appBackground.ignoresSafeArea())
         .navigationTitle("Past snapshots")
         .navigationBarTitleDisplayMode(.inline)

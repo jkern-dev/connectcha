@@ -6,8 +6,75 @@ struct LettersView: View {
     @Environment(AppModel.self) private var appModel
     @Environment(\.scenePhase) private var scenePhase
     @State private var inbox = InboxModel()
+    /// The thread open on the right page when the window is wide.
+    @State private var selected: ConversationRoute?
+    private let wide = WideLayout()
 
     var body: some View {
+        Group {
+            if wide.isOn {
+                // Unfolded: the threads on the left page, the open letter on
+                // the right, so reading one never means leaving the list.
+                TwoPages {
+                    list
+                } right: {
+                    if let selected {
+                        ConversationView(route: selected, embedded: true, onChange: {
+                            Task { await inbox.load(); await appModel.refreshUnread() }
+                        })
+                        .id(selected)
+                    } else {
+                        Text(inbox.loadedOnce && inbox.items.isEmpty ? "" : "Choose a letter to read it here.")
+                            .font(.subheadline)
+                            .foregroundStyle(Palette.muted)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    }
+                }
+            } else {
+                list
+            }
+        }
+        .background(Color.appBackground.ignoresSafeArea())
+        .navigationTitle("Letters")
+        .navigationBarTitleDisplayMode(.inline)
+        .refreshable { await inbox.load(); await appModel.refreshUnread() }
+        .task { await inbox.load(); selectFirstIfNeeded() }
+        .onAppear { Task { await inbox.load(); await appModel.refreshUnread(); selectFirstIfNeeded() } }
+        .onChange(of: scenePhase) { _, p in if p == .active { Task { await inbox.load() } } }
+        .onChange(of: wide.isOn) { _, _ in selectFirstIfNeeded() }
+    }
+
+    /// With two pages there is always a letter open: the newest one.
+    private func selectFirstIfNeeded() {
+        guard wide.isOn, selected == nil, let first = inbox.items.first else { return }
+        selected = ConversationRoute(conversationId: first.conversationId, otherUserId: first.other.id)
+    }
+
+    @ViewBuilder
+    private func row(_ item: InboxItem) -> some View {
+        let route = ConversationRoute(conversationId: item.conversationId, otherUserId: item.other.id)
+        if wide.isOn {
+            let isOpen = selected?.conversationId == item.conversationId
+            Button { selected = route } label: {
+                InboxRow(item: item)
+                    .overlay {
+                        if isOpen {
+                            RoundedRectangle(cornerRadius: Radius.card, style: .continuous)
+                                .strokeBorder(Color.accentColor, lineWidth: 2)
+                        }
+                    }
+            }
+            .buttonStyle(.cardPress)
+            .accessibilityAddTraits(isOpen ? .isSelected : [])
+        } else {
+            NavigationLink(value: route) {
+                InboxRow(item: item)
+            }
+            .buttonStyle(.cardPress)
+        }
+    }
+
+    private var list: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.m) {
                 ScreenHeader(title: "Letters", subtitle: "Between you and one other person. Nobody else can read them.")
@@ -26,11 +93,8 @@ struct LettersView: View {
                     .padding(.horizontal, Spacing.gutter)
                 }
                 ForEach(inbox.items) { item in
-                    NavigationLink(value: ConversationRoute(conversationId: item.conversationId, otherUserId: item.other.id)) {
-                        InboxRow(item: item)
-                    }
-                    .buttonStyle(.cardPress)
-                    .padding(.horizontal, Spacing.gutter)
+                    row(item)
+                        .padding(.horizontal, Spacing.gutter)
                 }
                 if let error = inbox.error { ErrorText(text: error).padding(.horizontal, Spacing.gutter) }
                 if inbox.loadedOnce, !inbox.items.isEmpty {
@@ -43,13 +107,6 @@ struct LettersView: View {
             .padding(.vertical, Spacing.s)
             .padding(.bottom, Spacing.xl)
         }
-        .background(Color.appBackground.ignoresSafeArea())
-        .navigationTitle("Letters")
-        .navigationBarTitleDisplayMode(.inline)
-        .refreshable { await inbox.load(); await appModel.refreshUnread() }
-        .task { await inbox.load() }
-        .onAppear { Task { await inbox.load(); await appModel.refreshUnread() } }
-        .onChange(of: scenePhase) { _, p in if p == .active { Task { await inbox.load() } } }
     }
 }
 

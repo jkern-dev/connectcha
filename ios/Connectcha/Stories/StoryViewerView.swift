@@ -27,6 +27,7 @@ struct StoryViewerView: View {
     @State private var toast: String?
     @State private var dragOffset: CGFloat = 0
     @FocusState private var replying: Bool
+    private let wide = WideLayout()
 
     private let photoSeconds: Double = 5
 
@@ -48,7 +49,36 @@ struct StoryViewerView: View {
         ZStack {
             Palette.tint.opacity(0.35).ignoresSafeArea()
             Color.appBackground.opacity(0.9).ignoresSafeArea()
-            if let story, let group {
+            if let story, let group, wide.isOn {
+                // Unfolded: the print on the left page; who it is from, what
+                // comes next and your reply on the right.
+                TwoPages {
+                    ZStack {
+                        VStack(spacing: 0) {
+                            print(for: story)
+                            HStack {
+                                Text("tap left · previous"); Spacer(); Text("hold · pause"); Spacer(); Text("tap right · next")
+                            }
+                            .font(.caption2)
+                            .foregroundStyle(Palette.muted)
+                            .padding(.horizontal, Spacing.l)
+                            .padding(.top, Spacing.s)
+                            .accessibilityHidden(true)
+                        }
+                        .padding(.vertical, Spacing.m)
+                        tapZones(inset: false)
+                    }
+                } right: {
+                    VStack(alignment: .leading, spacing: 0) {
+                        progressBars(group)
+                        header(story)
+                        Spacer(minLength: Spacing.m)
+                        nextOnTheTable
+                        footer(story)
+                    }
+                    .padding(.top, Spacing.m)
+                }
+            } else if let story, let group {
                 VStack(spacing: 0) {
                     progressBars(group)
                     header(story)
@@ -68,7 +98,7 @@ struct StoryViewerView: View {
                     footer(story)
                 }
                 .padding(.top, Spacing.s)
-                tapZones
+                tapZones(inset: true)
             } else {
                 Text("No snapshots").foregroundStyle(Palette.muted)
             }
@@ -110,7 +140,7 @@ struct StoryViewerView: View {
         GeometryReader { geo in
             // The print follows the photo's shape: a landscape photo gets a
             // wide print, a portrait one a tall print, within the room there is.
-            let width = min(geo.size.width - 48, 360)
+            let width = min(geo.size.width - 48, wide.isOn ? 440 : 360)
             let captionHeight: CGFloat = story.locationName == nil ? 12 : 34
             let innerWidth = width - 24
             let naturalInner = innerWidth / max(story.media.aspectRatio, 0.01)
@@ -282,15 +312,54 @@ struct StoryViewerView: View {
         return n == 0 ? "Nobody has looked yet" : "Looked at by \(n)"
     }
 
-    private var tapZones: some View {
+    /// The other people's snapshots still to come, as small prints you can
+    /// jump to (wide windows only).
+    @ViewBuilder
+    private var nextOnTheTable: some View {
+        let upcoming = Array(groups.enumerated().filter { $0.offset > groupIndex }.prefix(3))
+        if !upcoming.isEmpty {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Next on the table")
+                    .font(.serif(.title3, weight: .medium))
+                    .foregroundStyle(Palette.ink)
+                    .accessibilityAddTraits(.isHeader)
+                HStack(alignment: .top, spacing: 14) {
+                    ForEach(upcoming, id: \.element.id) { index, next in
+                        let name = next.isMine ? "You" : next.author.displayName
+                        Button {
+                            groupIndex = index
+                            storyIndex = 0
+                            start()
+                        } label: {
+                            PrintFrame(tilt: Tilt.at(index), width: 84, height: 108, label: name) {
+                                if let cover = next.stories.first(where: { !$0.seen }) ?? next.stories.last {
+                                    RemoteImage(mediaId: cover.media.id, variant: .thumb)
+                                } else {
+                                    Color.subtleBackground
+                                }
+                            }
+                        }
+                        .buttonStyle(.cardPress)
+                        .accessibilityLabel("\(next.isMine ? "Your" : name + "'s") snapshot, next")
+                    }
+                }
+                .padding(.vertical, 10)
+            }
+            .padding(.horizontal, Spacing.gutter)
+        }
+    }
+
+    /// `inset` keeps the zones clear of the header and the reply bar when they
+    /// share the page with them; on its own page the print takes all of it.
+    private func tapZones(inset: Bool) -> some View {
         HStack(spacing: 0) {
             Color.clear.contentShape(Rectangle()).onTapGesture { previous() }
                 .accessibilityLabel("Previous snapshot").accessibilityAddTraits(.isButton)
             Color.clear.contentShape(Rectangle()).onTapGesture { next() }
                 .accessibilityLabel("Next snapshot").accessibilityAddTraits(.isButton)
         }
-        .padding(.top, 110)
-        .padding(.bottom, 150)
+        .padding(.top, inset ? 110 : 0)
+        .padding(.bottom, inset ? 150 : 0)
         .onLongPressGesture(minimumDuration: 0.2, pressing: { pressing in paused = pressing }, perform: {})
     }
 

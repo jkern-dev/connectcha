@@ -42,6 +42,9 @@ struct SnapshotsSection: View {
     @Environment(AppModel.self) private var appModel
     @Environment(\.dynamicTypeSize) private var typeSize
     let model: StoryTrayModel
+    /// Lay the prints out in rows that wrap (the wide, two-page Home) instead
+    /// of one row that scrolls sideways.
+    var grid = false
     @State private var viewing: StoryViewerStart?
     @State private var creating = false
 
@@ -53,6 +56,12 @@ struct SnapshotsSection: View {
                 .padding(.horizontal, Spacing.gutter)
             if typeSize.isAccessibilitySize {
                 rows
+            } else if grid {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 96), spacing: 14)], alignment: .leading, spacing: 18) {
+                    prints
+                }
+                .padding(.horizontal, Spacing.gutter)
+                .padding(.vertical, 10)
             } else {
                 pile
             }
@@ -68,25 +77,30 @@ struct SnapshotsSection: View {
     private var pile: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(alignment: .top, spacing: 14) {
-                ForEach(Array(model.groups.enumerated()), id: \.element.id) { index, group in
-                    Button {
-                        viewing = StoryViewerStart(groupIndex: index)
-                    } label: {
-                        PrintFrame(tilt: Tilt.at(index), label: group.isMine ? "You" : group.author.displayName) {
-                            cover(group)
-                        }
-                        .opacity(group.allSeen && !group.isMine ? 0.72 : 1)
-                    }
-                    .buttonStyle(.cardPress)
-                    .accessibilityLabel(snapshotLabel(group))
-                    .accessibilityIdentifier("story.\(group.isMine ? "mine" : group.author.id.uuidString)")
-                }
-                if showAdd {
-                    addCard
-                }
+                prints
             }
             .padding(.horizontal, Spacing.gutter)
             .padding(.vertical, 10)
+        }
+    }
+
+    @ViewBuilder
+    private var prints: some View {
+        ForEach(Array(model.groups.enumerated()), id: \.element.id) { index, group in
+            Button {
+                viewing = StoryViewerStart(groupIndex: index)
+            } label: {
+                PrintFrame(tilt: Tilt.at(index), label: group.isMine ? "You" : group.author.displayName) {
+                    cover(group)
+                }
+                .opacity(group.allSeen && !group.isMine ? 0.72 : 1)
+            }
+            .buttonStyle(.cardPress)
+            .accessibilityLabel(snapshotLabel(group))
+            .accessibilityIdentifier("story.\(group.isMine ? "mine" : group.author.id.uuidString)")
+        }
+        if showAdd {
+            addCard
         }
     }
 

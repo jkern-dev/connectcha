@@ -40,6 +40,7 @@ struct ProfileView: View {
                 ProgressView().padding(.top, 80)
             }
         }
+        .readablePage()
         .background(Color.appBackground.ignoresSafeArea())
         .navigationTitle(model.page?.profile.displayName ?? "")
         .navigationBarTitleDisplayMode(.inline)

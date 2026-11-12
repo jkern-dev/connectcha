@@ -64,6 +64,7 @@ struct PeopleTab: View {
             }
             .padding(.bottom, Spacing.xl)
         }
+        .readablePage()
         .background(Color.appBackground.ignoresSafeArea())
         .refreshable {
             if let id = appModel.userId { await sync.run(for: id, force: true) }

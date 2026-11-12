@@ -118,6 +118,7 @@ struct CreateStoryView: View {
             }
             .padding(Spacing.gutter)
         }
+        .readablePage()
         .background(Color.appBackground.ignoresSafeArea())
         .sheet(isPresented: $showLocation) { LocationSearchView(selection: $location) }
         .fullScreenCover(isPresented: $showCamera) {

@@ -15,26 +15,48 @@ struct HomeTab: View {
     @State private var path = NavigationPath()
     @State private var sharing = false
     @State private var startHandled = false
+    /// Only loaded when the window is wide, for the newest letter on the left page.
+    @State private var inbox = InboxModel()
+    private let wide = WideLayout()
 
     var body: some View {
         NavigationStack(path: $path) {
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: Spacing.l) {
-                    header
-                    if !tray.groups.isEmpty || appModel.me != nil {
-                        SnapshotsSection(model: tray)
+            Group {
+                if wide.isOn {
+                    // Unfolded: snapshots and the newest letter on the left
+                    // page, the day's photos on the right.
+                    TwoPages {
+                        ScrollView {
+                            LazyVStack(alignment: .leading, spacing: Spacing.l) {
+                                header
+                                if !tray.groups.isEmpty || appModel.me != nil {
+                                    SnapshotsSection(model: tray, grid: true)
+                                }
+                                newestLetter
+                            }
+                            .padding(.bottom, Spacing.xl)
+                        }
+                    } right: {
+                        ScrollView {
+                            LazyVStack(alignment: .leading, spacing: Spacing.l) {
+                                feedSection
+                            }
+                            .padding(.top, Spacing.s)
+                            .padding(.bottom, Spacing.xl)
+                        }
                     }
-                    if !feed.loadedOnce {
-                        ProgressView("Setting the table…")
-                            .frame(maxWidth: .infinity)
-                            .padding(.top, 40)
-                    } else if feed.posts.isEmpty {
-                        EmptyFeedView(people: people)
-                    } else {
-                        feedList
+                } else {
+                    ScrollView {
+                        LazyVStack(alignment: .leading, spacing: Spacing.l) {
+                            header
+                            if !tray.groups.isEmpty || appModel.me != nil {
+                                SnapshotsSection(model: tray)
+                            }
+                            feedSection
+                        }
+                        .padding(.bottom, Spacing.xl)
                     }
                 }
-                .padding(.bottom, Spacing.xl)
             }
             .background(Color.appBackground.ignoresSafeArea())
             .kitchenTableRoot(title: "Home")
@@ -43,6 +65,10 @@ struct HomeTab: View {
                 await tray.load()
                 await people.load()
                 await appModel.refreshUnread()
+                if wide.isOn { await inbox.load() }
+            }
+            .task(id: wide.isOn) {
+                if wide.isOn { await inbox.load() }
             }
             .task {
                 await feed.refresh()
@@ -65,7 +91,7 @@ struct HomeTab: View {
             .sheet(item: $likersFor) { post in
                 LikersView(post: post)
             }
-            .sheet(isPresented: $sharing) {
+            .sheetOrCover(isPresented: $sharing, wide: wide.isOn) {
                 ShareComposerSheet(onPublished: { Task { await feed.refresh(); await tray.load() } })
             }
             .onChange(of: NotificationManager.shared.pendingDeepLink) { _, link in
@@ -179,6 +205,36 @@ struct HomeTab: View {
     }
 
     // MARK: Feed
+
+    @ViewBuilder
+    private var feedSection: some View {
+        if !feed.loadedOnce {
+            ProgressView("Setting the table…")
+                .frame(maxWidth: .infinity)
+                .padding(.top, 40)
+        } else if feed.posts.isEmpty {
+            EmptyFeedView(people: people)
+        } else {
+            feedList
+        }
+    }
+
+    /// The newest unread letter, shown under the snapshots when the window is
+    /// wide. It opens Letters, which puts the newest thread on the right page.
+    @ViewBuilder
+    private var newestLetter: some View {
+        if let item = inbox.items.first(where: \.unread) {
+            VStack(alignment: .leading, spacing: 10) {
+                SectionHeading(title: "Letters", note: "newest")
+                NavigationLink(value: LettersRoute()) {
+                    InboxRow(item: item)
+                }
+                .buttonStyle(.cardPress)
+                .accessibilityHint("Opens Letters")
+            }
+            .padding(.horizontal, Spacing.gutter)
+        }
+    }
 
     private var feedList: some View {
         let marker = FeedModel.caughtUpIndex(posts: feed.posts, seenThrough: feed.seenThrough)

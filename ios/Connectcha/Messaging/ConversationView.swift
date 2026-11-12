@@ -5,6 +5,9 @@ import SwiftUI
 struct ConversationView: View {
     @Environment(AppModel.self) private var appModel
     let route: ConversationRoute
+    /// Shown as the right-hand page of Letters (wide windows): it draws its
+    /// own header instead of taking over the navigation bar.
+    var embedded = false
     var onChange: () -> Void
 
     @State private var model: ConversationModel?
@@ -13,6 +16,39 @@ struct ConversationView: View {
     @FocusState private var composing: Bool
 
     var body: some View {
+        if embedded {
+            VStack(spacing: 0) {
+                embeddedHeader
+                core.frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        } else {
+            pushed
+        }
+    }
+
+    @ViewBuilder
+    private var embeddedHeader: some View {
+        if let other = model?.page?.other {
+            NavigationLink(value: ProfileRoute(userId: other.id, phoneHash: nil)) {
+                HStack(spacing: Spacing.s) {
+                    AvatarView(profile: other, size: 40)
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text(other.displayName).font(.serif(.title3, weight: .bold)).foregroundStyle(Palette.ink)
+                        Text("Only the two of you can read this").font(.footnote).foregroundStyle(Palette.muted)
+                    }
+                    Spacer(minLength: 0)
+                }
+                .padding(.horizontal, Spacing.gutter)
+                .padding(.vertical, 10)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("\(other.displayName). Only the two of you can read this. Opens their page.")
+            .overlay(alignment: .bottom) { Rectangle().fill(Palette.hairline).frame(height: 1) }
+        }
+    }
+
+    private var core: some View {
         Group {
             if let model {
                 content(model)
@@ -23,6 +59,12 @@ struct ConversationView: View {
             }
         }
         .background(Color.appBackground.ignoresSafeArea())
+        .task { await resolve() }
+        .onDisappear { model?.stopListening(); onChange() }
+    }
+
+    private var pushed: some View {
+        core
         .navigationTitle(model?.page?.other.displayName ?? "")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -39,8 +81,6 @@ struct ConversationView: View {
                 }
             }
         }
-        .task { await resolve() }
-        .onDisappear { model?.stopListening(); onChange() }
     }
 
     private func resolve() async {
