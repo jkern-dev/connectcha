@@ -161,7 +161,8 @@ Order: 1, 2, 3, 5 first (configuration, about half a day), then 4, then 6, 7, 8.
 - **GitHub Actions: done (2026-11-11).** `make github-secrets` set the four secrets and `HOSTED_ENABLED`; keep-alive and backup both ran green.
 - **Phase C is complete.**
 - **Apple (2026-11-12):** Team ID, APNs key (`98L9T4F9RH`, in `supabase/.hosted.env`, functions redeployed with `APNS_MODE=apns`) and App Store Connect API key (`CNQW7W23C9`, in `.apple.env`; the `.p8` files live in `~/Projects/connectcha-keys`). `make archive` registered both bundle IDs, enabled push and App Groups, and created the development certificate; the owner registered the App Group in the portal (type `com.connectcha.shared` in the form, the portal adds `group.`; the first attempt produced `group.group…`) and attached it to both App IDs; the owner's iPhone is registered. First archive succeeded: version 0.1.0, build 202611120724, hosted values baked in. The Debug-on-device route is blocked for now: the phone runs iOS 27.2 and Xcode 26.3 has no device support for it, so the first on-phone run will come through TestFlight (internal testing) instead; update Xcode when a matching version is available.
-- **Next:** App Store Connect app record (owner, browser), `make upload`, internal TestFlight install on the owner's phone, real-phone scenario pass (phase D), then Beta App Review and the public link (phase E).
+- **Upload (2026-11-12):** app record "Connectcha" (SKU `connectcha`) created by the owner; Apple Distribution certificate and App Store profiles created through the API (cloud signing is refused for an App Manager key); app made iPhone-only after validation demanded iPad orientations; build 0.1.0 (202611120736) exported and uploaded, awaiting processing.
+- **Next:** internal TestFlight install on the owner's phone, real-phone scenario pass (phase D), App Privacy and Test Information, Beta App Review and the public link (phase E).
 
 ### What phase C will need from each account
 

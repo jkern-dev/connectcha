@@ -2,7 +2,11 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- Used by `make upload`; APPLE_TEAM_ID is substituted from .apple.env. -->
+	<!-- Used by `make upload` (APPLE_TEAM_ID is substituted from .apple.env).
+	     Manual signing: the App Store Connect API key's role (App Manager) cannot use
+	     Apple's cloud signing, so the Apple Distribution certificate and the two
+	     App Store profiles were created through the API and installed locally
+	     (OPERATIONS.md "Shipping a build"). -->
 	<key>method</key>
 	<string>app-store-connect</string>
 	<key>destination</key>
@@ -10,7 +14,16 @@
 	<key>teamID</key>
 	<string>APPLE_TEAM_ID</string>
 	<key>signingStyle</key>
-	<string>automatic</string>
+	<string>manual</string>
+	<key>signingCertificate</key>
+	<string>Apple Distribution</string>
+	<key>provisioningProfiles</key>
+	<dict>
+		<key>com.connectcha.app</key>
+		<string>Connectcha App Store</string>
+		<key>com.connectcha.app.nse</key>
+		<string>Connectcha NSE App Store</string>
+	</dict>
 	<key>uploadSymbols</key>
 	<true/>
 	<key>manageAppVersionAndBuildNumber</key>
