@@ -9,6 +9,8 @@ struct YouTab: View {
     @State private var page: ProfilePage?
     @State private var showEdit = false
     @State private var addingSnapshot = false
+    /// iPhone Duo: Lately and Settings sit in the system's side strip.
+    @Environment(\.sideStrip) private var sideStrip
 
     var body: some View {
         NavigationStack {
@@ -26,7 +28,13 @@ struct YouTab: View {
             }
             .readablePage()
             .background(Color.appBackground.ignoresSafeArea())
-            .kitchenTableRoot(title: "You")
+            .kitchenTableRoot(title: "You", sideStrip: sideStrip)
+            .toolbar {
+                if sideStrip {
+                    ToolbarItem(placement: .topBarTrailing) { latelyLink }
+                    ToolbarItem(placement: .topBarTrailing) { settingsLink }
+                }
+            }
             .task { await load() }
             .refreshable { await load() }
             .sheet(isPresented: $showEdit) {
@@ -46,24 +54,34 @@ struct YouTab: View {
                 .foregroundStyle(Palette.ink)
                 .accessibilityAddTraits(.isHeader)
             Spacer()
-            NavigationLink(value: LatelyRoute()) {
-                Image(systemName: "clock")
+            if !sideStrip {
+                latelyLink
+                    .font(.body.weight(.medium))
+                    .foregroundStyle(Palette.ink)
+                    .frame(width: 44, height: 44)
+                settingsLink
                     .font(.body.weight(.medium))
                     .foregroundStyle(Palette.ink)
                     .frame(width: 44, height: 44)
             }
-            .accessibilityLabel("Lately")
-            .accessibilityHint("What people did with your photos")
-            NavigationLink(value: SettingsRoute()) {
-                Image(systemName: "gearshape")
-                    .font(.body.weight(.medium))
-                    .foregroundStyle(Palette.ink)
-                    .frame(width: 44, height: 44)
-            }
-            .accessibilityLabel("Settings")
         }
         .padding(.horizontal, Spacing.gutter)
         .padding(.top, Spacing.s)
+    }
+
+    private var latelyLink: some View {
+        NavigationLink(value: LatelyRoute()) {
+            Image(systemName: "clock")
+        }
+        .accessibilityLabel("Lately")
+        .accessibilityHint("What people did with your photos")
+    }
+
+    private var settingsLink: some View {
+        NavigationLink(value: SettingsRoute()) {
+            Image(systemName: "gearshape")
+        }
+        .accessibilityLabel("Settings")
     }
 
     private func identity(_ me: Me) -> some View {

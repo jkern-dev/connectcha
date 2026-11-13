@@ -18,6 +18,9 @@ struct HomeTab: View {
     /// Only loaded when the window is wide, for the newest letter on the left page.
     @State private var inbox = InboxModel()
     private let wide = WideLayout()
+    /// iPhone Duo: the system keeps a strip of toolbar buttons down the
+    /// side, so Letters and Share go there and leave the page header.
+    @Environment(\.sideStrip) private var sideStrip
 
     var body: some View {
         NavigationStack(path: $path) {
@@ -59,7 +62,26 @@ struct HomeTab: View {
                 }
             }
             .background(Color.appBackground.ignoresSafeArea())
-            .kitchenTableRoot(title: "Home")
+            .kitchenTableRoot(title: "Home", sideStrip: sideStrip)
+            .toolbar {
+                if sideStrip {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        NavigationLink(value: LettersRoute()) {
+                            Image(systemName: stripEnvelope)
+                        }
+                        .badge(typeSize.isAccessibilitySize ? 0 : appModel.unread.unreadConversations)
+                        .accessibilityLabel(appModel.unread.unreadConversations > 0
+                                            ? "Letters, \(appModel.unread.unreadConversations) unread"
+                                            : "Letters")
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button { sharing = true } label: {
+                            Label("Share", systemImage: "plus")
+                        }
+                        .accessibilityHint("Photos for the table, or a snapshot that is gone tomorrow")
+                    }
+                }
+            }
             .refreshable {
                 await feed.refresh()
                 await tray.load()
@@ -116,7 +138,9 @@ struct HomeTab: View {
     /// wordmark nor "Share" ever breaks across lines.
     private var header: some View {
         Group {
-            if typeSize.isAccessibilitySize {
+            if sideStrip {
+                titleBlock.frame(maxWidth: .infinity, alignment: .leading)
+            } else if typeSize.isAccessibilitySize {
                 VStack(alignment: .leading, spacing: Spacing.m) {
                     titleBlock
                     VStack(alignment: .leading, spacing: 10) { headerActions }
@@ -138,6 +162,15 @@ struct HomeTab: View {
         }
         .padding(.horizontal, Spacing.gutter)
         .padding(.top, Spacing.s)
+    }
+
+    /// The strip's icons do not grow with the text size but the system's
+    /// count badge does, until it covers the envelope. At accessibility sizes
+    /// the envelope carries a plain dot instead; VoiceOver still reads the
+    /// count. (A custom label view here breaks the strip's layout on iOS 27.2,
+    /// so this stays a plain symbol.)
+    private var stripEnvelope: String {
+        typeSize.isAccessibilitySize && appModel.unread.unreadConversations > 0 ? "envelope.badge" : "envelope"
     }
 
     private var titleBlock: some View {

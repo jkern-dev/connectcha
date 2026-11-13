@@ -12,6 +12,9 @@ struct PeopleTab: View {
     @State private var people = PeopleModel()
     @State private var inviteTarget: InviteCandidate?
     @State private var limitedQuery = ""
+    /// iPhone Duo: keeps the same empty bar row above the title as Home and
+    /// You, where the status bar is in the side strip and not above the page.
+    @Environment(\.sideStrip) private var sideStrip
 
     private var sync: ContactSync { ContactSync.shared }
 
@@ -21,7 +24,7 @@ struct PeopleTab: View {
         } else {
             NavigationStack {
                 content
-                    .kitchenTableRoot(title: "People")
+                    .kitchenTableRoot(title: "People", sideStrip: sideStrip)
                     .appDestinations()
             }
         }

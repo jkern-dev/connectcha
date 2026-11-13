@@ -86,6 +86,7 @@ struct MainTabView: View {
                 YouTab()
             }
         }
+        .readsSideStrip()
         .task {
             await model.refreshUnread()
             if let id = model.userId { await ContactSync.shared.run(for: id) }

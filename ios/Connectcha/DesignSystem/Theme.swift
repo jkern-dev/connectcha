@@ -103,10 +103,15 @@ extension View {
 
     /// Hides the system bar on a tab root so the screen can draw its own
     /// header; pushed screens get the bar back.
-    func kitchenTableRoot(title: String) -> some View {
+    ///
+    /// With `sideStrip` (iPhone Duo) the bar stays, without its title,
+    /// because the system draws its buttons in the strip beside the page.
+    func kitchenTableRoot(title: String, sideStrip: Bool = false) -> some View {
         self
             .navigationTitle(title)
-            .toolbar(.hidden, for: .navigationBar)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar(removing: sideStrip ? .title : nil)
+            .toolbar(sideStrip ? .automatic : .hidden, for: .navigationBar)
             .toolbarBackground(Color.appBackground, for: .tabBar)
     }
 }
@@ -388,10 +393,35 @@ struct TwoPages<Left: View, Right: View>: View {
     @ViewBuilder var right: () -> Right
 
     var body: some View {
-        HStack(spacing: 0) {
-            left().frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            right().frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        GeometryReader { proxy in
+            let fold = Self.fold(in: proxy)
+            HStack(spacing: 0) {
+                left().frame(width: fold.minX, alignment: .top)
+                    .frame(maxHeight: .infinity, alignment: .top)
+                Color.clear.frame(width: fold.width)
+                right().frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            }
         }
+    }
+
+    /// Where the pages meet, in this view's own coordinates: on the device's
+    /// fold when the system reports one inside the view (iOS 27.1 and later),
+    /// otherwise the middle. The two differ on an iPhone Duo because the
+    /// strip of system buttons takes room on one edge only. While the device
+    /// is partly open the fold is "active" and nothing should sit on it, so
+    /// the pages keep clear of its whole width; opened flat they simply meet
+    /// on its centre line.
+    private static func fold(in proxy: GeometryProxy) -> (minX: CGFloat, width: CGFloat) {
+        let size = proxy.size
+        if #available(iOS 27.1, *) {
+            let folds = proxy.reservedRegions(kind: .division, options: .includeInactive)
+            if let fold = folds.first(where: { $0.frame.height >= size.height / 2
+                                               && $0.frame.minX > size.width * 0.25
+                                               && $0.frame.maxX < size.width * 0.75 }) {
+                return fold.isActive ? (fold.frame.minX, fold.frame.width) : (fold.frame.midX, 0)
+            }
+        }
+        return (size.width / 2, 0)
     }
 }
 
@@ -412,6 +442,13 @@ extension View {
         frame(maxWidth: maxWidth).frame(maxWidth: .infinity)
     }
 
+    /// Publishes `\.sideStrip` to everything inside. Apply once, around the
+    /// tab view: read there the system's answer holds steady through a fold,
+    /// while inside a navigation stack it flickers and can settle wrong.
+    func readsSideStrip() -> some View {
+        modifier(SideStripProbe())
+    }
+
     /// A sheet on a phone-width window; the whole window when it is wide, so
     /// the content keeps its two pages instead of shrinking into a form sheet.
     func sheetOrCover<Content: View>(isPresented: Binding<Bool>, wide: Bool,
@@ -419,5 +456,31 @@ extension View {
         self
             .sheet(isPresented: wide ? .constant(false) : isPresented, content: content)
             .fullScreenCover(isPresented: wide ? isPresented : .constant(false), content: content)
+    }
+}
+
+extension EnvironmentValues {
+    /// True while the system draws toolbar items in a strip down one side of
+    /// the window instead of a bar across the top (iPhone Duo, folded or
+    /// open, iOS 27.1 and later). Always false on earlier systems.
+    @Entry var sideStrip = false
+}
+
+private struct SideStripProbe: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 27.1, *) {
+            content.modifier(Reader())
+        } else {
+            content
+        }
+    }
+
+    @available(iOS 27.1, *)
+    private struct Reader: ViewModifier {
+        @Environment(\.toolbarVerticalEdge) private var edge
+
+        func body(content: Content) -> some View {
+            content.environment(\.sideStrip, edge != nil)
+        }
     }
 }

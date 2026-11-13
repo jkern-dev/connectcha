@@ -138,13 +138,20 @@ Built on 2026-11-12, driven by the horizontal size class only (`WideLayout` in `
 | Share | Covers the whole window instead of a sheet; prints on the left, the words and the Share button on the right | `Posts/CreateTab.swift`, `Posts/CreatePostView.swift` |
 | Everything else | Single column held to a reading width (`readablePage()`) | People, You, someone's page, a photo, Lately, Past snapshots, the snapshot composer |
 
-`TwoPages` gives each page exactly half the width so the join sits on the fold.
+`TwoPages` puts the join on the device's fold. It asks the system where the fold is (`GeometryProxy.reservedRegions(kind: .division)`, iOS 27.1) and falls back to the middle of the view on anything without one. With the phone opened flat the two pages meet on the fold's centre line; with it partly open the system marks the fold "active" and the pages keep clear of its whole width.
 
-Not built yet, because it needs the iOS 27.1 SDK (Xcode 27.1) and this Mac has Xcode 26.3:
+### Checked on the iPhone Duo simulator (2026-11-12, Xcode 27.2, iOS 27.2)
 
-- A build made with Xcode 26.3 does not get the full inner display on an iPhone Duo at all, so none of the above reaches Duo owners until the app is rebuilt with the newer Xcode.
-- Folded, the system moves a standard tab bar and standard toolbar buttons into the strip on the right edge. Home's Letters and Share buttons are drawn in the page (the navigation bar is hidden on tab roots), so they will stay in the page until they become real toolbar items.
-- Unfolded, the mock-ups put the tabs in a strip on the left edge. That is the system's sidebar placement for tabs, also new in that SDK. Until then the tabs sit wherever the system puts them.
-- The fold's exact position and width come from the new reserved-region API; `TwoPages` assumes the content area is centred on the fold, which stops being true once a side strip takes space on one edge.
+Every screen in the screenshot tour was looked at folded and unfolded, plus Home partly open.
 
-To look at the wide layouts today, build a Debug copy that also runs on iPad and open it on an iPad mini simulator: add `TARGETED_DEVICE_FAMILY=1,2` to the `xcodebuild` command line (do not change `project.yml`; the shipped app stays iPhone-only).
+- **The side strip.** In both poses the system draws the clock, the tabs, the back button and a screen's toolbar buttons in a strip down the right edge. The mock-ups drew the unfolded tabs on the left; the system's placement is kept, since the back button and the status items live in the same strip.
+- **Buttons in the strip.** Home's Letters and Share, and You's Lately and Settings, are real toolbar items whenever the strip exists and leave the page header (`readsSideStrip()` in `Theme.swift` reads `toolbarVerticalEdge` once, around the tab view, and publishes it as `\.sideStrip`; `kitchenTableRoot(title:sideStrip:)` keeps the bar, without a title, so the system has somewhere to take them from). On every other iPhone the headers are unchanged. People keeps the same empty bar row so the three tab roots start at the same height.
+- **Read the strip at the top, not per screen.** Inside a navigation stack `toolbarVerticalEdge` flickers to nil while the phone is being folded or unfolded and can settle there, which dropped the buttons back into the page until relaunch. Around the tab view it holds steady. Folding, half-opening and refolding with the app running was checked on Home, People, You and Letters.
+- **The join.** The strip takes about 84 points from the right edge only, so the left page is the full left half of the display and the right page is narrower.
+
+Working with the simulator:
+
+- The Duo needs its own runtime (`com.apple.CoreSimulator.SimRuntime.iOS-27-2-iPhone19-4`) and has two displays: `xcrun simctl io <id> screenshot --display=1` is the outer screen, `--display=3` the inner one.
+- Folding is done with the Closed / Partially Open / Open buttons in the Device Hub window (Xcode's simulator app); there is no `simctl` command for it.
+- XCTest screenshots of the inner display come out black. `ScreenshotTourUITests` therefore prints `TOUR-SNAP <name>` and pauses at each stop when `CONNECTCHA_TOUR_SIGNAL=1`, so a script can take the picture with `simctl`.
+- The tour copes with the strip (back button and tabs are outside the navigation bar and tab bar there). The scenario tests still assume an ordinary iPhone and are run on one.
