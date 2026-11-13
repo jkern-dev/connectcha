@@ -65,6 +65,7 @@ struct EditProfileView: View {
             }
             .scrollContentBackground(.hidden)
             .background(Color.appBackground)
+            .keyboardCanBePutAway()
             .navigationTitle("Your photo and words")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

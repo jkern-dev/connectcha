@@ -66,6 +66,7 @@ struct CreatePostView: View {
             }
         }
         .background(Color.appBackground.ignoresSafeArea())
+        .keyboardCanBePutAway()
         .navigationTitle("Share")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showLocation) { LocationSearchView(selection: $location) }
@@ -185,6 +186,7 @@ struct CreatePostView: View {
                 .tracking(0.6)
                 .foregroundStyle(Palette.muted)
             TextField("A few words, if you like", text: $caption, axis: .vertical)
+                .accessibilityIdentifier("share.caption")
                 .lineLimit(2...8)
                 .font(.serif(.title3))
                 .italic()
@@ -291,6 +293,18 @@ struct CreatePostView: View {
         enum CodingKeys: String, CodingKey {
             case pCaption = "p_caption", pLocationName = "p_location_name", pLocationLat = "p_location_lat"
             case pLocationLng = "p_location_lng", pResponsesEnabled = "p_responses_enabled", pMedia = "p_media"
+        }
+
+        /// The server function has no defaults for the place, so a missing
+        /// key means "no such function"; an empty place must be sent as null.
+        func encode(to encoder: Encoder) throws {
+            var c = encoder.container(keyedBy: CodingKeys.self)
+            try c.encode(pCaption, forKey: .pCaption)
+            try c.encode(pLocationName, forKey: .pLocationName)
+            try c.encode(pLocationLat, forKey: .pLocationLat)
+            try c.encode(pLocationLng, forKey: .pLocationLng)
+            try c.encode(pResponsesEnabled, forKey: .pResponsesEnabled)
+            try c.encode(pMedia, forKey: .pMedia)
         }
     }
 

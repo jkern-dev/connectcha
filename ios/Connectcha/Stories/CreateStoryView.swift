@@ -120,6 +120,7 @@ struct CreateStoryView: View {
         }
         .readablePage()
         .background(Color.appBackground.ignoresSafeArea())
+        .keyboardCanBePutAway()
         .sheet(isPresented: $showLocation) { LocationSearchView(selection: $location) }
         .fullScreenCover(isPresented: $showCamera) {
             CameraPicker { picked in

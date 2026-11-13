@@ -47,4 +47,22 @@ struct PostPipelineIntegrationTests {
         #expect(urls == nil)
         await TestSignIn.signOut()
     }
+
+    @MainActor
+    @Test("a post with no place can be created, edited and removed")
+    func noPlace() async throws {
+        guard await MediaPipelineIntegrationTests.stackIsUp() else { return }
+        try await TestSignIn.signIn("+15550000009")
+        try await API.shared.call("update_profile", UpdateProfileParams(pFirstName: "Pipeline", pLastName: "Tester"))
+
+        let created: CreatePostResult = try await API.shared.rpc("create_post", CreatePostView.CreateParams(
+            pCaption: "", pLocationName: nil, pLocationLat: nil, pLocationLng: nil,
+            pResponsesEnabled: true, pMedia: [.init(kind: "photo", durationS: nil)]))
+        #expect(created.media.count == 1)
+        try await API.shared.call("update_post", EditPostView.UpdateParams(
+            pPostId: created.postId, pCaption: "Edited", pLocationName: nil, pLocationLat: nil, pLocationLng: nil,
+            pResponsesEnabled: false))
+        try await API.shared.call("delete_post", FeedModel.PostParams(pPostId: created.postId))
+        await TestSignIn.signOut()
+    }
 }

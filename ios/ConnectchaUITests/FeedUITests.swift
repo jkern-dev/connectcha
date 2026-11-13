@@ -118,4 +118,20 @@ final class FeedUITests: XCTestCase {
         // She was not told: no activity item.
         app.swipeDown(); app.swipeDown(); app.swipeDown()
     }
+
+    /// The caption field is multi-line, so Return adds a line; the keyboard
+    /// needs its own way out or it covers Where and the Share button.
+    @MainActor
+    func testCaptionKeyboardCanBePutAway() throws {
+        let app = launch(as: "15550000001", tab: "create")
+        let caption = app.descendants(matching: .any).matching(identifier: "share.caption").firstMatch
+        XCTAssertTrue(caption.waitForExistence(timeout: 20))
+        caption.tap()
+        caption.typeText("Back garden")
+        let done = app.buttons["Hide keyboard"]
+        XCTAssertTrue(done.waitForExistence(timeout: 5))
+        done.tap()
+        XCTAssertTrue(done.waitForNonExistence(timeout: 5))
+        XCTAssertEqual(caption.value as? String, "Back garden")
+    }
 }

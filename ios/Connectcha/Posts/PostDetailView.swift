@@ -167,6 +167,17 @@ struct EditPostView: View {
             case pPostId = "p_post_id", pCaption = "p_caption", pLocationName = "p_location_name"
             case pLocationLat = "p_location_lat", pLocationLng = "p_location_lng", pResponsesEnabled = "p_responses_enabled"
         }
+
+        /// As for `CreatePostView.CreateParams`: an empty place goes as null.
+        func encode(to encoder: Encoder) throws {
+            var c = encoder.container(keyedBy: CodingKeys.self)
+            try c.encode(pPostId, forKey: .pPostId)
+            try c.encode(pCaption, forKey: .pCaption)
+            try c.encode(pLocationName, forKey: .pLocationName)
+            try c.encode(pLocationLat, forKey: .pLocationLat)
+            try c.encode(pLocationLng, forKey: .pLocationLng)
+            try c.encode(pResponsesEnabled, forKey: .pResponsesEnabled)
+        }
     }
 
     var body: some View {
@@ -201,6 +212,7 @@ struct EditPostView: View {
             }
             .scrollContentBackground(.hidden)
             .background(Color.appBackground)
+            .keyboardCanBePutAway()
             .navigationTitle("Change the words")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

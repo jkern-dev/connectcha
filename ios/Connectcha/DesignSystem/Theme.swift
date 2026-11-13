@@ -449,6 +449,25 @@ extension View {
         modifier(SideStripProbe())
     }
 
+    /// For screens with a multi-line text field, where Return adds a line and
+    /// so cannot put the keyboard away: dragging the page down dismisses it,
+    /// and a Done button sits above the keys.
+    func keyboardCanBePutAway() -> some View {
+        self
+            .scrollDismissesKeyboard(.interactively)
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Done") {
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
+                                                        to: nil, from: nil, for: nil)
+                    }
+                    .fontWeight(.semibold)
+                    .accessibilityLabel("Hide keyboard")
+                }
+            }
+    }
+
     /// A sheet on a phone-width window; the whole window when it is wide, so
     /// the content keeps its two pages instead of shrinking into a form sheet.
     func sheetOrCover<Content: View>(isPresented: Binding<Bool>, wide: Bool,
