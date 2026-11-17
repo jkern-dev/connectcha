@@ -1,5 +1,5 @@
 -- Demo personas and pre-arranged state for the two-simulator walkthrough
--- (DEMO.md). Seed only: never shipped to a hosted project.
+-- (developer-guide/DEMO.md). Seed only: never shipped to a hosted project.
 --
 -- People (all sign in with code 123456):
 --   josh   +1 555 000 0001  Josh Kern

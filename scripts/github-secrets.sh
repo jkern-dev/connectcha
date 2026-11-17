@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Sets the repository secrets and variable that turn on the keep-alive and
-# weekly backup workflows (OPERATIONS.md "Hosted setup" step 7). Reads
+# weekly backup workflows (developer-guide/OPERATIONS.md "Hosted setup" step 7). Reads
 # supabase/.hosted.env; generates BACKUP_PASSPHRASE once and stores it there
 # (you need it to decrypt a backup). Safe to rerun. Needs `gh auth login`.
 set -euo pipefail

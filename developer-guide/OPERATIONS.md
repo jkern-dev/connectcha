@@ -1,8 +1,56 @@
 # Operations runbook
 
-What exists today, how to run it, and what M10 (TestFlight) adds. Written for the owner.
+What's left to do, what exists today and how to run it. Written for the owner.
 
-## What exists now (local prototype)
+## What's left
+
+Carried over on 2026-11-16 from the TestFlight plan and the owner's question list, both now in `archive/` (`archive/TESTFLIGHT_PLAN.md`, `archive/OPEN_QUESTIONS.md`). Everything else in those two files is done or settled.
+
+**Where things stand (checked in App Store Connect, 2026-11-16):** build 0.1.0 (202611130829) has passed Beta App Review and is in testing. Two tester groups exist: "Family" (internal, 1 tester) and "beta test" (external, 2 testers, public link off).
+
+### 1. Real-phone pass
+
+These have never run on a simulator, so they must be seen working on phones:
+
+- The Notification Service Extension: the saved-name swap on the lock screen. This is the product's signature privacy feature.
+- Real push delivery end to end (outbox, webhook, function, APNs, phone).
+- Real text messages through Twilio Verify, including the resend path and the non-US refusal (scenario 10).
+- Real Contacts with limited access and `ContactAccessButton`.
+- The camera path in the Snapshot creator, and the Messages composer for invites.
+- Media timing on a cellular connection (Network Link Conditioner on the phone).
+
+Walk `TEST_SCENARIOS.md` S1 to S17 on two phones running the TestFlight build. Expect a handful of real-device fixes.
+
+### 2. Public invite link
+
+1. In App Store Connect, enable the public link on the external group and set a tester limit (for example 50).
+2. Paste the link into `web/index.html` (`TESTFLIGHT_LINK`) and push; Cloudflare Pages redeploys. Until then the invite page's join button says the link isn't live.
+
+### 3. Before the link goes to more people
+
+| Item | What to do |
+|---|---|
+| App icon | The build ships a placeholder (terracotta tile with a white "C", from `scripts/make-icon.swift`). Replace the three 1024 px PNGs (light, dark, tinted) in `ios/Connectcha/Resources/Assets.xcassets/AppIcon.appiconset`; no code changes. |
+| Privacy policy and terms | `web/privacy.html` and `web/terms.html` are plain-language drafts, not legal advice. Have a lawyer or a reputable generator review them. |
+| App Privacy in App Store Connect | Confirm it is filled in: contacts, phone number, photos and videos, user content; none used for tracking. |
+| Reviewer test number | Rotate it now that Beta App Review has passed (see "Day-to-day" below). |
+| Feed UI tests | Two failures on main as of 2026-11-12: the "Asked" button on the People tab, and the "Mom" saved name in the likes list. |
+
+### 4. The first testers
+
+- **Who:** 5 to 10 relatives and friends with US numbers and an iPhone. Seed the group so at least two people already have each other in Contacts; the first person in alone sees only the empty state.
+- **How they install:** the invite page, nothing else. The acceptance test is a relative installing with no help.
+- **What to watch in week one:** TestFlight crash reports and screenshot feedback; the support inbox; Supabase usage (database size, function invocations); Twilio balance; the `push_deliveries` table for failed sends.
+- **What to ask testers:** did the lock-screen name read right, did they understand Snapshots and Letters without explanation, could they read it at their text size.
+- **If Apple later objects to missing blocking or reporting** (spec 13.3, R4): build blocking first (hide each from the other, end follows, stop messages) and resubmit.
+
+### Standing reminders
+
+- A new build at least every 90 days; TestFlight builds expire.
+- GitHub's macOS runners cost 10x minutes on a private repository. If minutes run low, restrict `.github/workflows/ios.yml` to manual runs.
+- The safety work in `PRODUCT_SPEC.md` section 13.2 is due before the public App Store, 500 users, or strangers using the app, whichever comes first.
+
+## What exists (local stack)
 
 | Piece | Where | How to run |
 |---|---|---|
@@ -43,7 +91,7 @@ What exists today, how to run it, and what M10 (TestFlight) adds. Written for th
 
 ## Hosted setup
 
-Order and detail are in `TESTFLIGHT_PLAN.md` (phase C). The mechanics:
+The hosted project was set up this way in November 2026; the full account of that work is in `archive/TESTFLIGHT_PLAN.md` (phase C). The mechanics:
 
 1. **Keys.** Copy `supabase/.hosted.env.example` to `supabase/.hosted.env` (gitignored) and fill it from the Supabase, Cloudflare and (later) Apple dashboards. Run `supabase login` once.
 2. **`make hosted-setup`** (`scripts/hosted-setup.sh`, safe to rerun): links the CLI to the project, applies the migrations (seeds stay local), deploys the four Edge Functions, sets their secrets (R2 as the S3 endpoint, the webhook secret, APNs), writes the `private.settings` rows the push webhook reads, and schedules `cleanup-orphans` daily with `pg_cron`.
@@ -62,7 +110,7 @@ Needs the Apple Developer account: in Certificates, Identifiers & Profiles → K
 1. Copy `.apple.env.example` to `.apple.env` (gitignored): Team ID, and an App Store Connect API key (Users and Access → Integrations) with its Key ID, Issuer ID and `.p8` path.
 2. `make archive`: a Release build for real iPhones with the build number set to the current date and time, so every upload is unique and increasing. The version itself is `MARKETING_VERSION` in `ios/project.yml`.
 3. `make upload`: exports with `ios/ExportOptions.plist` and uploads. Signing is manual: the API key's App Manager role cannot use Apple's cloud signing, so the Apple Distribution certificate (private key `~/Projects/connectcha-keys/dist.key`, in the login keychain) and the two App Store profiles ("Connectcha App Store", "Connectcha NSE App Store", in `~/Library/Developer/Xcode/UserData/Provisioning Profiles`) were created through the App Store Connect API on 2026-11-12 and expire 2027-11-12; recreate them the same way when they do. The archive step still signs with the development profiles (automatic) and needs at least one registered device. The app is iPhone-only (`TARGETED_DEVICE_FAMILY` 1 on both targets); App Store validation otherwise demands all four iPad orientations. The build appears in App Store Connect → TestFlight after processing (10 to 30 minutes), first for the internal group, then for external testers once Beta App Review approves it (the first build of a version is reviewed; later builds usually are not).
-4. The first time only: in App Store Connect, create the app record, fill App Privacy, Test Information and Beta App Review information (`TESTFLIGHT_PLAN.md` phase E), and after approval enable the public link, set a tester limit, paste the link into `web/index.html` (`TESTFLIGHT_LINK`) and redeploy Pages.
+4. The first time only: in App Store Connect, create the app record, fill App Privacy, Test Information and Beta App Review information (`archive/TESTFLIGHT_PLAN.md` phase E; done for 0.1.0 except the public link, see "What's left"), and after approval enable the public link, set a tester limit, paste the link into `web/index.html` (`TESTFLIGHT_LINK`) and redeploy Pages.
 
 ### Restoring a backup
 

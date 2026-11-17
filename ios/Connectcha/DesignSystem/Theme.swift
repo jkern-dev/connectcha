@@ -1,7 +1,7 @@
 import SwiftUI
 import UIKit
 
-// The kitchen table (DESIGN_DIRECTION.md): warm paper, a serif for headings and
+// The kitchen table (developer-guide/DESIGN_DIRECTION.md): warm paper, a serif for headings and
 // captions, photos as prints with a white border, pills for buttons, plain
 // sentences instead of icons. Colours come from the asset catalog where Xcode
 // generates symbols (Color.appBackground, .cardBackground, .subtleBackground,

@@ -3,7 +3,7 @@
 # is safe to rerun: migrations are applied once, secrets and settings are
 # overwritten, the cron job is replaced. Run `supabase login` once beforehand.
 #
-# What it does NOT do (dashboard only, see OPERATIONS.md "Hosted setup"):
+# What it does NOT do (dashboard only, see developer-guide/OPERATIONS.md "Hosted setup"):
 #   - Auth: Twilio Verify provider, the reviewer test number, rate limits, the
 #     before_user_created hook switch. `supabase config push` must never be run:
 #     supabase/config.toml holds the local demo numbers with code 123456.

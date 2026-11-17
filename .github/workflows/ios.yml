@@ -2,7 +2,7 @@ name: iOS build and unit tests
 
 # Runs on GitHub's macOS runners. Private repositories pay a 10x minute multiplier
 # for macOS, so this is also runnable on demand. The plan's long-term home for
-# iOS CI is Xcode Cloud once the Apple Developer account exists (OPEN_QUESTIONS.md).
+# iOS CI is Xcode Cloud once the Apple Developer account exists (developer-guide/archive/OPEN_QUESTIONS.md).
 #
 # The integration tests that need the local Supabase stack skip themselves when
 # the stack is not reachable, so only pure unit tests run here.

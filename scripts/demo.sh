@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One command to a running demo (DEMO.md):
+# One command to a running demo (developer-guide/DEMO.md):
 #   1. start the local Supabase stack
 #   2. reset the database to the demo seed and upload demo media
 #   3. build the app for the simulator
@@ -129,5 +129,5 @@ Ready. Both simulators ask once for notification permission: tap Allow.
   A = Josh (+1 555 000 0001)   B = Ana (+1 555 000 0004)   code for everyone: 123456
   Switch a person:  scripts/demo.sh as B ben      Stop:  scripts/demo.sh stop
   Studio: http://127.0.0.1:54323   Invite page: http://127.0.0.1:8787
-Follow DEMO.md for the scripted walkthrough.
+Follow developer-guide/DEMO.md for the scripted walkthrough.
 EOF

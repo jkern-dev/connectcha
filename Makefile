@@ -109,7 +109,7 @@ ios-test: ios-project sims ## Run the iOS unit tests on simulator A
 
 # ----------------------------------------------------------------------------
 # Release (TestFlight). Needs the Apple Developer account: copy .apple.env.example
-# to .apple.env (gitignored) and fill it in. See OPERATIONS.md "Shipping a build".
+# to .apple.env (gitignored) and fill it in. See developer-guide/OPERATIONS.md "Shipping a build".
 # ----------------------------------------------------------------------------
 -include .apple.env
 BUILD_NUMBER ?= $(shell date +%Y%m%d%H%M)
@@ -135,7 +135,7 @@ upload: ## Upload the last archive to App Store Connect (it appears in TestFligh
 hosted-setup: ## Configure the hosted Supabase project from supabase/.hosted.env (safe to rerun)
 	./scripts/hosted-setup.sh
 
-## GitHub secrets and variable for the keep-alive and backup workflows (OPERATIONS.md step 7)
+## GitHub secrets and variable for the keep-alive and backup workflows (developer-guide/OPERATIONS.md step 7)
 github-secrets:
 	./scripts/github-secrets.sh
 

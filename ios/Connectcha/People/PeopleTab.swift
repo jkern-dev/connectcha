@@ -7,8 +7,6 @@ import SwiftUI
 struct PeopleTab: View {
     @Environment(AppModel.self) private var appModel
     @Environment(\.scenePhase) private var scenePhase
-    /// True when pushed from Home's empty state rather than shown as the tab.
-    var embedded = false
     @State private var people = PeopleModel()
     @State private var inviteTarget: InviteCandidate?
     @State private var limitedQuery = ""
@@ -19,25 +17,19 @@ struct PeopleTab: View {
     private var sync: ContactSync { ContactSync.shared }
 
     var body: some View {
-        if embedded {
-            content.navigationTitle("Your circle").navigationBarTitleDisplayMode(.inline)
-        } else {
-            NavigationStack {
-                content
-                    .kitchenTableRoot(title: "People", sideStrip: sideStrip)
-                    .appDestinations()
-            }
+        NavigationStack {
+            content
+                .kitchenTableRoot(title: "People", sideStrip: sideStrip)
+                .appDestinations()
         }
     }
 
     private var content: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.l) {
-                if !embedded {
-                    ScreenHeader(title: "Your circle", subtitle: "Only people whose number is in your phone can find you here.")
-                        .padding(.horizontal, Spacing.gutter)
-                        .padding(.top, Spacing.s)
-                }
+                ScreenHeader(title: "Your circle", subtitle: "Only people whose number is in your phone can find you here.")
+                    .padding(.horizontal, Spacing.gutter)
+                    .padding(.top, Spacing.s)
 
                 if !sync.newlyJoined.isEmpty {
                     NewlyJoinedBanner(people: sync.newlyJoined) { sync.newlyJoined = [] }

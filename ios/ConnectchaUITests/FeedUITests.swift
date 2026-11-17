@@ -89,6 +89,18 @@ final class FeedUITests: XCTestCase {
         // No filler: no photo cards, no Lovely buttons.
         XCTAssertEqual(app.buttons.matching(identifier: "Lovely").count, 0)
         XCTAssertEqual(app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Write back'")).count, 0)
+
+        // "Find people you know" switches to the People tab, not a pushed copy.
+        app.buttons["Find people you know"].tap()
+        XCTAssertTrue(app.tabBars.buttons["People"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.tabBars.buttons["People"].isSelected, "the People tab is selected")
+        XCTAssertTrue(app.staticTexts["Your circle"].waitForExistence(timeout: 10))
+        let shot = XCTAttachment(screenshot: app.screenshot())
+        shot.name = "find-people-switches-tab"; shot.lifetime = .keepAlways
+        add(shot)
+        // Home is still on its empty state underneath, with nothing pushed.
+        app.tabBars.buttons["Home"].tap()
+        XCTAssertTrue(app.staticTexts["Nothing on the table yet"].waitForExistence(timeout: 10))
     }
 
     /// S5 at feed level: Priya loses Josh's post the moment he removes her.

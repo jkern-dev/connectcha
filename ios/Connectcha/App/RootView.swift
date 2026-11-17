@@ -33,7 +33,7 @@ private struct LoadingScreen: View {
     }
 }
 
-/// Three tabs (DESIGN_DIRECTION.md): Home, People, You. Share and Letters live
+/// Three tabs (developer-guide/DESIGN_DIRECTION.md): Home, People, You. Share and Letters live
 /// in Home's top bar; Lately and Settings in You's.
 enum AppTab: String, Hashable {
     case home, people, you
@@ -48,6 +48,12 @@ enum AppTab: String, Hashable {
         default: return nil
         }
     }
+}
+
+extension EnvironmentValues {
+    /// Switches the main tab bar to another tab (e.g. Home's "Find people
+    /// you know" goes to People rather than pushing a copy of it).
+    @Entry var selectTab: (AppTab) -> Void = { _ in }
 }
 
 /// What Home should do straight after launch (debug launches and deep links).
@@ -86,6 +92,7 @@ struct MainTabView: View {
                 YouTab()
             }
         }
+        .environment(\.selectTab) { selection = $0 }
         .readsSideStrip()
         .task {
             await model.refreshUnread()

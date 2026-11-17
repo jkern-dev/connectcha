@@ -331,6 +331,7 @@ struct CaughtUpMarker: View {
 /// is empty. Never filler content.
 struct EmptyFeedView: View {
     @Environment(AppModel.self) private var appModel
+    @Environment(\.selectTab) private var selectTab
     let people: PeopleModel
 
     var body: some View {
@@ -364,9 +365,7 @@ struct EmptyFeedView: View {
             }
 
             VStack(spacing: Spacing.s) {
-                NavigationLink(value: PeopleTabRoute()) {
-                    Text("Find people you know")
-                }
+                Button("Find people you know") { selectTab(.people) }
                 .buttonStyle(.secondary)
                 NavigationLink(value: CreatePostRoute()) {
                     Text("Share your first photo")
@@ -402,7 +401,6 @@ struct PendingRequestRow: View {
     }
 }
 
-nonisolated struct PeopleTabRoute: Hashable, Sendable {}
 nonisolated struct CreatePostRoute: Hashable, Sendable {}
 nonisolated struct ComposeResponseRoute: Hashable, Sendable { let postId: UUID }
 
@@ -411,7 +409,6 @@ struct FeedDestinations: ViewModifier {
     let feed: FeedModel
     func body(content: Content) -> some View {
         content
-            .navigationDestination(for: PeopleTabRoute.self) { _ in PeopleTab(embedded: true) }
             .navigationDestination(for: CreatePostRoute.self) { _ in CreatePostView(onPublished: { Task { await feed.refresh() } }) }
             .navigationDestination(for: ComposeResponseRoute.self) { route in
                 ComposeResponseView(postId: route.postId, onSent: {})

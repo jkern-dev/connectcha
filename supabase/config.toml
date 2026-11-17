@@ -291,7 +291,7 @@ max_frequency = "1s"
 15550000007 = "123456" # Sam Lee
 15550000008 = "123456" # spare: fresh sign-up for the empty-state walkthrough
 15550000009 = "123456" # spare: fresh sign-up
-15550000100 = "123456" # Apple reviewer account (see OPERATIONS.md)
+15550000100 = "123456" # Apple reviewer account (see developer-guide/OPERATIONS.md)
 
 # Configure logged in session timeouts.
 # [auth.sessions]

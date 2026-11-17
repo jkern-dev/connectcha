@@ -18,7 +18,7 @@ export function categoryFor(type: PushType): Category {
 
 /**
  * The alert text the server can produce: profile name only (the device may
- * replace it). The words follow DESIGN_DIRECTION.md: photos, snapshots,
+ * replace it). The words follow developer-guide/DESIGN_DIRECTION.md: photos, snapshots,
  * letters, "let you in"; never post, story, message or approve.
  */
 export function alertText(type: PushType, actorName: string, extra: Record<string, unknown>): { title: string; body: string } {

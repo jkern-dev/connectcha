@@ -2,13 +2,14 @@
 
 A photo and video sharing app for friends and family where people can only find each other through their phone contacts. iOS first.
 
-- `PRODUCT_SPEC.md` says what it does.
-- `IMPLEMENTATION_PLAN.md` says how it is built.
-- `DEMO.md` walks through the prototype on two simulators (`make demo`).
-- `TEST_SCENARIOS.md` says how each of the 17 scenarios was checked.
-- `DECISIONS.md` records every choice the spec and plan left open; `OPEN_QUESTIONS.md` lists the ones only the owner can settle.
-- `OPERATIONS.md` is the runbook (what exists, hosted setup, shipping a build); `REFINEMENT_LOG.md` records the polish passes.
-- `TESTFLIGHT_PLAN.md` is the path from the prototype to TestFlight and the first real testers (M10).
+- `developer-guide/PRODUCT_SPEC.md` says what it does.
+- `developer-guide/IMPLEMENTATION_PLAN.md` says how it is built.
+- `developer-guide/DEMO.md` walks through the prototype on two simulators (`make demo`).
+- `developer-guide/TEST_SCENARIOS.md` says how each of the 17 scenarios was checked.
+- `developer-guide/DECISIONS.md` records every choice the spec and plan left open.
+- `developer-guide/OPERATIONS.md` is the runbook (what's left to do, what exists, hosted setup, shipping a build).
+- `developer-guide/NEXT_FEATURES.md` lists the product features to explore next, ranked.
+- `developer-guide/archive/` holds documents that are history now: the original build prompt, the first build session's summary, the polish-pass log, the TestFlight plan (M10) and the owner's question list (Q1 to Q10).
 
 ## Layout
 
@@ -17,6 +18,7 @@ ios/         SwiftUI app, Notification Service Extension, tests (XcodeGen projec
 supabase/    config, migrations, seeds, pgTAP tests, Edge Functions
 web/         static invite page
 scripts/     demo, seeding and helper scripts
+developer-guide/  every project document (spec, plan, decisions, runbook, roadmap); `archive/` for the ones no longer current
 Makefile     one place for every command (`make help`)
 ```
 
@@ -43,7 +45,7 @@ Everything runs locally. No hosted accounts are needed.
    make ios-build     # generates the Xcode project and builds the app
    ```
 
-5. For the full two-simulator demo, follow `DEMO.md` (`make demo`).
+5. For the full two-simulator demo, follow `developer-guide/DEMO.md` (`make demo`).
 
 ## Everyday commands
 
@@ -60,7 +62,7 @@ Everything runs locally. No hosted accounts are needed.
 | `make ios-project` | Regenerate `ios/Connectcha.xcodeproj` from `ios/project.yml` |
 | `make demo` | Start everything and launch two signed-in simulators |
 | `make ios-use-hosted` / `make ios-use-local` | Point Debug builds at the hosted stack or back at the local one |
-| `make hosted-setup` / `make github-secrets` | Configure the hosted Supabase project from `supabase/.hosted.env` (see `OPERATIONS.md`) |
+| `make hosted-setup` / `make github-secrets` | Configure the hosted Supabase project from `supabase/.hosted.env` (see `developer-guide/OPERATIONS.md`) |
 | `make archive` / `make upload` | Build a TestFlight release and upload it (needs `.apple.env`) |
 | `supabase status` | Show local URLs and keys; Studio is at <http://127.0.0.1:54323> |
 
@@ -83,7 +85,7 @@ Non-US numbers are refused by the server (`supabase/migrations/20261031000200_au
 
 ## Demo launch switches (debug builds only)
 
-Environment variables the demo script passes to the simulator (see `DECISIONS.md` D-11):
+Environment variables the demo script passes to the simulator (see `developer-guide/DECISIONS.md` D-11):
 
 | Variable | Effect |
 |---|---|
@@ -107,7 +109,7 @@ make ios-project
 open ios/Connectcha.xcodeproj
 ```
 
-Choose the `Connectcha` scheme and a simulator. The scheme sets `CONNECTCHA_DEMO=1`, which turns on the demo contact seeding described in `DECISIONS.md` D-10. The app reads the local Supabase URL and anon key from `ios/Config/Local.xcconfig`; run `make ios-config` to regenerate it if your local keys differ.
+Choose the `Connectcha` scheme and a simulator. The scheme sets `CONNECTCHA_DEMO=1`, which turns on the demo contact seeding described in `developer-guide/DECISIONS.md` D-10. The app reads the local Supabase URL and anon key from `ios/Config/Local.xcconfig`; run `make ios-config` to regenerate it if your local keys differ.
 
 ## Where the rules live
 

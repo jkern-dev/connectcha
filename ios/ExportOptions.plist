@@ -6,7 +6,7 @@
 	     Manual signing: the App Store Connect API key's role (App Manager) cannot use
 	     Apple's cloud signing, so the Apple Distribution certificate and the two
 	     App Store profiles were created through the API and installed locally
-	     (OPERATIONS.md "Shipping a build"). -->
+	     (developer-guide/OPERATIONS.md "Shipping a build"). -->
 	<key>method</key>
 	<string>app-store-connect</string>
 	<key>destination</key>
