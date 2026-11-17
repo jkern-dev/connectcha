@@ -130,7 +130,7 @@ final class FollowingUITests: XCTestCase {
         XCTAssertTrue(followBack.waitForExistence(timeout: 15), "after approving, Ben is offered a follow-back")
         followBack.tap()
         // Ben does not follow Ana yet: her profile shows Requested, no posts.
-        // (Ana is reachable from Ben's followers list.)
+        // (Ana is reachable from Ben's followers row, which opens People > In your circle.)
         app.tabBars.buttons["You"].tap()
         app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'People who follow you'")).firstMatch.tap()
         XCTAssertTrue(app.staticTexts["Ana Silva"].waitForExistence(timeout: 10))
@@ -168,11 +168,13 @@ final class FollowingUITests: XCTestCase {
         app.navigationBars.buttons.element(boundBy: 0).tap()
         app.navigationBars.buttons.element(boundBy: 0).tap()
         app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'People you follow'")).firstMatch.tap()
+        XCTAssertTrue(app.tabBars.buttons["People"].isSelected, "the row opens People")
+        XCTAssertTrue(app.staticTexts["You follow"].waitForExistence(timeout: 15), "on its In your circle half")
         XCTAssertTrue(app.staticTexts["Robert Kern"].waitForExistence(timeout: 15), "follow continues under the profile name")
         XCTAssertFalse(app.staticTexts["Dad"].exists)
 
         // Put the contact back for the other tests and the demo.
-        app.navigationBars.buttons.element(boundBy: 0).tap()
+        app.tabBars.buttons["You"].tap()
         app.buttons["Settings"].tap()
         let demoToolsAgain = app.descendants(matching: .any)["settings.demoTools"].firstMatch
         XCTAssertTrue(scrollTo(demoToolsAgain, in: app))

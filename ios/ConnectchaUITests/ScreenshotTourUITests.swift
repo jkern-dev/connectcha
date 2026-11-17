@@ -122,7 +122,7 @@ final class ScreenshotTourUITests: XCTestCase {
         app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'People who follow you'")).firstMatch.tap()
         sleep(2)
         snap(app, "14-people-who-follow-you")
-        back(app)
+        tab(app, "You")
         app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Past snapshots'")).firstMatch.tap()
         sleep(3)
         snap(app, "15-past-snapshots")

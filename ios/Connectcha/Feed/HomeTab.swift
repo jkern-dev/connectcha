@@ -331,7 +331,7 @@ struct CaughtUpMarker: View {
 /// is empty. Never filler content.
 struct EmptyFeedView: View {
     @Environment(AppModel.self) private var appModel
-    @Environment(\.selectTab) private var selectTab
+    @Environment(\.showPeople) private var showPeople
     let people: PeopleModel
 
     var body: some View {
@@ -365,7 +365,7 @@ struct EmptyFeedView: View {
             }
 
             VStack(spacing: Spacing.s) {
-                Button("Find people you know") { selectTab(.people) }
+                Button("Find people you know") { showPeople(.find) }
                 .buttonStyle(.secondary)
                 NavigationLink(value: CreatePostRoute()) {
                     Text("Share your first photo")

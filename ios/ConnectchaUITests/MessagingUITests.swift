@@ -82,13 +82,15 @@ final class MessagingUITests: XCTestCase {
         // Ana unfollows Josh and removes him as a follower.
         app.navigationBars.buttons.element(boundBy: 0).tap()
         app.tabBars.buttons["You"].tap()
+        // Both rows open People > In your circle, where Josh is under "You
+        // follow each other" and swipes to either Unfollow or Remove.
         app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'People you follow'")).firstMatch.tap()
         XCTAssertTrue(app.staticTexts["Josh Kern"].waitForExistence(timeout: 15))
         app.staticTexts["Josh Kern"].swipeLeft()
         app.buttons["Unfollow"].firstMatch.tap()
         if app.sheets.buttons["Unfollow"].firstMatch.waitForExistence(timeout: 3) { app.sheets.buttons["Unfollow"].firstMatch.tap() }
-        app.navigationBars.buttons.element(boundBy: 0).tap()
-        app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'People who follow you'")).firstMatch.tap()
+        // Now he only follows Ana, so he moves to "Follow you".
+        XCTAssertTrue(app.staticTexts["Follow you"].waitForExistence(timeout: 15))
         XCTAssertTrue(app.staticTexts["Josh Kern"].waitForExistence(timeout: 15))
         app.staticTexts["Josh Kern"].swipeLeft()
         app.buttons["Remove"].firstMatch.tap()

@@ -11,6 +11,7 @@ struct YouTab: View {
     @State private var addingSnapshot = false
     /// iPhone Duo: Lately and Settings sit in the system's side strip.
     @Environment(\.sideStrip) private var sideStrip
+    @Environment(\.showPeople) private var showPeople
 
     var body: some View {
         NavigationStack {
@@ -171,9 +172,10 @@ struct YouTab: View {
         VStack(spacing: 0) {
             NavRow(title: "Past snapshots", subtitle: "Only you can see the ones that have gone", value: ArchiveRoute())
             CardDivider()
-            NavRow(title: "People who follow you", subtitle: countWords(me.followerCount, "person", "people"), value: ConnectionsRoute.followers)
+            // Both lists live in People > In your circle.
+            ActionRow(title: "People who follow you", subtitle: countWords(me.followerCount, "person", "people")) { showPeople(.circle) }
             CardDivider()
-            NavRow(title: "People you follow", subtitle: countWords(me.followingCount, "person", "people"), value: ConnectionsRoute.following)
+            ActionRow(title: "People you follow", subtitle: countWords(me.followingCount, "person", "people")) { showPeople(.circle) }
             if me.pendingRequestCount > 0 {
                 CardDivider()
                 NavRow(title: "Waiting for your yes", subtitle: countWords(me.pendingRequestCount, "request", "requests"), value: RequestsRoute())
@@ -205,17 +207,7 @@ struct NavRow<Value: Hashable>: View {
 
     var body: some View {
         NavigationLink(value: value) {
-            HStack(spacing: Spacing.m) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(title).font(.body.weight(.semibold)).foregroundStyle(Palette.ink)
-                    if let subtitle { Text(subtitle).font(.subheadline).foregroundStyle(Palette.muted) }
-                }
-                Spacer()
-                Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(Palette.muted)
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 14)
-            .contentShape(Rectangle())
+            CardRowLabel(title: title, subtitle: subtitle)
         }
         .buttonStyle(.cardPress)
         .accessibilityElement(children: .combine)
@@ -223,98 +215,56 @@ struct NavRow<Value: Hashable>: View {
     }
 }
 
-nonisolated enum ConnectionsRoute: Hashable, Sendable { case followers, following }
+/// A row inside a card that looks like `NavRow` but runs an action, such as
+/// switching to another tab.
+struct ActionRow: View {
+    let title: String
+    var subtitle: String?
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            CardRowLabel(title: title, subtitle: subtitle)
+        }
+        .buttonStyle(.cardPress)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(subtitle.map { "\(title), \($0)" } ?? title)
+    }
+}
+
+private struct CardRowLabel: View {
+    let title: String
+    let subtitle: String?
+
+    var body: some View {
+        HStack(spacing: Spacing.m) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title).font(.body.weight(.semibold)).foregroundStyle(Palette.ink)
+                if let subtitle { Text(subtitle).font(.subheadline).foregroundStyle(Palette.muted) }
+            }
+            Spacer()
+            Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(Palette.muted)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
+        .contentShape(Rectangle())
+    }
+}
+
 nonisolated struct ArchiveRoute: Hashable, Sendable {}
 nonisolated struct RequestsRoute: Hashable, Sendable {}
 nonisolated struct SettingsRoute: Hashable, Sendable {}
 nonisolated struct LatelyRoute: Hashable, Sendable {}
 nonisolated struct LettersRoute: Hashable, Sendable {}
 
-/// Your followers or the people you follow (spec 8.2), with remove and
-/// unfollow (spec 3.5).
-struct ConnectionsView: View {
-    @Environment(AppModel.self) private var model
-    let route: ConnectionsRoute
-    @State private var connections = Connections(followers: [], following: [])
-    @State private var pendingRemoval: Profile?
-    @State private var error: String?
-
-    private var people: [Profile] { route == .followers ? connections.followers : connections.following }
-    private var title: String { route == .followers ? "People who follow you" : "People you follow" }
-
-    var body: some View {
-        List {
-            if people.isEmpty {
-                Text(route == .followers ? "Nobody follows you yet. When you let someone in, they'll appear here." : "You don't follow anyone yet.")
-                    .foregroundStyle(Palette.muted)
-            }
-            ForEach(people) { person in
-                NavigationLink(value: ProfileRoute(userId: person.id, phoneHash: nil)) {
-                    HStack(spacing: Spacing.m) {
-                        AvatarView(profile: person, size: 48)
-                        VStack(alignment: .leading) {
-                            Text(person.displayName).font(.body.weight(.semibold)).foregroundStyle(Palette.ink)
-                            Text(DisplayNames.shared.contactsLabel(for: person.id)).font(.subheadline).foregroundStyle(Palette.muted)
-                        }
-                    }
-                    .padding(.vertical, Spacing.xs)
-                }
-                .swipeActions {
-                    Button(route == .followers ? "Remove" : "Unfollow", role: .destructive) { pendingRemoval = person }
-                }
-            }
-            if let error { ErrorText(text: error) }
-            Section {
-                Text(route == .followers
-                     ? "Swipe a name to take someone out of your circle. They stop seeing your photos straight away and are not told."
-                     : "Swipe a name to stop following. You stop seeing their photos; they are not told.")
-                    .font(.footnote).foregroundStyle(Palette.muted)
-                    .listRowBackground(Color.clear)
-            }
-        }
-        .listStyle(.insetGrouped)
-        .scrollContentBackground(.hidden)
-        .background(Color.appBackground)
-        .navigationTitle(title)
-        .navigationBarTitleDisplayMode(.inline)
-        .task { await load() }
-        .confirmationDialog(
-            pendingRemoval.map { route == .followers ? "Take \($0.displayName) out of your circle?" : "Stop following \($0.displayName)?" } ?? "",
-            isPresented: Binding(get: { pendingRemoval != nil }, set: { if !$0 { pendingRemoval = nil } }),
-            titleVisibility: .visible
-        ) {
-            Button(route == .followers ? "Remove" : "Unfollow", role: .destructive) {
-                if let p = pendingRemoval { Task { await remove(p) } }
-            }
-        } message: {
-            Text(route == .followers
-                 ? "They'll immediately stop seeing your photos and snapshots. They won't be told."
-                 : "You'll stop seeing their photos and snapshots.")
-        }
-    }
-
-    private func load() async {
-        do {
-            connections = try await API.shared.rpc("get_my_connections")
-        } catch {
-            self.error = APIError(error).message
-        }
-    }
-
-    private func remove(_ person: Profile) async {
-        do {
-            try await API.shared.call(route == .followers ? "remove_follower" : "unfollow", ProfileModel.UserParams(pUserId: person.id))
-            await load()
-            await model.refreshMe()
-        } catch {
-            self.error = APIError(error).message
-        }
-    }
-}
-
-/// Requests waiting for your yes, reached from You (People shows the same rows).
+/// Requests waiting for your yes, reached from You, and from People's banner
+/// when there are three or more (sharing People's model there).
 struct RequestsView: View {
-    @State private var people = PeopleModel()
+    @State private var people: PeopleModel
+
+    init(people: PeopleModel = PeopleModel()) {
+        _people = State(initialValue: people)
+    }
     var body: some View {
         ScrollView {
             VStack(spacing: Spacing.m) {
@@ -341,7 +291,6 @@ struct AppDestinations: ViewModifier {
     func body(content: Content) -> some View {
         content
             .navigationDestination(for: ProfileRoute.self) { ProfileView(route: $0) }
-            .navigationDestination(for: ConnectionsRoute.self) { ConnectionsView(route: $0) }
             .navigationDestination(for: RequestsRoute.self) { _ in RequestsView() }
             .navigationDestination(for: SettingsRoute.self) { _ in SettingsView() }
             .navigationDestination(for: ArchiveRoute.self) { _ in StoryArchiveView() }

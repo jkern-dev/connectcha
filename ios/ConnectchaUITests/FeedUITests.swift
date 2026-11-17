@@ -114,8 +114,10 @@ final class FeedUITests: XCTestCase {
         app = launch(as: "15550000001", tab: "you")
         XCTAssertTrue(app.staticTexts["Josh Kern"].waitForExistence(timeout: 30))
         app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'People who follow you'")).firstMatch.tap()
+        // The row opens People > In your circle; requests can push her below the fold.
+        XCTAssertTrue(app.staticTexts["You follow each other"].waitForExistence(timeout: 15))
         let priya = app.staticTexts["Priya Nair"]
-        XCTAssertTrue(priya.waitForExistence(timeout: 15))
+        XCTAssertTrue(scrollTo(priya, in: app))
         priya.swipeLeft()
         app.buttons["Remove"].firstMatch.tap()
         let confirm = app.sheets.buttons["Remove"].firstMatch

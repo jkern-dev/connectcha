@@ -1,18 +1,28 @@
 import ContactsUI
 import SwiftUI
 
-/// "Your circle": follow requests waiting for your yes, people you know (the
-/// only discovery surface) and invites. Each person has their own button;
-/// there is no select-all anywhere (C1).
+/// Which half of People is showing.
+enum PeopleSection: Hashable { case find, circle }
+
+/// "Your circle": follow requests waiting for your yes above a switcher
+/// between "Find & invite" (people you know, the only discovery surface, and
+/// invites) and "In your circle" (who you follow and who follows you). Each
+/// person has their own button; there is no select-all anywhere (C1).
 struct PeopleTab: View {
     @Environment(AppModel.self) private var appModel
     @Environment(\.scenePhase) private var scenePhase
+    @Binding var section: PeopleSection
     @State private var people = PeopleModel()
+    @State private var circle = CircleModel()
     @State private var inviteTarget: InviteCandidate?
     @State private var limitedQuery = ""
+    @State private var showRequests = false
     /// iPhone Duo: keeps the same empty bar row above the title as Home and
     /// You, where the status bar is in the side strip and not above the page.
     @Environment(\.sideStrip) private var sideStrip
+
+    /// Up to this many requests show as full cards; more fold into a banner.
+    static let requestCardLimit = 2
 
     private var sync: ContactSync { ContactSync.shared }
 
@@ -25,58 +35,117 @@ struct PeopleTab: View {
     }
 
     private var content: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: Spacing.l) {
-                ScreenHeader(title: "Your circle", subtitle: "Only people whose number is in your phone can find you here.")
-                    .padding(.horizontal, Spacing.gutter)
-                    .padding(.top, Spacing.s)
+        List {
+            ScreenHeader(title: "Your circle", subtitle: "Only people whose number is in your phone can find you here.")
+                .padding(.top, Spacing.s)
+                .plainListRow()
 
-                if !sync.newlyJoined.isEmpty {
-                    NewlyJoinedBanner(people: sync.newlyJoined) { sync.newlyJoined = [] }
-                        .padding(.horizontal, Spacing.gutter)
-                }
-
-                if !people.data.incoming.isEmpty {
-                    section("Waiting for your yes") {
-                        VStack(spacing: Spacing.m) {
-                            ForEach(people.data.incoming) { request in
-                                RequestRow(request: request, people: people).card(padding: 16)
-                            }
-                        }
-                    }
-                }
-
-                contactsSection
-
-                if sync.status.canRead {
-                    peopleYouKnowSection
-                    invitesSection
-                }
-
-                if let error = people.error ?? sync.lastError {
-                    ErrorText(text: error).padding(.horizontal, Spacing.gutter)
-                }
+            if !sync.newlyJoined.isEmpty {
+                NewlyJoinedBanner(people: sync.newlyJoined) { sync.newlyJoined = [] }
+                    .plainListRow()
             }
-            .padding(.bottom, Spacing.xl)
+
+            requests
+
+            Picker("Show", selection: $section) {
+                Text("Find & invite").tag(PeopleSection.find)
+                Text("In your circle").tag(PeopleSection.circle)
+            }
+            .pickerStyle(.segmented)
+            .accessibilityIdentifier("people.section")
+            // The circle's first group header brings its own section spacing.
+            .plainListRow(bottom: section == .circle ? 0 : Spacing.l)
+
+            switch section {
+            case .find:
+                findSections
+            case .circle:
+                CircleSections(circle: circle, people: people)
+            }
         }
+        .listStyle(.insetGrouped)
+        .hidesListLinkIndicators()
+        .listSectionSpacing(Spacing.l)
+        .environment(\.defaultMinListRowHeight, 0)
+        .contentMargins(.horizontal, Spacing.gutter, for: .scrollContent)
+        .contentMargins(.bottom, Spacing.xl, for: .scrollContent)
+        .scrollContentBackground(.hidden)
         .readablePage()
         .background(Color.appBackground.ignoresSafeArea())
         .refreshable {
             if let id = appModel.userId { await sync.run(for: id, force: true) }
             await people.load()
+            await circle.load()
             await appModel.refreshUnread()
         }
         .task {
             await people.load()
+            await circle.load()
             if let id = appModel.userId { await sync.run(for: id) }
         }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active, let id = appModel.userId {
-                Task { await sync.run(for: id); await people.load() }
+                Task { await sync.run(for: id); await people.load(); await circle.load() }
+            }
+        }
+        // A yes, a follow-back or a removal changes who is in the circle.
+        .onChange(of: people.data.followerIds) { Task { await circle.load() } }
+        .onChange(of: people.data.followingIds) { Task { await circle.load() } }
+        .onChange(of: people.data.incoming.count) { _, count in
+            if count == 0 { showRequests = false }
+            // Keep the tab's badge in step as requests are answered.
+            Task { await appModel.refreshUnread() }
+        }
+        .sheet(isPresented: $showRequests) {
+            NavigationStack {
+                RequestsView(people: people)
+                    .toolbar {
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button("Done") { showRequests = false }
+                        }
+                    }
+                    .appDestinations()
             }
         }
         .inviteAction($inviteTarget)
-        .followBackPrompt(people: people)
+        // While the requests sheet is up it shows the follow-back prompt itself.
+        .followBackPrompt(people: people, enabled: !showRequests)
+    }
+
+    /// One or two requests as full cards; three or more as a one-line banner
+    /// that opens them in a sheet. The layout only changes while the sheet is
+    /// closed, so nothing moves under someone's finger as they answer.
+    @ViewBuilder
+    private var requests: some View {
+        let incoming = people.data.incoming
+        if showRequests || incoming.count > Self.requestCardLimit {
+            if !incoming.isEmpty {
+                RequestsBanner(requests: incoming) { showRequests = true }
+                    .plainListRow()
+            }
+        } else if !incoming.isEmpty {
+            section("Waiting for your yes") {
+                VStack(spacing: Spacing.m) {
+                    ForEach(incoming) { request in
+                        RequestRow(request: request, people: people).card(padding: 16)
+                    }
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var findSections: some View {
+        contactsSection
+
+        if sync.status.canRead {
+            peopleYouKnowSection
+            invitesSection
+        }
+
+        if let error = people.error ?? sync.lastError {
+            ErrorText(text: error).plainListRow()
+        }
     }
 
     private func section<Content: View>(_ title: String, note: String? = nil, @ViewBuilder content: () -> Content) -> some View {
@@ -84,7 +153,7 @@ struct PeopleTab: View {
             SectionHeading(title: title, note: note)
             content()
         }
-        .padding(.horizontal, Spacing.gutter)
+        .plainListRow()
     }
 
     // MARK: Sections
@@ -100,7 +169,7 @@ struct PeopleTab: View {
                 }
             }
             .card(padding: 16)
-            .padding(.horizontal, Spacing.gutter)
+            .plainListRow()
         case .denied, .restricted:
             VStack(alignment: .leading, spacing: Spacing.s) {
                 Text("Contacts access is off")
@@ -118,7 +187,7 @@ struct PeopleTab: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .card(padding: 16)
-            .padding(.horizontal, Spacing.gutter)
+            .plainListRow()
         case .limited:
             section("Contacts") {
                 VStack(alignment: .leading, spacing: Spacing.s) {
@@ -299,6 +368,9 @@ struct RequestRow: View {
             }
             .disabled(busy)
         }
+        // Fill the card's width, so stacked requests line up whatever
+        // the length of their text.
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
@@ -322,11 +394,63 @@ struct NewlyJoinedBanner: View {
             Spacer()
             Button("Dismiss", systemImage: "xmark", action: onDismiss)
                 .labelStyle(.iconOnly)
+                .buttonStyle(.borderless)
                 .frame(minWidth: 44, minHeight: 44)
         }
         .padding(.horizontal, Spacing.m)
         .padding(.vertical, Spacing.xs)
         .background(Palette.tint, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+    }
+}
+
+/// Three or more requests fold into one line: "Dad and 3 others are waiting
+/// for your yes". Tapping it opens them all.
+struct RequestsBanner: View {
+    let requests: [IncomingRequest]
+    var onOpen: () -> Void
+
+    private var first: String { requests.first?.requester.displayName ?? "" }
+    private var text: String {
+        let others = requests.count - 1
+        switch others {
+        case 0: return "\(first) asked to follow you"
+        case 1: return "\(first) and 1 other are waiting for your yes"
+        default: return "\(first) and \(others) others are waiting for your yes"
+        }
+    }
+
+    var body: some View {
+        Button(action: onOpen) {
+            HStack(spacing: Spacing.s) {
+                HStack(spacing: -10) {
+                    ForEach(requests.prefix(3)) { request in
+                        AvatarView(profile: request.requester, size: 30)
+                            .overlay(Circle().stroke(Color.cardBackground, lineWidth: 2))
+                    }
+                }
+                .accessibilityHidden(true)
+                Text(text)
+                    .font(.subheadline)
+                    .foregroundStyle(Palette.ink)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(Palette.muted)
+                    .accessibilityHidden(true)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+            .background(Color.cardBackground, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(Palette.border, lineWidth: 1))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.cardPress)
+        .accessibilityLabel(text)
+        .accessibilityHint("Opens the requests so you can answer them.")
+        .accessibilityIdentifier("requests.banner")
     }
 }
 
@@ -340,11 +464,12 @@ nonisolated struct ProfileRoute: Hashable, Sendable {
 
 struct FollowBackPrompt: ViewModifier {
     let people: PeopleModel
+    var enabled = true
 
     func body(content: Content) -> some View {
         content.confirmationDialog(
             people.followBackOffer.map { "Follow \($0.displayName) back?" } ?? "",
-            isPresented: Binding(get: { people.followBackOffer != nil }, set: { if !$0 { people.followBackOffer = nil } }),
+            isPresented: Binding(get: { enabled && people.followBackOffer != nil }, set: { if !$0 { people.followBackOffer = nil } }),
             titleVisibility: .visible
         ) {
             if let offer = people.followBackOffer {
@@ -360,7 +485,9 @@ struct FollowBackPrompt: ViewModifier {
 }
 
 extension View {
-    func followBackPrompt(people: PeopleModel) -> some View { modifier(FollowBackPrompt(people: people)) }
+    func followBackPrompt(people: PeopleModel, enabled: Bool = true) -> some View {
+        modifier(FollowBackPrompt(people: people, enabled: enabled))
+    }
 }
 
 /// Spec 9.1 step 4 explanation, reused in People when access was never asked.

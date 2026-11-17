@@ -93,4 +93,36 @@ final class PeopleUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Share"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.buttons["Share"].isEnabled)
     }
+
+    /// "In your circle": everyone Josh follows or who follows him, once each,
+    /// grouped by which way the follow goes. The You rows land here too.
+    @MainActor
+    func testInYourCircleGroupsFollows() throws {
+        let app = launchAsJosh(contacts: .allow)
+        XCTAssertTrue(app.staticTexts["Your circle"].waitForExistence(timeout: 30))
+        // One request (Dad), so it shows as a full card, not the banner.
+        XCTAssertTrue(app.buttons["request.approve"].waitForExistence(timeout: 15))
+        XCTAssertFalse(app.buttons["requests.banner"].exists)
+
+        app.buttons["In your circle"].tap()
+        XCTAssertTrue(app.staticTexts["You follow each other"].waitForExistence(timeout: 15))
+        XCTAssertTrue(app.staticTexts["Mom"].exists)
+        XCTAssertTrue(app.staticTexts["Ana Silva"].exists)
+        XCTAssertTrue(app.staticTexts["Follow you"].exists)
+        XCTAssertTrue(app.staticTexts["Priya Nair"].exists)
+        XCTAssertTrue(app.buttons["Asked"].exists, "Josh already asked to follow Priya back")
+        let youFollow = app.staticTexts["You follow"]
+        if !youFollow.exists { app.swipeUp() }
+        XCTAssertTrue(youFollow.waitForExistence(timeout: 5))
+        XCTAssertEqual(app.staticTexts.matching(NSPredicate(format: "label == 'Mom'")).count, 1, "no one is listed twice")
+
+        // Back to Find & invite, then You's row returns to this half.
+        app.swipeDown()
+        app.buttons["Find & invite"].tap()
+        XCTAssertTrue(app.staticTexts["People you know"].waitForExistence(timeout: 10))
+        app.tabBars.buttons["You"].tap()
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'People who follow you'")).firstMatch.tap()
+        XCTAssertTrue(app.tabBars.buttons["People"].isSelected)
+        XCTAssertTrue(app.staticTexts["You follow each other"].waitForExistence(timeout: 10))
+    }
 }

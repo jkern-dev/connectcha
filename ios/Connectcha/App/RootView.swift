@@ -39,11 +39,12 @@ enum AppTab: String, Hashable {
     case home, people, you
 
     /// Accepts the older names too (`profile`, and `inbox`/`create`, which
-    /// open Home with Letters pushed or the Share sheet up).
+    /// open Home with Letters pushed or the Share sheet up), plus `circle`
+    /// for People on its "In your circle" half.
     init?(launchName: String) {
         switch launchName {
         case "home", "inbox", "create": self = .home
-        case "people": self = .people
+        case "people", "circle": self = .people
         case "you", "profile": self = .you
         default: return nil
         }
@@ -51,9 +52,15 @@ enum AppTab: String, Hashable {
 }
 
 extension EnvironmentValues {
-    /// Switches the main tab bar to another tab (e.g. Home's "Find people
-    /// you know" goes to People rather than pushing a copy of it).
-    @Entry var selectTab: (AppTab) -> Void = { _ in }
+    /// Switches to the People tab showing one of its halves (Home's "Find
+    /// people you know", and You's follower and following rows).
+    @Entry var showPeople = ShowPeopleAction()
+}
+
+/// Called like a function: `showPeople(.circle)`.
+struct ShowPeopleAction {
+    var run: (PeopleSection) -> Void = { _ in }
+    func callAsFunction(_ section: PeopleSection) { run(section) }
 }
 
 /// What Home should do straight after launch (debug launches and deep links).
@@ -63,19 +70,23 @@ struct MainTabView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.scenePhase) private var scenePhase
     @State private var selection: AppTab
+    @State private var peopleSection = PeopleSection.find
     private let homeStart: HomeStart
 
     init() {
         var tab = AppTab.home
         var start = HomeStart.none
+        var section = PeopleSection.find
         #if DEBUG
         if let raw = ProcessInfo.processInfo.environment["CONNECTCHA_START_TAB"] {
             if let t = AppTab(launchName: raw) { tab = t }
             if raw == "inbox" { start = .letters }
             if raw == "create" { start = .share }
+            if raw == "circle" { section = .circle }
         }
         #endif
         _selection = State(initialValue: tab)
+        _peopleSection = State(initialValue: section)
         homeStart = start
     }
 
@@ -85,14 +96,17 @@ struct MainTabView: View {
                 HomeTab(start: homeStart)
             }
             Tab("People", systemImage: "person.2", value: AppTab.people) {
-                PeopleTab()
+                PeopleTab(section: $peopleSection)
             }
             .badge(model.unread.pendingRequests)
             Tab("You", systemImage: "person", value: AppTab.you) {
                 YouTab()
             }
         }
-        .environment(\.selectTab) { selection = $0 }
+        .environment(\.showPeople, ShowPeopleAction { section in
+            peopleSection = section
+            selection = .people
+        })
         .readsSideStrip()
         .task {
             await model.refreshUnread()
